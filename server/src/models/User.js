@@ -16,10 +16,23 @@ const userSchema = new mongoose.Schema({
   lastLoginAt: Date
 }, { timestamps: true });
 
-userSchema.methods.comparePassword = async function comparePassword(password) {
-  const [salt, storedHash] = this.passwordHash.split(':');
+userSchema.methods.comparePassword = async function (password) {
+  if (!this.passwordHash || typeof this.passwordHash !== "string") {
+    return false;
+  }
+
+  const [salt, storedHash] = this.passwordHash.split(":");
+
+  if (!salt || !storedHash) {
+    return false;
+  }
+
   const derivedKey = await scryptAsync(password, salt, 64);
-  return crypto.timingSafeEqual(Buffer.from(storedHash, 'hex'), derivedKey);
+
+  return crypto.timingSafeEqual(
+    Buffer.from(storedHash, "hex"),
+    derivedKey
+  );
 };
 
 userSchema.statics.hashPassword = async function hashPassword(password) {
