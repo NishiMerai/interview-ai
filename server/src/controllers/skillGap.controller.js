@@ -26,7 +26,7 @@ console.log("RESUME TEXT FOR MATCHING:", resumeText);
 console.log("======= RESUME TEXT START =======");
 console.log(resumeText);
 console.log("======= RESUME TEXT END =======");
-n
+
 
 const adminSkills = await AdminSkill.find({
   $or: [
