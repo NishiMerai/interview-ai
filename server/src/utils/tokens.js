@@ -1,12 +1,10 @@
 import jwt from 'jsonwebtoken';
 
-function accessSecret() {
-  return process.env.JWT_ACCESS_SECRET || 'dev_access_secret_change_in_env';
+function Secret() {
+  return process.env.JWT_SECRET || 'dev_access_secret_change_in_env';
 }
 
-function refreshSecret() {
-  return process.env.JWT_REFRESH_SECRET || 'dev_refresh_secret_change_in_env';
-}
+
 
 export function signAccessToken(user) {
   return jwt.sign(
