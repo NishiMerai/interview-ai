@@ -17,9 +17,22 @@ async function hashPassword(password) {
 }
 
 async function comparePassword(password, passwordHash) {
-  const [salt, storedHash] = passwordHash.split(':');
+  if (!passwordHash || typeof passwordHash !== "string") {
+    return false;
+  }
+
+  const [salt, storedHash] = passwordHash.split(":");
+
+  if (!salt || !storedHash) {
+    return false;
+  }
+
   const derivedKey = await scryptAsync(password, salt, 64);
-  return crypto.timingSafeEqual(Buffer.from(storedHash, 'hex'), derivedKey);
+
+  return crypto.timingSafeEqual(
+    Buffer.from(storedHash, "hex"),
+    derivedKey
+  );
 }
 
 function makeId() {
