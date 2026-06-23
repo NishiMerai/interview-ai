@@ -28,8 +28,7 @@ Set these in `server/.env`:
 
 ```env
 MONGO_URI=mongodb+srv://your-user:your-password@cluster.mongodb.net/interview_ai
-JWT_ACCESS_SECRET=change_this_access_secret
-JWT_REFRESH_SECRET=change_this_refresh_secret
+JWT_SECRET=interview_ai_access_secret_2026_nishi_123_xyz
 OPENAI_API_KEY=optional_for_real_ai
 ```
 
