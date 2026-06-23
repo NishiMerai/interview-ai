@@ -68,21 +68,20 @@ const {
   requiredSkills: requiredSkills.map((s) =>
   typeof s === 'string' ? s : s.name
 ),
-
-matchedSkills: (analysis.matchedSkills || []).map((s) =>
-  typeof s === 'string' ? s : s.name
+matchedSkills: matchedSkills.map((s) =>
+  typeof s === "string" ? s : s.name
 ),
 
-missingSkills: (analysis.missingSkills || []).map((s) =>
-  typeof s === 'string' ? s : s.name
+missingSkills: missingSkills.map((s) =>
+  typeof s === "string" ? s : s.name
 ),
 
-strengthAreas: (analysis.strengthAreas || []).map((s) =>
-  typeof s === 'string' ? s : s.name
+strengthAreas: matchedSkills.map((s) =>
+  typeof s === "string" ? s : s.name
 ),
 
-weakAreas: (analysis.weakAreas || []).map((s) =>
-  typeof s === 'string' ? s : s.name
+weakAreas: missingSkills.map((s) =>
+  typeof s === "string" ? s : s.name
 ),
     matchScore,
     radarData: [
