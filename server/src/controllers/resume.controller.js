@@ -1,6 +1,6 @@
 import path from 'path';
 import Resume from '../models/Resume.js';
-import { analyzeResumeText } from '../services/ai.service.js';
+
 import { extractTextFromResume } from '../services/resumeParser.service.js';
 import { asyncHandler } from '../utils/asyncHandler.js';
 import { extractSkillsFromText, compareSkills } from '../utils/skillMatcher.js';
@@ -29,12 +29,8 @@ const {
   matchScore
 } = compareSkills(extractedText, requiredSkills);
 
-const analysis = await analyzeResumeText(extractedText);
 
 
-const missingSkills = requiredSkills.filter(
-  (skill) => !matchedSkills.includes(skill)
-);
 
 const resumeScore = requiredSkills.length
   ? Math.round((matchedSkills.length / requiredSkills.length) * 100)
