@@ -18,10 +18,13 @@ const admin = await User.findOneAndUpdate(
 
 await AdminSkill.deleteMany({});
 await AdminSkill.insertMany([
-  { name: 'React', domain: 'Web Development', category: 'Frontend', importanceScore: 90, relatedRoles: ['MERN Developer'], createdBy: admin._id },
-  { name: 'Node.js', domain: 'Web Development', category: 'Backend', importanceScore: 90, relatedRoles: ['MERN Developer'], createdBy: admin._id },
-  { name: 'MongoDB', domain: 'Web Development', category: 'Database', importanceScore: 80, relatedRoles: ['Backend Developer'], createdBy: admin._id },
-  { name: 'DSA', domain: 'Data Science', category: 'Core CS', importanceScore: 95, relatedRoles: ['Software Engineer'], createdBy: admin._id }
+  { name: 'HTML', domain: 'Web Development', category: 'Frontend', aliases: ['html5'], createdBy: admin._id },
+  { name: 'CSS', domain: 'Web Development', category: 'Frontend', aliases: ['css3', 'tailwind', 'sass'], createdBy: admin._id },
+  { name: 'JavaScript', domain: 'Web Development', category: 'Frontend', aliases: ['js', 'ecmascript'], createdBy: admin._id },
+  { name: 'React', domain: 'Web Development', category: 'Frontend', aliases: ['reactjs', 'react.js'], createdBy: admin._id },
+  { name: 'Node.js', domain: 'Web Development', category: 'Backend', aliases: ['node', 'nodejs'], createdBy: admin._id },
+  { name: 'MongoDB', domain: 'Web Development', category: 'Database', aliases: ['mongo', 'nosql'], createdBy: admin._id },
+  { name: 'GitHub', domain: 'Web Development', category: 'Tools', aliases: ['git'], createdBy: admin._id },
 ]);
 
 await InterviewQuestion.deleteMany({});

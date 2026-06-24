@@ -14,7 +14,7 @@ export const uploadResume = asyncHandler(async (req, res) => {
   const extractedText = await extractTextFromResume(req.file);
   const selectedDomain = req.body.domain || "Web Development";
 
-  // Fix: Query by the newly added 'domain' field (case-insensitive)
+  // 1. Fetch ONLY admin-added skills for the selected domain
   const adminSkills = await AdminSkill.find({
     domain: { $regex: new RegExp(`^${selectedDomain}$`, "i") }
   });
@@ -24,30 +24,37 @@ export const uploadResume = asyncHandler(async (req, res) => {
     aliases: skill.aliases || [],
   }));
 
-  // Match resume text against the specific required skills for this domain
+  // 2. Perform strictly filtered comparison
   const {
     matchedSkills,
     missingSkills,
-    resumeSkills,
+    extractedSkills,
     matchScore: calculatedMatchScore
   } = compareSkills(extractedText, requiredSkills);
 
-  // Requirement: Resume Score = (Matching Skills Count / Total Admin Skills Count) × 100
-  const resumeScore = requiredSkills.length
-    ? Math.round((matchedSkills.length / requiredSkills.length) * 100)
-    : 0;
+  // DEBUG LOGS (Temporary)
+  console.log("--- RESUME ANALYSIS DEBUG ---");
+  console.log("Selected domain:", selectedDomain);
+  console.log("Admin skills (Required):", requiredSkills.map(s => s.name));
+  console.log("Extracted skills from resume:", extractedSkills);
+  console.log("Matching skills (Admin skills found):", matchedSkills.map(s => s.name));
+  console.log("Missing skills (Admin skills absent):", missingSkills.map(s => s.name));
+  console.log("Resume Score:", calculatedMatchScore);
+  console.log("------------------------------");
 
-  const atsScore = Math.min(resumeScore + 10, 100);
+  // Requirement: Resume Score calculation
+  const resumeScore = calculatedMatchScore;
+  const atsScore = Math.min(resumeScore + 5, 100);
 
   const analysis = {
     resumeScore,
     atsScore,
     parsedData: {
-      skills: resumeSkills,
+      skills: extractedSkills,
     },
     keywordAnalysis: {
-      matchedKeywords: matchedSkills.map(s => s.name || s),
-      missingKeywords: missingSkills.map(s => s.name || s),
+      matchedKeywords: matchedSkills.map(s => s.name),
+      missingKeywords: missingSkills.map(s => s.name),
       keywordDensity: [],
     },
   };
@@ -66,9 +73,9 @@ export const uploadResume = asyncHandler(async (req, res) => {
     keywordAnalysis: analysis.keywordAnalysis,
     resumeScore: analysis.resumeScore,
     atsScore: analysis.atsScore,
-    matchedSkills: matchedSkills.map(s => s.name || s),
-    missingSkills: missingSkills.map(s => s.name || s),
-    requiredSkills: requiredSkills.map(s => s.name || s),
+    matchedSkills: matchedSkills.map(s => s.name),
+    missingSkills: missingSkills.map(s => s.name),
+    requiredSkills: requiredSkills.map(s => s.name),
   });
 
   res.status(201).json({
@@ -76,7 +83,7 @@ export const uploadResume = asyncHandler(async (req, res) => {
     matchedSkills: analysis.keywordAnalysis.matchedKeywords,
     missingSkills: analysis.keywordAnalysis.missingKeywords,
     requiredSkills: resume.requiredSkills,
-    extractedSkills: resumeSkills // Adding this for the UI
+    extractedSkills: extractedSkills
   });
 });
 

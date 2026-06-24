@@ -94,13 +94,25 @@ export default function AdminPanel() {
         setMessage("Skill updated successfully");
       } else {
         const skillsArray = skillForm.name.split(",").map(skill => skill.trim()).filter(skill => skill !== "");
-        for (const skill of skillsArray) {
+        for (const skillRaw of skillsArray) {
+          let name = skillRaw;
+          let aliases = [];
+          const match = skillRaw.match(/^([^(]+)\s*\(([^)]+)\)$/);
+          if (match) {
+            name = match[1].trim();
+            aliases = match[2].split(",").map(a => a.trim());
+          }
+          
           await apiRequest("/admin-content/skills", {
             method: "POST",
-            body: JSON.stringify({ ...skillForm, name: skill }),
+            body: JSON.stringify({ 
+              ...skillForm, 
+              name: name,
+              aliases: aliases
+            }),
           });
         }
-        setMessage("Skills added successfully");
+        setMessage("Skills integrated successfully with aliases");
       }
       setSkillForm({ domain: "", name: "", level: "beginner" });
       loadData();
