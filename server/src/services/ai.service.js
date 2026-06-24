@@ -16,6 +16,20 @@ async function callGroq(messages, maxTokens = 900) {
   return completion.choices?.[0]?.message?.content || '';
 }
 
+export async function generateAIResponse(prompt) {
+  return await callGroq([
+    {
+      role: "system",
+      content:
+        "You are an AI career advisor and skill gap analyst. Always return valid JSON only.",
+    },
+    {
+      role: "user",
+      content: prompt,
+    },
+  ]);
+}
+
 function parseJSON(text, fallback) {
   try {
     return JSON.parse(text.replace(/```json|```/g, '').trim());
