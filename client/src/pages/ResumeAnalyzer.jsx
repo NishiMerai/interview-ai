@@ -22,11 +22,15 @@ const [skillAnalysis, setSkillAnalysis] = useState(null);
 
   const uploadMutation = useMutation({
     mutationFn: async () => {
-      const formData = new FormData();
-      formData.append("domain", selectedDomain);
-      return (await api.post('/resumes/upload', formData, {
-        headers: { 'Content-Type': 'multipart/form-data' }
-      })).data;
+     const formData = new FormData();
+formData.append("resume", file);
+formData.append("domain", selectedDomain);
+
+await api.post("/resumes/upload", formData, {
+  headers: {
+    "Content-Type": "multipart/form-data",
+  },
+});
     },
 onSuccess: async () => {
   setFile(null);
