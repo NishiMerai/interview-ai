@@ -14,6 +14,7 @@ export const uploadResume = asyncHandler(async (req, res) => {
   }
 
  const extractedText = await extractTextFromResume(req.file);
+ const extractedSkills = extractSkillsFromText(extractedText);
 
 const selectedDomain = req.body.domain || "Web Development";
 
