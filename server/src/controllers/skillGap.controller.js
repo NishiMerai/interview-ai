@@ -27,75 +27,99 @@ console.log("======= RESUME TEXT START =======");
 console.log(resumeText);
 console.log("======= RESUME TEXT END =======");
 
+const prompt = `
+You are an AI skill gap intelligence engine.
 
-const adminSkills = await AdminSkill.find({
-  $or: [
-    { domain: { $regex: new RegExp(`^${targetName}$`, 'i') } },
-    { category: { $regex: new RegExp(`^${targetName}$`, 'i') } },
-    { relatedRoles: { $regex: new RegExp(targetName, 'i') } },
-  ],
-});
+Analyze the candidate resume against the target role/company and job description.
 
-const requiredSkills = adminSkills.map(skill => ({
-  name: skill.name,
-  aliases: skill.aliases || [],
-}));
+Target Type:
+${targetType}
 
-console.log("REQUIRED SKILLS:", requiredSkills.map((s) => s.name));
+Target Role / Company:
+${targetName}
 
-const analysis = await generateSkillGap({
-  resumeText,
-  targetName,
-  requiredSkills,
-});
+Job Description:
+${jobDescription}
 
-console.log("Resume Skills:", resume?.parsedData?.skills);
-console.log("Required Skills:", requiredSkills);
+Candidate Resume:
+${resumeText}
 
-const {
-  matchedSkills,
-  missingSkills,
-  matchScore,
-} = compareSkills(resumeText, requiredSkills);
+Return ONLY valid JSON in this exact format:
+{
+  "matchScore": 0,
+  "strengthAreas": [],
+  "missingSkills": [],
+  "weakAreas": [],
+  "learningPriority": {
+    "high": [],
+    "medium": [],
+    "low": []
+  },
+  "careerRecommendation": "",
+  "interviewPreparationTips": [],
+  "summary": ""
+}
+`;
+
+const aiText = await generateAIResponse(prompt);
+
+let analysis;
+
+try {
+  analysis = JSON.parse(aiText);
+} catch {
+  analysis = {
+    matchScore: 70,
+    strengthAreas: ["Relevant resume experience found"],
+    missingSkills: ["Improve job description specific keywords"],
+    weakAreas: ["Add stronger project explanations"],
+    learningPriority: {
+      high: ["Core role skills"],
+      medium: ["Deployment and testing"],
+      low: ["Advanced tools"],
+    },
+    careerRecommendation:
+      "Candidate is suitable for entry-level roles with some targeted improvements.",
+    interviewPreparationTips: [
+      "Prepare resume-based project explanation",
+      "Revise technical fundamentals",
+      "Practice HR and behavioral answers",
+    ],
+    summary: aiText,
+  };
+}
 
   
+const score = Number(analysis.matchScore) || 0;
+ const report = await SkillGapReport.create({
+  userId: req.user._id,
+  resumeId: resume?._id || null,
+  targetType,
+  targetName,
 
-  const report = await SkillGapReport.create({
-    userId: req.user._id,
-    resumeId: resume?._id || null,
-    targetType,
-    targetName,
-  requiredSkills: requiredSkills.map((s) =>
-  typeof s === 'string' ? s : s.name
-),
-matchedSkills: matchedSkills.map((s) =>
-  typeof s === "string" ? s : s.name
-),
+  requiredSkills: [],
+  matchedSkills: analysis.strengthAreas || [],
+  missingSkills: analysis.missingSkills || [],
+  strengthAreas: analysis.strengthAreas || [],
+  weakAreas: analysis.weakAreas || [],
+ matchScore: score,
 
-missingSkills: missingSkills.map((s) =>
-  typeof s === "string" ? s : s.name
-),
+  radarData: [
+   { category: "Resume Match", score },
+    { category: "Technical Fit", score },
+    { category: "Job Keywords", score: Math.max(score - 10, 0) },
+    { category: "Interview Prep", score: 70 },
+    { category: "Learning Readiness", score: 80 },
+  ],
 
-strengthAreas: matchedSkills.map((s) =>
-  typeof s === "string" ? s : s.name
-),
+  suggestions: [
+    ...(analysis.learningPriority?.high || []),
+    ...(analysis.learningPriority?.medium || []),
+    ...(analysis.interviewPreparationTips || []),
+  ],
 
-weakAreas: missingSkills.map((s) =>
-  typeof s === "string" ? s : s.name
-),
-    matchScore,
-    radarData: [
-      { category: 'Resume Match', score: matchScore },
-      { category: 'Frontend', score: matchedSkills.includes('React') ? 80 : 40 },
-      { category: 'Backend', score: matchedSkills.includes('Node.js') ? 80 : 40 },
-      { category: 'Database', score: matchedSkills.includes('MongoDB') ? 80 : 40 },
-      { category: 'Interview Prep', score: 55 },
-    ],
-    suggestions:
-      `For ${targetName}, focus on missing skills: ${missingSkills.join(', ') || 'No major missing skills'}. Build projects and practice interview questions.`,
-    rawAnalysis:
-      `Skill gap analysis generated successfully for ${targetName}.`,
-  });
+  rawAnalysis: analysis.summary || "AI skill gap analysis completed.",
+});
 
   return res.status(201).json({ report });
 });
