@@ -1,73 +1,32 @@
-import path from 'path';
-import Resume from '../models/Resume.js';
-import { extractTextFromResume } from '../services/resumeParser.service.js';
-import { asyncHandler } from '../utils/asyncHandler.js';
-import { extractSkillsFromText, compareSkills } from '../utils/skillMatcher.js';
+import path from "path";
+import Resume from "../models/Resume.js";
 import AdminSkill from "../models/AdminSkill.js";
+import { extractTextFromResume } from "../services/resumeParser.service.js";
+import { asyncHandler } from "../utils/asyncHandler.js";
+import { compareSkillsWithAdmin } from "../utils/skillMatcher.js";
 
 export const uploadResume = asyncHandler(async (req, res) => {
   if (!req.file) {
     res.status(400);
-    throw new Error('Resume file is required');
+    throw new Error("Resume file is required");
   }
 
   const extractedText = await extractTextFromResume(req.file);
   const selectedDomain = req.body.domain || "Web Development";
 
-  console.log("--- DEBUG START ---");
-  console.log("BODY:", req.body);
-  console.log("DOMAIN:", selectedDomain);
-
-  // 1. Fetch ONLY admin-added skills for the selected domain
-  // Broadening query to handle legacy 'category' field if 'domain' is missing
   const adminSkills = await AdminSkill.find({
-    $or: [
-      { domain: { $regex: new RegExp(`^${selectedDomain}$`, "i") } },
-      { category: { $regex: new RegExp(`^${selectedDomain}$`, "i") } }
-    ]
+    domain: { $regex: new RegExp(`^${selectedDomain}$`, "i") },
   });
 
-  console.log("ADMIN SKILLS COUNT:", adminSkills.length);
-  console.log("ADMIN SKILLS:", adminSkills.map(s => ({ name: s.name, domain: s.domain, category: s.category })));
+  const skillAnalysis = compareSkillsWithAdmin(extractedText, adminSkills);
 
-  const requiredSkills = adminSkills.map(skill => ({
-    name: skill.name,
-    aliases: skill.aliases || [],
-  }));
+  const versionNumber =
+    (await Resume.countDocuments({ userId: req.user._id })) + 1;
 
-  // 2. Perform strictly filtered comparison
-  const {
-    matchedSkills,
-    missingSkills,
-    extractedSkills,
-    matchScore: calculatedMatchScore
-  } = compareSkills(extractedText, requiredSkills);
-
-  console.log("EXTRACTED TEXT (FIRST 500 CHARS):", extractedText.substring(0, 500));
-  console.log("EXTRACTED SKILLS:", extractedSkills);
-  console.log("MATCHED:", matchedSkills.map(s => s.name));
-  console.log("MISSING:", missingSkills.map(s => s.name));
-  console.log("--- DEBUG END ---");
-
-  // Requirement: Resume Score calculation
-  const resumeScore = calculatedMatchScore;
-  const atsScore = Math.min(resumeScore + 5, 100);
-
-  const analysis = {
-    resumeScore,
-    atsScore,
-    parsedData: {
-      skills: extractedSkills,
-    },
-    keywordAnalysis: {
-      matchedKeywords: matchedSkills.map(s => s.name),
-      missingKeywords: missingSkills.map(s => s.name),
-      keywordDensity: [],
-    },
-  };
-
-  const versionNumber = await Resume.countDocuments({ userId: req.user._id }) + 1;
-  const ext = path.extname(req.file.originalname).replace('.', '').toLowerCase();
+  const ext = path
+    .extname(req.file.originalname)
+    .replace(".", "")
+    .toLowerCase();
 
   const resume = await Resume.create({
     userId: req.user._id,
@@ -76,77 +35,103 @@ export const uploadResume = asyncHandler(async (req, res) => {
     fileType: ext,
     extractedText,
     versionNumber,
-    parsedData: analysis.parsedData,
-    keywordAnalysis: analysis.keywordAnalysis,
-    resumeScore: analysis.resumeScore,
-    atsScore: analysis.atsScore,
-    matchedSkills: matchedSkills.map(s => s.name),
-    missingSkills: missingSkills.map(s => s.name),
-    requiredSkills: requiredSkills.map(s => s.name),
+
+    parsedData: {
+      skills: skillAnalysis.extractedSkills,
+    },
+
+    keywordAnalysis: {
+      matchedKeywords: skillAnalysis.matchedSkills,
+      missingKeywords: skillAnalysis.missingSkills,
+      keywordDensity: [],
+    },
+
+    resumeScore: skillAnalysis.resumeScore,
+    atsScore: skillAnalysis.atsScore,
+
+    matchedSkills: skillAnalysis.matchedSkills,
+    missingSkills: skillAnalysis.missingSkills,
+    requiredSkills: skillAnalysis.requiredSkills,
   });
+
+  console.log("===== RESUME SKILL ANALYSIS =====");
+  console.log("DOMAIN:", selectedDomain);
+  console.log("ADMIN SKILLS:", skillAnalysis.requiredSkills);
+  console.log("EXTRACTED SKILLS:", skillAnalysis.extractedSkills);
+  console.log("MATCHED:", skillAnalysis.matchedSkills);
+  console.log("MISSING:", skillAnalysis.missingSkills);
+  console.log("SCORE:", skillAnalysis.resumeScore);
+  console.log("================================");
 
   res.status(201).json({
     resume,
-    matchedSkills: analysis.keywordAnalysis.matchedKeywords,
-    missingSkills: analysis.keywordAnalysis.missingKeywords,
-    requiredSkills: resume.requiredSkills,
-    extractedSkills: extractedSkills
+    extractedSkills: skillAnalysis.extractedSkills,
+    matchedSkills: skillAnalysis.matchedSkills,
+    missingSkills: skillAnalysis.missingSkills,
+    requiredSkills: skillAnalysis.requiredSkills,
   });
 });
 
 export const debugSkills = asyncHandler(async (req, res) => {
   const domain = req.query.domain || "Web Development";
-  
-  // MIGRATION: Fix any skills that have the domain name in 'category' but missing 'domain'
-  const legacySkills = await AdminSkill.find({ 
-    category: { $regex: new RegExp(`^${domain}$`, "i") },
-    domain: { $exists: false }
-  });
-  
-  if (legacySkills.length > 0) {
-    console.log(`Fixing ${legacySkills.length} legacy skill records for ${domain}`);
-    await AdminSkill.updateMany(
-      { category: { $regex: new RegExp(`^${domain}$`, "i") }, domain: { $exists: false } },
-      { $set: { domain: domain } }
-    );
-  }
 
   const adminSkills = await AdminSkill.find({
-    $or: [
-      { domain: { $regex: new RegExp(`^${domain}$`, "i") } },
-      { category: { $regex: new RegExp(`^${domain}$`, "i") } }
-    ]
+    domain: { $regex: new RegExp(`^${domain}$`, "i") },
   });
 
-  const latestResume = await Resume.findOne({ userId: req.user._id }).sort({ createdAt: -1 });
-  
-  let comparison = { matchedSkills: [], missingSkills: [], extractedSkills: [], matchScore: 0 };
-  if (latestResume) {
-    comparison = compareSkills(latestResume.extractedText, adminSkills.map(s => ({ name: s.name, aliases: s.aliases || [] })));
-  }
+  const latestResume = await Resume.findOne({
+    userId: req.user._id,
+  }).sort({ createdAt: -1 });
+
+  const comparison = latestResume
+    ? compareSkillsWithAdmin(latestResume.extractedText || "", adminSkills)
+    : {
+      extractedSkills: [],
+      requiredSkills: adminSkills.map((s) => s.name),
+      matchedSkills: [],
+      missingSkills: adminSkills.map((s) => s.name),
+      resumeScore: 0,
+      atsScore: 0,
+    };
 
   res.json({
     domain,
     adminSkillsCount: adminSkills.length,
-    adminSkills: adminSkills.map(s => ({ name: s.name, domain: s.domain, category: s.category, aliases: s.aliases })),
-    extractedSkillsFromLatestResume: comparison.extractedSkills,
-    latestResumeTextPreview: latestResume?.extractedText?.substring(0, 500),
-    matchedSkills: comparison.matchedSkills.map(s => s.name),
-    missingSkills: comparison.missingSkills.map(s => s.name),
-    matchScore: comparison.matchScore
+    adminSkills: adminSkills.map((s) => ({
+      name: s.name,
+      domain: s.domain,
+      category: s.category,
+      aliases: s.aliases,
+    })),
+    latestResumeTextPreview: latestResume?.extractedText?.substring(0, 500) || "",
+    extractedSkills: comparison.extractedSkills,
+    matchedSkills: comparison.matchedSkills,
+    missingSkills: comparison.missingSkills,
+    resumeScore: comparison.resumeScore,
+    atsScore: comparison.atsScore,
   });
 });
 
 export const listResumes = asyncHandler(async (req, res) => {
-  const resumes = await Resume.find({ userId: req.user._id }).sort({ createdAt: -1 }).limit(20);
+  const resumes = await Resume.find({
+    userId: req.user._id,
+  })
+    .sort({ createdAt: -1 })
+    .limit(20);
+
   res.json({ resumes });
 });
 
 export const getResume = asyncHandler(async (req, res) => {
-  const resume = await Resume.findOne({ _id: req.params.id, userId: req.user._id });
+  const resume = await Resume.findOne({
+    _id: req.params.id,
+    userId: req.user._id,
+  });
+
   if (!resume) {
     res.status(404);
-    throw new Error('Resume not found');
+    throw new Error("Resume not found");
   }
+
   res.json({ resume });
 });

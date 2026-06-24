@@ -1,128 +1,73 @@
-const SKILL_ALIASES = {
-  'HTML': ['html', 'html5'],
-  'CSS': ['css', 'css3', 'tailwind', 'bootstrap', 'sass', 'scss'],
-  'JavaScript': ['javascript', 'js', 'ecmascript'],
-  'React': ['react', 'reactjs', 'react.js'],
-  'Node.js': ['node', 'nodejs', 'node.js'],
-  'Express.js': ['express', 'expressjs', 'express.js'],
-  'MongoDB': ['mongodb', 'mongo db', 'mongo'],
-  'MySQL': ['mysql'],
-  'PostgreSQL': ['postgresql', 'postgres'],
-  'SQL': ['sql'],
-  'DBMS': ['dbms', 'database management system'],
-  'JWT': ['jwt', 'json web token'],
-  'REST API': ['rest api', 'restful api', 'api'],
-  'Git': ['git'],
-  'GitHub': ['github'],
-  'Java': ['java'],
-  'Python': ['python'],
-  'C': ['c'],
-  'C++': ['c++', 'cpp'],
-  'CSharp': ['c#', 'csharp'],
-  'PHP': ['php'],
-  'Laravel': ['laravel'],
-  'Machine Learning': ['machine learning', 'ml'],
-  'Data Science': ['data science'],
-  'Pandas': ['pandas'],
-  'NumPy': ['numpy'],
-  'TensorFlow': ['tensorflow'],
-  'Pytorch': ['pytorch'],
-  'Scikit-learn': ['scikit learn', 'scikit-learn', 'sklearn'],
-  'DSA': ['dsa', 'data structures', 'algorithms'],
-  'OOP': ['oop', 'object oriented programming'],
-  'OS': ['operating system', 'os'],
-  'CN': ['computer network', 'computer networks', 'cn'],
-  'Architecture': ['architecture', 'system design'],
-};
+function escapeRegex(text = "") {
+  return String(text).replace(/[.*+?^${}()|[\]\\]/g, "\\$&");
+}
 
-function normalizeText(text = '') {
-  return text
+function normalizeText(text = "") {
+  return String(text)
     .toLowerCase()
-    // We keep '+' for C++, '#' for C#, and '.' for Node.js
-    // But we replace other delimiters with space
-    .replace(/[(){}\[\]\n\r,;:|/\\_-]/g, ' ')
-    .replace(/\s+/g, ' ')
+    .replace(/c\+\+/g, "cplusplus")
+    .replace(/c#/g, "csharp")
+    .replace(/node\.js/g, "nodejs")
+    .replace(/express\.js/g, "expressjs")
+    .replace(/vue\.js/g, "vuejs")
+    .replace(/next\.js/g, "nextjs")
+    .replace(/react\.js/g, "reactjs")
+    .replace(/github/g, "git hub")
+    .replace(/[^a-z0-9]+/g, " ")
+    .replace(/\s+/g, " ")
     .trim();
 }
 
-/**
- * Extracts skills from text using a broad dictionary of aliases.
- */
-export function extractSkillsFromText(text = '', customSkills = []) {
-  const normalized = normalizeText(text);
-  const found = [];
-
-  // 1. Build a map of all known skills (Baseline + Admin Custom Skills)
-  const allSkillsMap = { ...SKILL_ALIASES };
-  
-  // Merge admin skills into the extraction dictionary
-  customSkills.forEach(s => {
-    const name = s.name || s;
-    const aliases = (s.aliases || []).map(a => a.toLowerCase());
-    
-    if (name && !allSkillsMap[name]) {
-      allSkillsMap[name] = [name.toLowerCase(), ...aliases];
-    } else if (name && s.aliases) {
-      // Add any new aliases for existing skills
-      allSkillsMap[name] = [...new Set([...allSkillsMap[name], ...aliases])];
-    }
-  });
-
-  // 2. Scan text for each skill's aliases
-  for (const [skillName, aliases] of Object.entries(allSkillsMap)) {
-    const isFound = aliases.some(alias => {
-      // Important: Normalize the alias the SAME way as the text
-      const cleanAlias = normalizeText(alias);
-      if (!cleanAlias) return false;
-
-      const safeAlias = cleanAlias.replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
-      const regex = new RegExp(`(^|\\b)${safeAlias}(\\b|$)`, 'i');
-      return regex.test(normalized);
-    });
-
-    if (isFound) found.push(skillName);
-  }
-
-  return [...new Set(found)];
-}
-
-/**
- * Compares resume text against a specific set of required (Admin) skills.
- */
-export function compareSkills(resumeText = '', requiredSkills = []) {
+function skillExistsInText(resumeText, skillName, aliases = []) {
   const normalizedResume = normalizeText(resumeText);
 
-  // 1. Extract ALL skills present in the resume to show "Extracted Skills"
-  const extractedSkills = extractSkillsFromText(resumeText, requiredSkills);
-  
-  // 2. Strictly filter matching against the Admin skills for this domain
-  const matchedSkills = requiredSkills.filter(adminSkill => {
-    const name = adminSkill.name.toLowerCase();
-    const aliases = (adminSkill.aliases || []).map(a => a.toLowerCase());
-    
-    // Check if the resume text contains the name or any alias of this SPECIFIC admin skill
-    return [name, ...aliases].some(term => {
-      const cleanTerm = normalizeText(term);
-      if (!cleanTerm) return false;
+  const wordsToCheck = [
+    skillName,
+    ...(Array.isArray(aliases) ? aliases : []),
+  ].filter(Boolean);
 
-      const safeTerm = cleanTerm.replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
-      const regex = new RegExp(`(^|\\b)${safeTerm}(\\b|$)`, 'i');
-      return regex.test(normalizedResume);
-    });
+  return wordsToCheck.some((word) => {
+    const normalizedSkill = normalizeText(word);
+    if (!normalizedSkill) return false;
+
+    const pattern = new RegExp(`(^|\\s)${escapeRegex(normalizedSkill)}(\\s|$)`, "i");
+    return pattern.test(normalizedResume);
   });
+}
 
-  const missingSkills = requiredSkills.filter(adminSkill => 
-    !matchedSkills.some(m => m.name === adminSkill.name)
-  );
+export function compareSkillsWithAdmin(resumeText = "", adminSkills = []) {
+  const requiredSkills = adminSkills.map((skill) => ({
+    name: skill.name,
+    aliases: skill.aliases || [],
+  }));
 
-  const matchScore = requiredSkills.length
+  const matchedSkills = [];
+  const missingSkills = [];
+
+  for (const skill of requiredSkills) {
+    const found = skillExistsInText(resumeText, skill.name, skill.aliases);
+
+    if (found) {
+      matchedSkills.push(skill.name);
+    } else {
+      missingSkills.push(skill.name);
+    }
+  }
+
+  const resumeScore = requiredSkills.length
     ? Math.round((matchedSkills.length / requiredSkills.length) * 100)
     : 0;
 
+  const atsScore = Math.min(100, resumeScore + 10);
+
+  const extractedSkills = matchedSkills;
+
   return {
     extractedSkills,
+    requiredSkills: requiredSkills.map((s) => s.name),
     matchedSkills,
     missingSkills,
-    matchScore,
+    resumeScore,
+    atsScore,
   };
 }
