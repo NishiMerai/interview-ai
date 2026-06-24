@@ -14,7 +14,17 @@ export const startInterview = asyncHandler(async (req, res) => {
     .replace(" Interview", "")
     .toLowerCase();
 
-  const normalizedDifficulty = difficulty.toLowerCase();
+  const difficultyMap = {
+    beginner: "easy",
+    intermediate: "medium",
+    advanced: "hard",
+    easy: "easy",
+    medium: "medium",
+    hard: "hard",
+  };
+
+  const normalizedDifficulty =
+    difficultyMap[difficulty.toLowerCase()] || difficulty.toLowerCase();
 
   const adminQuestions = await InterviewQuestion.find({
     domain: { $regex: new RegExp(`^${domain}$`, "i") },
