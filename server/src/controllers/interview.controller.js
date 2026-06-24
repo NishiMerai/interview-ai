@@ -108,7 +108,7 @@ function getFallbackQuestions({ domain = 'Web Development', type = 'technical', 
   if (domainQuestions) {
     return {
       domain, type, difficulty,
-      questions: domainQuestions.map((q, i) => ({ _id: `fallback-${Date.now()}-${i}`, ...q }))
+      questions: domainQuestions.map((q) => ({ ...q }))
     };
   }
 
@@ -123,6 +123,6 @@ function getFallbackQuestions({ domain = 'Web Development', type = 'technical', 
 
   return {
     domain, type, difficulty,
-    questions: genericQuestions.map((q, i) => ({ _id: `fallback-${Date.now()}-${i}`, ...q }))
+    questions: genericQuestions.map((q) => ({ ...q }))
   };
 }
