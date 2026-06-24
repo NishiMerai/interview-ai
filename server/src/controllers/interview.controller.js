@@ -1,41 +1,55 @@
 import InterviewSession from '../models/InterviewSession.js';
 import { createInterviewQuestions, gradeInterviewAnswer } from '../services/ai.service.js';
 import { asyncHandler } from '../utils/asyncHandler.js';
+import InterviewQuestion from "../models/InterviewQuestion.js";
 
 export const startInterview = asyncHandler(async (req, res) => {
   const {
-    type = 'technical',
-    mode = 'text',
-    domain = 'Web Development',
-    targetRole = 'MERN Developer',
-    difficulty = 'Beginner'
+    type = "technical",
+    domain = "Web Development",
+    difficulty = "Beginner",
   } = req.body;
 
-  let generated;
-  try {
-    generated = await createInterviewQuestions({ type, domain, targetRole, difficulty });
-  } catch (aiError) {
-    console.error('AI question generation failed, using fallback:', aiError.message);
-    generated = getFallbackQuestions({ domain, type, difficulty });
+  const normalizedType = type
+    .replace(" Interview", "")
+    .toLowerCase();
+
+  const normalizedDifficulty = difficulty.toLowerCase();
+
+  const adminQuestions = await InterviewQuestion.find({
+    domain: { $regex: new RegExp(`^${domain}$`, "i") },
+    type: { $regex: new RegExp(`^${normalizedType}$`, "i") },
+    difficulty: { $regex: new RegExp(`^${normalizedDifficulty}$`, "i") },
+  }).limit(5);
+
+  if (!adminQuestions.length) {
+    res.status(404);
+    throw new Error(
+      `No admin questions found for ${domain} - ${normalizedType} - ${normalizedDifficulty}`
+    );
   }
 
-  // Ensure we always have questions
-  if (!generated.questions || generated.questions.length === 0) {
-    generated = getFallbackQuestions({ domain, type, difficulty });
-  }
+  const cleanQuestions = adminQuestions.map((q) => ({
+    question: q.question,
+    expectedAnswer: q.expectedAnswer,
+    type: q.type,
+    difficulty: q.difficulty,
+  }));
 
   const session = await InterviewSession.create({
     userId: req.user._id,
-    type,
-    mode,
+    type: normalizedType,
+    mode: normalizedType,
     domain,
-    difficulty,
-    targetRole,
-    questions: generated.questions
+    difficulty: normalizedDifficulty,
+    targetRole: domain,
+    questions: cleanQuestions,
   });
 
   res.status(201).json({ session });
 });
+
+
 
 export const submitInterview = asyncHandler(async (req, res) => {
   const session = await InterviewSession.findOne({ _id: req.params.id, userId: req.user._id });
