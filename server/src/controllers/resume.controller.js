@@ -22,13 +22,22 @@ const adminSkills = await AdminSkill.find({
   domain: { $regex: new RegExp(`^${selectedDomain}$`, "i") }
 });
 
-const requiredSkills = adminSkills.map(skill => skill.name);
+const requiredSkills = adminSkills.map(skill => ({
+  name: skill.name,
+  aliases: skill.aliases || [],
+}));
+
 
 const {
   matchedSkills,
   missingSkills,
   matchScore
 } = compareSkills(extractedText, requiredSkills);
+console.log("Selected Domain:", selectedDomain);
+console.log("Admin Skills Found:", requiredSkills);
+console.log("Extracted Text:", extractedText);
+console.log("Matched Skills:", matchedSkills);
+console.log("Missing Skills:", missingSkills);
 
 
 
