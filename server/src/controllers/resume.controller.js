@@ -86,6 +86,10 @@ const resume = await Resume.create({
   resumeScore: analysis.resumeScore,
   atsScore: analysis.atsScore,
 
+  matchedSkills,
+missingSkills,
+requiredSkills,
+
 });
 
  res.status(201).json({

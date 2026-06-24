@@ -22,7 +22,10 @@ const resumeSchema = new mongoose.Schema({
     missingKeywords: [String],
     keywordDensity: [{ keyword: String, count: Number }]
   },
-  versionNumber: Number
+  versionNumber: Number,
+  matchedSkills: [String],
+missingSkills: [String],
+requiredSkills: [String],
 }, { timestamps: true });
 
 resumeSchema.index({ userId: 1, createdAt: -1 });
