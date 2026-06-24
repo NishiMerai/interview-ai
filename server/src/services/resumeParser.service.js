@@ -1,37 +1,45 @@
-import mammoth from 'mammoth';
-import { createRequire } from 'module';
+import fs from "fs";
+import mammoth from "mammoth";
+import { createRequire } from "module";
 
 const require = createRequire(import.meta.url);
-const pdfParse = require('pdf-parse');
+const pdfParse = require("pdf-parse");
 
 export async function extractTextFromResume(file) {
   try {
     const mimeType = file.mimetype;
-    console.log("Analyzing file MIME type:", mimeType);
+    const fileBuffer = file.buffer || fs.readFileSync(file.path);
 
-    // DOCX parsing
+    console.log("Analyzing file:", {
+      originalname: file.originalname,
+      mimetype: mimeType,
+      path: file.path,
+      hasBuffer: !!file.buffer,
+      size: fileBuffer?.length,
+    });
+
     if (
-      mimeType === 'application/vnd.openxmlformats-officedocument.wordprocessingml.document' ||
-      file.originalname.endsWith('.docx')
+      mimeType === "application/vnd.openxmlformats-officedocument.wordprocessingml.document" ||
+      file.originalname.toLowerCase().endsWith(".docx")
     ) {
-      console.log("Using Mammoth for DOCX extraction...");
-      const result = await mammoth.extractRawText({
-        buffer: file.buffer,
-      });
-      return result.value || '';
+      const result = await mammoth.extractRawText({ buffer: fileBuffer });
+      console.log("DOCX extracted length:", result.value.length);
+      return result.value || "";
     }
 
-    // PDF parsing
-    if (mimeType === 'application/pdf' || file.originalname.endsWith('.pdf')) {
-      console.log("Using pdf-parse for PDF extraction...");
-      const data = await pdfParse(file.buffer);
-      return data.text || '';
+    if (
+      mimeType === "application/pdf" ||
+      file.originalname.toLowerCase().endsWith(".pdf")
+    ) {
+      const data = await pdfParse(fileBuffer);
+      console.log("PDF extracted length:", data.text.length);
+      return data.text || "";
     }
 
-    console.warn("Unsupported file type for extraction:", mimeType);
-    return '';
+    console.warn("Unsupported file type:", mimeType);
+    return "";
   } catch (error) {
-    console.error('Resume parsing error details:', error);
-    return '';
+    console.error("Resume parsing error:", error);
+    return "";
   }
 }
