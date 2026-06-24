@@ -1,5 +1,8 @@
 import mammoth from 'mammoth';
-import pdf from 'pdf-parse';
+import { createRequire } from 'module';
+
+const require = createRequire(import.meta.url);
+const pdfParse = require('pdf-parse');
 
 export async function extractTextFromResume(file) {
   try {
@@ -20,9 +23,9 @@ export async function extractTextFromResume(file) {
 
     // PDF parsing
     if (mimeType === 'application/pdf' || file.originalname.endsWith('.pdf')) {
-       console.log("Using pdf-parse for PDF extraction...");
-       const data = await pdf(file.buffer);
-       return data.text || '';
+      console.log("Using pdf-parse for PDF extraction...");
+      const data = await pdfParse(file.buffer);
+      return data.text || '';
     }
 
     console.warn("Unsupported file type for extraction:", mimeType);
