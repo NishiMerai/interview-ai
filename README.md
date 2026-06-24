@@ -20,7 +20,7 @@ npm run dev
 
 Frontend: `http://localhost:5173`
 
-Backend: `http://localhost:5000`
+Backend: `"https://interview-ai-back-d6w7.onrender.com"`
 
 ## Important environment variables
 
