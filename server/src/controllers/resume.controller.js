@@ -28,9 +28,11 @@ export const uploadResume = asyncHandler(async (req, res) => {
   const {
     matchedSkills,
     missingSkills,
-    resumeSkills
+    resumeSkills,
+    matchScore: calculatedMatchScore
   } = compareSkills(extractedText, requiredSkills);
 
+  // Requirement: Resume Score = (Matching Skills Count / Total Admin Skills Count) × 100
   const resumeScore = requiredSkills.length
     ? Math.round((matchedSkills.length / requiredSkills.length) * 100)
     : 0;
@@ -74,6 +76,7 @@ export const uploadResume = asyncHandler(async (req, res) => {
     matchedSkills: analysis.keywordAnalysis.matchedKeywords,
     missingSkills: analysis.keywordAnalysis.missingKeywords,
     requiredSkills: resume.requiredSkills,
+    extractedSkills: resumeSkills // Adding this for the UI
   });
 });
 

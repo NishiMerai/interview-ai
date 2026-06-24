@@ -163,28 +163,61 @@ export async function generateRoadmap(missingSkills = [], targetRole = 'Software
   };
 }
 
-export async function createInterviewQuestions(domain = 'Software Development', type = 'technical', count = 5) {
-  const answer = await callGroq([
-    { role: 'system', content: 'Generate interview questions with short answers.' },
-    { role: 'user', content: `Create ${count} ${type} interview questions for ${domain}.` },
+export async function createInterviewQuestions({ domain = 'Web Development', type = 'technical', difficulty = 'Beginner', count = 5 }) {
+  const response = await callGroq([
+    { role: 'system', content: 'You are an expert technical recruiter. Return ONLY valid JSON.' },
+    { role: 'user', content: `Generate ${count} ${difficulty} level ${type} interview questions for ${domain}. 
+    
+    Return JSON format:
+    {
+      "questions": [
+        {
+          "question": "The question text",
+          "expectedAnswer": "Brief ideal answer keywords/concepts"
+        }
+      ]
+    }` },
   ]);
 
+  const parsed = parseJSON(response, { questions: [] });
   return {
     domain,
     type,
-    questionsText: answer,
-    questions: answer.split('\n').filter(Boolean).slice(0, count),
+    difficulty,
+    questions: (parsed.questions || []).map((q, i) => ({
+      _id: `ai-gen-${Date.now()}-${i}`,
+      ...q
+    }))
   };
 }
 
-export async function gradeInterviewAnswer(question = '', userAnswer = '', expectedAnswer = '') {
-  const feedback = await callGroq([
-    { role: 'system', content: 'Grade interview answers simply and clearly.' },
+export async function gradeInterviewAnswer({ questions = [] }) {
+  const result = await callGroq([
+    { role: 'system', content: 'You are an AI Interview Evaluator. Grade the responses strictly. Return ONLY valid JSON.' },
+    { role: 'user', content: `Evaluate these interview responses:
+    ${JSON.stringify(questions.map(q => ({ q: q.question, a: q.userAnswer || 'No answer provided', expected: q.expectedAnswer })))}
+    
+    Return JSON format:
     {
-      role: 'user',
-      content: `Question: ${question}\nUser Answer: ${userAnswer}\nExpected Answer: ${expectedAnswer}`,
-    },
-  ]);
+      "overallScore": 0-100,
+      "questions": [
+        {
+          "score": 0-100,
+          "strengths": ["bullet 1"],
+          "improvements": ["bullet 1"],
+          "betterAnswer": "Enhanced ideal answer"
+        }
+      ]
+    }` },
+  ], 2000);
 
-  return { score: 7, feedback };
+  const graded = parseJSON(result, { overallScore: 0, questions: [] });
+  
+  return {
+    overallScore: graded.overallScore || 0,
+    questions: questions.map((q, i) => ({
+      ...q,
+      ...(graded.questions?.[i] || { score: 0, strengths: [], improvements: [], betterAnswer: 'N/A' })
+    }))
+  };
 }

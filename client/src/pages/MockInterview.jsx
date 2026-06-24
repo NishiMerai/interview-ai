@@ -1,58 +1,46 @@
 import { useMutation } from '@tanstack/react-query';
 import { useState } from 'react';
 import { api } from '../services/api.js';
+import { Brain, Trophy, Lightbulb, TrendingUp, HelpCircle, ChevronRight, Play } from 'lucide-react';
+
+const DOMAINS = [
+  "Web Development", "Mobile Development", "AI & ML", "Data Science", 
+  "Cloud Computing", "Cyber Security", "DevOps", "Blockchain", 
+  "Computer Networks", "Database Management", "IoT", "Embedded Systems", 
+  "Software Engineering", "UI/UX", "Game Development"
+];
+
+const TYPES = [
+  { id: "technical", label: "Technical Interview" },
+  { id: "hr", label: "HR Interview" },
+  { id: "behavioral", label: "Behavioral Interview" }
+];
+
+const DIFFICULTIES = ["Beginner", "Intermediate", "Advanced"];
 
 export default function MockInterview() {
-  const [domain, setDomain] = useState('Web Development');
-  const [targetRole, setTargetRole] = useState('MERN Developer');
+  const [domain, setDomain] = useState(DOMAINS[0]);
+  const [type, setType] = useState(TYPES[0].id);
+  const [difficulty, setDifficulty] = useState(DIFFICULTIES[0]);
   const [session, setSession] = useState(null);
 
-const startMutation = useMutation({
-  mutationFn: async () => {
-    const res = await api.get('/admin-content/questions');
+  const startMutation = useMutation({
+    mutationFn: async () => {
+      const res = await api.post('/interviews/start', { domain, type, difficulty });
+      return res.data.session;
+    },
+    onSuccess: (session) => setSession(session)
+  });
 
-    const filteredQuestions = res.data.filter(
-      (q) => q.domain?.toLowerCase() === domain.toLowerCase()
-    );
-
-    return filteredQuestions;
-  },
-
-  onSuccess: (questions) => {
-    setSession({
-      _id: 'admin-question-session',
-      questions,
-    });
-  },
-});
-
-const submitMutation = useMutation({
-  mutationFn: async () => {
-    if (session._id === 'admin-question-session') {
-      return {
-        session: {
-          ...session,
-          overallScore: 80,
-          questions: session.questions.map((q) => ({
-            ...q,
-            score: q.userAnswer?.trim() ? 80 : 0,
-            feedback: q.userAnswer?.trim()
-              ? 'Good attempt. Improve answer with more technical details and examples.'
-              : 'Answer is empty. Please write an answer first.',
-          })),
-        },
-      };
-    }
-
-    return (
-      await api.put(`/interviews/${session._id}/submit`, {
+  const submitMutation = useMutation({
+    mutationFn: async () => {
+      const res = await api.put(`/interviews/${session._id}/submit`, {
         questions: session.questions,
-      })
-    ).data;
-  },
-
-  onSuccess: (data) => setSession(data.session),
-});
+      });
+      return res.data.session;
+    },
+    onSuccess: (updatedSession) => setSession(updatedSession)
+  });
 
   const updateAnswer = (index, userAnswer) => {
     setSession((current) => ({
@@ -62,42 +50,164 @@ const submitMutation = useMutation({
   };
 
   return (
-    <div className="space-y-5">
-      <div>
-        <h1 className="text-3xl font-black">AI Mock Interview</h1>
-        <p className="text-slate-500 dark:text-slate-400">Practice technical, HR, behavioral, or mixed interviews.</p>
+    <div className="space-y-8 animate-fade-in p-4">
+      <div className="flex flex-col md:flex-row md:items-center justify-between gap-4">
+        <div>
+          <h1 className="text-4xl font-black gradient-text">AI Mock Interview</h1>
+          <p className="text-slate-500 mt-2 font-medium">Elevate your performance with real-time AI evaluation.</p>
+        </div>
       </div>
 
-      <div className="glass rounded-3xl p-5">
-        <div className="grid gap-4 lg:grid-cols-3">
-          <input className="input" value={domain} onChange={(e) => setDomain(e.target.value)} />
-          <input className="input" value={targetRole} onChange={(e) => setTargetRole(e.target.value)} />
-          <button onClick={() => startMutation.mutate()} className="btn-primary">
-            {startMutation.isPending ? 'Starting...' : 'Start interview'}
-          </button>
+      <div className="glass-card">
+        <div className="grid gap-6 md:grid-cols-4">
+          <div className="space-y-2">
+            <label className="text-[10px] font-black uppercase tracking-widest text-slate-400 ml-1">Domain</label>
+            <select className="input" value={domain} onChange={(e) => setDomain(e.target.value)}>
+              {DOMAINS.map(d => <option key={d} value={d}>{d}</option>)}
+            </select>
+          </div>
+          <div className="space-y-2">
+            <label className="text-[10px] font-black uppercase tracking-widest text-slate-400 ml-1">Interview Type</label>
+            <select className="input" value={type} onChange={(e) => setType(e.target.value)}>
+              {TYPES.map(t => <option key={t.id} value={t.id}>{t.label}</option>)}
+            </select>
+          </div>
+          <div className="space-y-2">
+            <label className="text-[10px] font-black uppercase tracking-widest text-slate-400 ml-1">Difficulty</label>
+            <select className="input" value={difficulty} onChange={(e) => setDifficulty(e.target.value)}>
+              {DIFFICULTIES.map(d => <option key={d} value={d}>{d}</option>)}
+            </select>
+          </div>
+          <div className="flex items-end">
+            <button 
+              onClick={() => startMutation.mutate()} 
+              disabled={startMutation.isPending}
+              className="btn-primary w-full h-[52px]"
+            >
+              {startMutation.isPending ? 'Simulating...' : (
+                <>
+                  <Play size={18} />
+                  Start Session
+                </>
+              )}
+            </button>
+          </div>
         </div>
       </div>
 
       {session && (
-        <div className="glass rounded-3xl p-5">
-          <div className="flex flex-col justify-between gap-4 sm:flex-row sm:items-center">
-            <h2 className="text-xl font-black">{session.domain} Interview</h2>
-            {session.overallScore && <span className="rounded-full bg-emerald-100 px-4 py-2 font-black text-emerald-700">Score: {session.overallScore}%</span>}
+        <div className="space-y-8">
+          <div className="flex flex-col md:flex-row md:items-center justify-between glass-card py-6">
+            <div className="flex items-center gap-4">
+              <div className="w-12 h-12 rounded-2xl bg-indigo-600 flex items-center justify-center text-white shadow-lg shadow-indigo-500/20">
+                 <Brain size={24} />
+              </div>
+              <div>
+                <h2 className="text-xl font-black">{session.domain}</h2>
+                <div className="flex items-center gap-2 mt-1">
+                   <span className="badge bg-indigo-50 text-indigo-600 border border-indigo-100">{session.type}</span>
+                   <span className="badge bg-slate-50 text-slate-600 border border-slate-200">{session.difficulty}</span>
+                </div>
+              </div>
+            </div>
+            {session.overallScore !== undefined && (
+              <div className="mt-4 md:mt-0 flex items-center gap-4">
+                 <div className="text-right">
+                    <p className="text-[10px] font-black uppercase text-slate-400 tracking-widest">Global Score</p>
+                    <p className="text-3xl font-black text-indigo-600">{session.overallScore}%</p>
+                 </div>
+                 <div className="w-14 h-14 rounded-full border-4 border-indigo-100 border-t-indigo-600 animate-spin-slow flex items-center justify-center">
+                    <Trophy className="text-indigo-600" size={24} />
+                 </div>
+              </div>
+            )}
           </div>
-          <div className="mt-5 space-y-4">
+
+          <div className="space-y-6">
             {session.questions.map((item, index) => (
-              <div key={item._id || index} className="rounded-3xl bg-white/70 p-4 dark:bg-white/10">
-                <p className="font-black">Q{index + 1}. {item.question}</p>
-                <textarea className="input mt-3 min-h-28" value={item.userAnswer || ''} onChange={(e) => updateAnswer(index, e.target.value)} placeholder="Type your answer..." />
-                {item.feedback && <p className="mt-3 text-sm text-slate-600 dark:text-slate-300">Feedback: {item.feedback}</p>}
+              <div key={item._id || index} className="glass-card group hover:border-indigo-200 transition-all duration-300">
+                <div className="flex items-start gap-4">
+                  <span className="text-4xl font-black text-slate-100 dark:text-white/5 transition-colors group-hover:text-indigo-100">
+                    {String(index + 1).padStart(2, '0')}
+                  </span>
+                  <div className="flex-1">
+                    <h3 className="text-lg font-bold text-slate-800 dark:text-slate-100 mb-4 leading-relaxed italic">
+                      "{item.question}"
+                    </h3>
+                    
+                    {!session.overallScore ? (
+                      <textarea 
+                        className="input min-h-[140px] italic shadow-inner" 
+                        value={item.userAnswer || ''} 
+                        onChange={(e) => updateAnswer(index, e.target.value)} 
+                        placeholder="Expert response goes here..." 
+                      />
+                    ) : (
+                      <div className="space-y-6 animate-slide-up">
+                         <div className="flex items-center gap-2">
+                            <span className="text-xs font-black uppercase text-slate-400">Score: {item.score}%</span>
+                            <div className="h-1.5 flex-1 bg-slate-100 rounded-full overflow-hidden">
+                               <div className="h-full bg-indigo-500 rounded-full" style={{ width: `${item.score}%` }} />
+                            </div>
+                         </div>
+
+                         <div className="grid md:grid-cols-2 gap-6">
+                            <FeedbackBox title="Strengths" items={item.strengths} icon={<TrendingUp size={16} />} color="emerald" />
+                            <FeedbackBox title="Improvements" items={item.improvements} icon={<Lightbulb size={16} />} color="amber" />
+                         </div>
+
+                         <div className="p-6 bg-slate-50 dark:bg-white/5 rounded-[2rem] border border-slate-100 dark:border-white/10">
+                            <div className="flex items-center gap-2 mb-3">
+                               <HelpCircle className="text-indigo-500" size={18} />
+                               <span className="text-xs font-black uppercase text-slate-500 tracking-widest">Master Answer</span>
+                            </div>
+                            <p className="text-sm text-slate-600 dark:text-slate-300 leading-relaxed font-semibold">
+                               {item.betterAnswer}
+                            </p>
+                         </div>
+                      </div>
+                    )}
+                  </div>
+                </div>
               </div>
             ))}
           </div>
-          <button onClick={() => submitMutation.mutate()} className="btn-primary mt-5">
-            {submitMutation.isPending ? 'Evaluating...' : 'Submit for AI feedback'}
-          </button>
+
+          {!session.overallScore && (
+            <button 
+              onClick={() => submitMutation.mutate()} 
+              disabled={submitMutation.isPending}
+              className="btn-primary w-full py-5 rounded-[2.5rem] shadow-2xl shadow-indigo-500/30"
+            >
+              {submitMutation.isPending ? 'Analyzing Your Performance...' : 'Submit for AI Evaluation'}
+            </button>
+          )}
         </div>
       )}
+    </div>
+  );
+}
+
+function FeedbackBox({ title, items, icon, color }) {
+  const variants = {
+    emerald: 'text-emerald-600 bg-emerald-50 border-emerald-100',
+    amber: 'text-amber-600 bg-amber-50 border-amber-100'
+  };
+
+  return (
+    <div className={`p-5 rounded-[2rem] border ${variants[color]}`}>
+       <div className="flex items-center gap-2 mb-4">
+          {icon}
+          <span className="text-[10px] font-black uppercase tracking-widest">{title}</span>
+       </div>
+       <ul className="space-y-2">
+          {items?.map((it, i) => (
+            <li key={i} className="flex items-start gap-2 text-xs font-semibold">
+               <ChevronRight size={14} className="mt-0.5 shrink-0" />
+               {it}
+            </li>
+          ))}
+       </ul>
     </div>
   );
 }

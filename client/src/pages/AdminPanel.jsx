@@ -1,6 +1,6 @@
 import { useEffect, useState } from 'react';
-
 import { api } from '../services/api.js';
+import { LayoutDashboard, Database, BookOpen, HelpCircle, Bot, Plus, Trash2, Edit3, Sparkles, ChevronRight, BarChart3 } from 'lucide-react';
 
 async function apiRequest(url, options = {}) {
   try {
@@ -69,13 +69,11 @@ export default function AdminPanel() {
 
   async function addDomain(e) {
     e.preventDefault();
-
     try {
       await apiRequest('/admin-content/domains', {
         method: 'POST',
         body: JSON.stringify(domainForm),
       });
-
       setDomainForm({ name: '', description: '' });
       setMessage('Domain added successfully');
       loadData();
@@ -85,175 +83,89 @@ export default function AdminPanel() {
   }
 
   async function addSkill(e) {
-  e.preventDefault();
-
-  try {
-    const isEdit = Boolean(skillForm.id);
-
-    if (isEdit) {
-      await apiRequest(`/admin-content/skills/${skillForm.id}`, {
-        method: "PUT",
-        body: JSON.stringify(skillForm),
-      });
-
-      setMessage("Skill updated successfully");
-    } else {
-      const skillsArray = skillForm.name
-        .split(",")
-        .map((skill) => skill.trim())
-        .filter((skill) => skill !== "");
-
-      for (const skill of skillsArray) {
-        await apiRequest("/admin-content/skills", {
-          method: "POST",
-          body: JSON.stringify({
-            ...skillForm,
-            name: skill,
-          }),
+    e.preventDefault();
+    try {
+      const isEdit = Boolean(skillForm.id);
+      if (isEdit) {
+        await apiRequest(`/admin-content/skills/${skillForm.id}`, {
+          method: "PUT",
+          body: JSON.stringify(skillForm),
         });
+        setMessage("Skill updated successfully");
+      } else {
+        const skillsArray = skillForm.name.split(",").map(skill => skill.trim()).filter(skill => skill !== "");
+        for (const skill of skillsArray) {
+          await apiRequest("/admin-content/skills", {
+            method: "POST",
+            body: JSON.stringify({ ...skillForm, name: skill }),
+          });
+        }
+        setMessage("Skills added successfully");
       }
-
-      setMessage("Skills added successfully");
+      setSkillForm({ domain: "", name: "", level: "beginner" });
+      loadData();
+    } catch (error) {
+      setMessage(error.message);
     }
-
-    setSkillForm({
-      domain: "",
-      name: "",
-      level: "beginner",
-    });
-
-    loadData();
-  } catch (error) {
-    setMessage(error.message);
   }
-}
 
-async function deleteSkill(id) {
-  try {
-    if (!id) {
-      setMessage("Skill ID not found");
-      return;
+  async function deleteSkill(id) {
+    try {
+      await apiRequest(`/admin-content/skills/${id}`, { method: "DELETE" });
+      setMessage("Skill deleted successfully");
+      loadData();
+    } catch (error) {
+      setMessage(error.message);
     }
-
-    await apiRequest(`/admin-content/skills/${id}`, {
-      method: "DELETE",
-    });
-
-    setMessage("Skill deleted successfully");
-    loadData();
-  } catch (error) {
-    setMessage(error.message);
   }
-}
 
-async function editSkill(skill) {
-  try {
-    if (!skill) {
-      setMessage("Skill not found");
-      return;
-    }
-
+  async function editSkill(skill) {
     setSkillForm({
       id: skill._id,
       domain: skill.domain || skill.category || "",
       name: skill.name,
       level: skill.level,
     });
-
     setMessage("Editing skill...");
-  } catch (error) {
-    setMessage(error.message);
   }
-}
 
   async function addRoadmap(e) {
-  e.preventDefault();
-
-  try {
-    const isEdit = Boolean(roadmapForm.id);
-
-   const selectedDomain =
-  roadmapForm.domain ||
-  roadmapForm.role ||
-  roadmapForm.title?.trim();
-
-const roadmapPayload = {
-  ...roadmapForm,
-  domain: selectedDomain,
-  role: selectedDomain,
-};
-    await apiRequest(
-      isEdit
-        ? `/admin-content/roadmaps/${roadmapForm.id}`
-        : '/admin-content/roadmaps',
-      {
+    e.preventDefault();
+    try {
+      const isEdit = Boolean(roadmapForm.id);
+      const selectedDomain = roadmapForm.domain || roadmapForm.role || roadmapForm.title?.trim();
+      const roadmapPayload = { ...roadmapForm, domain: selectedDomain, role: selectedDomain };
+      await apiRequest(isEdit ? `/admin-content/roadmaps/${roadmapForm.id}` : '/admin-content/roadmaps', {
         method: isEdit ? 'PUT' : 'POST',
         body: JSON.stringify(roadmapPayload),
-      }
-    );
-
-    setRoadmapForm({
-      id: '',
-      domain: '',
-      title: '',
-      stagesText: '',
-    });
-
-    setMessage(
-      isEdit
-        ? 'Roadmap updated successfully'
-        : 'Roadmap added successfully'
-    );
-
-    loadData();
-  } catch (error) {
-    setMessage(error.message);
+      });
+      setRoadmapForm({ id: '', domain: '', title: '', stagesText: '' });
+      setMessage(isEdit ? 'Roadmap updated successfully' : 'Roadmap added successfully');
+      loadData();
+    } catch (error) {
+      setMessage(error.message);
+    }
   }
-}
 
- async function addQuestion(e) {
-  e.preventDefault();
-
-  try {
-    const isEdit = Boolean(questionForm.id);
-
-    await apiRequest(
-      isEdit
-        ? `/admin-content/questions/${questionForm.id}`
-        : '/admin-content/questions',
-      {
+  async function addQuestion(e) {
+    e.preventDefault();
+    try {
+      const isEdit = Boolean(questionForm.id);
+      await apiRequest(isEdit ? `/admin-content/questions/${questionForm.id}` : '/admin-content/questions', {
         method: isEdit ? 'PUT' : 'POST',
         body: JSON.stringify(questionForm),
-      }
-    );
-
-    setQuestionForm({
-      id: '',
-      domain: '',
-      type: 'technical',
-      difficulty: 'easy',
-      question: '',
-      expectedAnswer: '',
-    });
-
-    setMessage(
-      isEdit
-        ? 'Question updated successfully'
-        : 'Question added successfully'
-    );
-
-    loadData();
-  } catch (error) {
-    setMessage(error.message);
+      });
+      setQuestionForm({ id: '', domain: '', type: 'technical', difficulty: 'easy', question: '', expectedAnswer: '' });
+      setMessage(isEdit ? 'Question updated successfully' : 'Question added successfully');
+      loadData();
+    } catch (error) {
+      setMessage(error.message);
+    }
   }
-}
 
   async function deleteItem(type, id) {
     try {
-      await apiRequest(`/admin-content/${type}/${id}`, {
-        method: 'DELETE',
-      });
-
+      await apiRequest(`/admin-content/${type}/${id}`, { method: 'DELETE' });
       setMessage('Deleted successfully');
       loadData();
     } catch (error) {
@@ -263,13 +175,11 @@ const roadmapPayload = {
 
   async function generateBotAnswer(e) {
     e.preventDefault();
-
     try {
       const data = await apiRequest('/admin-content/chatbot-answer', {
         method: 'POST',
         body: JSON.stringify({ question: botQuestion }),
       });
-
       setBotAnswer(data.answer);
     } catch (error) {
       setMessage(error.message);
@@ -277,322 +187,250 @@ const roadmapPayload = {
   }
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-slate-100 via-indigo-50 to-cyan-50 p-6">
-      <div className="max-w-7xl mx-auto space-y-6">
+    <div className="animate-fade-in p-4 space-y-8 pb-20">
+      <div className="flex flex-col md:flex-row md:items-center justify-between gap-4">
         <div>
-          <h1 className="text-4xl font-black text-slate-900">Admin Panel</h1>
-          <p className="text-slate-600">Manage domains, skills, roadmaps, questions and chatbot answers.</p>
+          <h1 className="text-4xl font-black gradient-text">Command Center</h1>
+          <p className="text-slate-500 mt-2 font-medium">Control the core intelligence of Interview AI.</p>
         </div>
+      </div>
 
-        {message && (
-          <div className="p-4 rounded-2xl bg-indigo-100 text-indigo-800 font-bold">
-            {message}
-          </div>
-        )}
-
-        <div className="flex flex-wrap gap-3">
-          <Tab active={tab === 'dashboard'} onClick={() => setTab('dashboard')}>Dashboard</Tab>
-          <Tab active={tab === 'domains'} onClick={() => setTab('domains')}>Domains</Tab>
-          <Tab active={tab === 'skills'} onClick={() => setTab('skills')}>Skills</Tab>
-          <Tab active={tab === 'roadmaps'} onClick={() => setTab('roadmaps')}>Roadmaps</Tab>
-          <Tab active={tab === 'questions'} onClick={() => setTab('questions')}>Interview Questions</Tab>
-          <Tab active={tab === 'chatbot'} onClick={() => setTab('chatbot')}>Chatbot</Tab>
+      {message && (
+        <div className="glass-card !bg-indigo-600/5 !border-indigo-600/10 p-4 px-6 flex items-center justify-between">
+           <p className="text-indigo-600 font-bold italic tracking-tight">{message}</p>
+           <button onClick={() => setMessage('')} className="text-indigo-400 hover:text-indigo-600 font-black">CLOSE</button>
         </div>
+      )}
 
-        {tab === 'dashboard' && (
-          <div className="grid grid-cols-1 md:grid-cols-5 gap-4">
-            <Card title="Total Resume Uploaded" value={stats.totalResumes || 0} />
-            <Card title="Total Domain Added" value={stats.totalDomains || 0} />
-            <Card title="Required Skill Added" value={stats.totalSkills || 0} />
-            <Card title="Roadmaps Added" value={stats.totalRoadmaps || 0} />
-            <Card title="Interview Questions Added" value={stats.totalQuestions || 0} />
+      <div className="flex flex-wrap gap-2 glass-card !p-2 !bg-white/40 dark:!bg-white/5 backdrop-blur-3xl rounded-[2.5rem]">
+        <Tab active={tab === 'dashboard'} icon={<LayoutDashboard size={18} />} onClick={() => setTab('dashboard')}>Overview</Tab>
+        <Tab active={tab === 'domains'} icon={<ChevronRight size={18} />} onClick={() => setTab('domains')}>Domains</Tab>
+        <Tab active={tab === 'skills'} icon={<Database size={18} />} onClick={() => setTab('skills')}>Skills</Tab>
+        <Tab active={tab === 'roadmaps'} icon={<BookOpen size={18} />} onClick={() => setTab('roadmaps')}>Roadmaps</Tab>
+        <Tab active={tab === 'questions'} icon={<HelpCircle size={18} />} onClick={() => setTab('questions')}>Questions</Tab>
+        <Tab active={tab === 'chatbot'} icon={<Bot size={18} />} onClick={() => setTab('chatbot')}>Bot Logic</Tab>
+      </div>
+
+      {tab === 'dashboard' && (
+        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-5 gap-6">
+          <StatCard title="Total Resumes" value={stats.totalResumes || 0} icon={<BarChart3 className="text-indigo-500" />} />
+          <StatCard title="Active Domains" value={stats.totalDomains || 0} icon={<ChevronRight className="text-emerald-500" />} />
+          <StatCard title="Target Skills" value={stats.totalSkills || 0} icon={<Database className="text-amber-500" />} />
+          <StatCard title="Roadmaps" value={stats.totalRoadmaps || 0} icon={<BookOpen className="text-indigo-600" />} />
+          <StatCard title="Question Bank" value={stats.totalQuestions || 0} icon={<HelpCircle className="text-rose-500" />} />
+        </div>
+      )}
+
+      {tab === 'domains' && (
+        <Section title="Domain Infrastructure">
+          <form onSubmit={addDomain} className="grid grid-cols-1 md:grid-cols-12 gap-4 mb-8">
+            <input className="input md:col-span-4" placeholder="Domain Title (e.g. MERN Developer)" value={domainForm.name} onChange={(e) => setDomainForm({ ...domainForm, name: e.target.value })} />
+            <input className="input md:col-span-6" placeholder="Purpose & Context" value={domainForm.description} onChange={(e) => setDomainForm({ ...domainForm, description: e.target.value })} />
+            <button type="submit" className="btn-primary md:col-span-2 !rounded-2xl">
+               <Plus size={18} />
+               Register
+            </button>
+          </form>
+
+          <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-3">
+            {domains.map((d) => (
+              <ListItem key={d._id} title={d.name} subtitle={d.description} onDelete={() => deleteItem('domains', d._id)} />
+            ))}
           </div>
-        )}
+        </Section>
+      )}
 
-        {tab === 'domains' && (
-          <Section title="Add / Delete Domain">
-            <form onSubmit={addDomain} className="grid grid-cols-1 md:grid-cols-3 gap-3">
-              <input className="input" placeholder="Domain name e.g. MERN Developer" value={domainForm.name} onChange={(e) => setDomainForm({ ...domainForm, name: e.target.value })} />
-              <input className="input" placeholder="Description" value={domainForm.description} onChange={(e) => setDomainForm({ ...domainForm, description: e.target.value })} />
-              <button type="submit" className="btn">Add Domain</button>
-            </form>
+      {tab === 'skills' && (
+        <Section title="Expert Skill Engine">
+          <form onSubmit={addSkill} className="grid grid-cols-1 md:grid-cols-12 gap-4 mb-8 items-start">
+            <select className="input md:col-span-3" value={skillForm.domain} onChange={(e) => setSkillForm({ ...skillForm, domain: e.target.value })}>
+              <option value="">Select Domain Baseline</option>
+              {domains.map((d) => <option key={d._id} value={d.name}>{d.name}</option>)}
+            </select>
+            <textarea className="input md:col-span-5 min-h-[120px] !rounded-[2rem]" placeholder={'Comma-separated mass upload\nHTML, CSS, React...'} value={skillForm.name} onChange={(e) => setSkillForm({ ...skillForm, name: e.target.value })} />
+            <select className="input md:col-span-2" value={skillForm.level} onChange={(e) => setSkillForm({ ...skillForm, level: e.target.value })}>
+              <option value="beginner">Junior</option>
+              <option value="intermediate">Mid-Level</option>
+              <option value="advanced">Senior</option>
+            </select>
+            <button type="submit" className="btn-primary md:col-span-2 !rounded-2xl h-[52px]">Integrate</button>
+          </form>
 
-            <List>
-              {domains.map((d) => (
-                <ListItem key={d._id} title={d.name} subtitle={d.description} onDelete={() => deleteItem('domains', d._id)} />
-              ))}
-            </List>
-          </Section>
-        )}
+          <div className="space-y-6">
+            {domains.map((d) => {
+              const domainSkills = skills.filter(s => s.domain === d.name || s.category === d.name);
+              if (domainSkills.length === 0) return null;
+              return (
+                <div key={d._id} className="glass-card !bg-slate-50/50 dark:!bg-white/5 border-none">
+                  <h2 className="text-sm font-black uppercase text-slate-400 tracking-widest mb-4 italic">{d.name} Baseline</h2>
+                  <div className="flex flex-wrap gap-2">
+                    {domainSkills.map((s) => (
+                      <div key={s._id} className="group relative flex items-center gap-2 badge bg-indigo-50/80 border-indigo-100 dark:bg-white/5 dark:border-white/10 dark:text-slate-300">
+                        <span className="font-bold">{s.name}</span>
+                        <div className="flex gap-1 ml-2 opacity-0 group-hover:opacity-100 transition-opacity">
+                           <button onClick={() => editSkill(s)} className="p-1 hover:text-indigo-600"><Edit3 size={12} /></button>
+                           <button onClick={() => deleteSkill(s._id)} className="p-1 hover:text-rose-600"><Trash2 size={12} /></button>
+                        </div>
+                      </div>
+                    ))}
+                  </div>
+                </div>
+              );
+            })}
+          </div>
+        </Section>
+      )}
 
-        {tab === 'skills' && (
-          <Section title="Add / Delete Skills For Domain">
-           <form onSubmit={addSkill} className="grid grid-cols-1 md:grid-cols-3 gap-3">
-              <select className="input" value={skillForm.domain} onChange={(e) => setSkillForm({ ...skillForm, domain: e.target.value })}>
-                <option value="">Select Domain</option>
-                {domains.map((d) => <option key={d._id} value={d.name}>{d.name}</option>)}
-              </select>
-              <textarea
-  className="input"
-  rows={3}
-  placeholder="Enter skills separated by comma
-
-Example:
-HTML, CSS, JavaScript, React, Node.js, Express.js, MongoDB"
-  value={skillForm.name}
-  onChange={(e) =>
-    setSkillForm({ ...skillForm, name: e.target.value })
-  }
-/>
-              <select className="input" value={skillForm.level} onChange={(e) => setSkillForm({ ...skillForm, level: e.target.value })}>
-                <option value="beginner">Beginner</option>
-                <option value="intermediate">Intermediate</option>
-                <option value="advanced">Advanced</option>
-              </select>
-              <button type="submit" className="btn">Add Skill</button>
-            </form>
-
-            <List>
-  {domains.map((d) => {
-    const domainSkills = skills.filter(
-      (s) => s.domain === d.name || s.category === d.name
-    );
-
-    if (domainSkills.length === 0) return null;
-
-    return (
-      <div key={d._id} className="p-5 rounded-2xl bg-white border space-y-4">
-        <h2 className="text-xl font-bold text-slate-900">
-          {d.name}
-        </h2>
-
-        <div className="flex flex-wrap gap-2">
-          {domainSkills.map((s) => (
-            <div
-              key={s._id || s.id}
-              className="px-4 py-2 rounded-full bg-indigo-50 border text-slate-800 flex items-center gap-3"
-            >
-              <span>{s.name}</span>
-              <button
-            type="button"
-            onClick={() => editSkill(s)}
-            className="text-indigo-600 font-semibold"
-          >
-            Edit
-          </button>
-
-              <button
-                type="button"
-                onClick={() => deleteSkill(s._id || s.id)}
-                className="text-red-500 font-semibold"
-              >
-                Delete
-              </button>
+      {tab === 'roadmaps' && (
+        <Section title="Path Architecture">
+          <form onSubmit={addRoadmap} className="space-y-4 mb-8">
+            <div className="grid md:grid-cols-2 gap-4">
+               <select className="input" value={roadmapForm.domain || ''} onChange={(e) => setRoadmapForm({ ...roadmapForm, domain: e.target.value, role: e.target.value })}>
+                 <option value="">Link to Domain</option>
+                 {domains.map((d) => <option key={d._id} value={d.name}>{d.name}</option>)}
+               </select>
+               <input className="input" placeholder="Roadmap Identity (e.g. Master MERN in 3 Months)" value={roadmapForm.title} onChange={(e) => setRoadmapForm({ ...roadmapForm, title: e.target.value })} />
             </div>
-          ))}
-        </div>
-      </div>
-    );
-  })}
-</List>
-          </Section>
-        )}
+            <textarea className="input min-h-[200px] !rounded-[2rem]" placeholder={'Blueprint Stages (line by line):\nStage 1: Foundational HTML\nStage 2: CSS Mastery...'} value={roadmapForm.stagesText} onChange={(e) => setRoadmapForm({ ...roadmapForm, stagesText: e.target.value })} />
+            <button type="submit" className="btn-primary !w-full !rounded-[2rem]">Architect Path</button>
+          </form>
 
-        {tab === 'roadmaps' && (
-          <Section title="Add / Delete Roadmap For Domain">
-            <form onSubmit={addRoadmap} className="space-y-3">
-             <select
-  className="input"
-  value={roadmapForm.domain || ''}
-  onChange={(e) => {
-    setRoadmapForm({
-      ...roadmapForm,
-      domain: e.target.value,
-      role: e.target.value,
-    });
-  }}
->
-  <option value="">Select Domain</option>
+          <div className="grid gap-4 md:grid-cols-2">
+            {roadmaps.map((r) => (
+              <AdminListItem key={r._id} title={r.title} subtitle={r.domain || r.role} onEdit={() => setRoadmapForm({ id: r._id, domain: r.domain || '', title: r.title || '', stagesText: r.stagesText || (r.stages || []).map(s => s.name || s.title || '').join('\n') })} onDelete={() => deleteItem('roadmaps', r._id)} />
+            ))}
+          </div>
+        </Section>
+      )}
 
-  {domains.map((d) => (
-    <option key={d._id} value={d.name}>
-      {d.name}
-    </option>
-  ))}
-</select>
-              <input
-  type="text"
-  placeholder="Roadmap title"
-  value={roadmapForm.title}
-  onChange={(e) =>
-    setRoadmapForm({
-      ...roadmapForm,
-      title: e.target.value,
-    })
-  }
-  className="input"
-/>
-              <textarea className="input min-h-40" placeholder={'Enter roadmap stages line by line\nHTML\nCSS\nJavaScript\nReact\nNode.js'} value={roadmapForm.stagesText} onChange={(e) => setRoadmapForm({ ...roadmapForm, stagesText: e.target.value })} />
-              <button type="submit" className="btn">Add Roadmap</button>
-            </form>
-
-            <List>
-  {roadmaps.map((r) => (
-    <ListItem
-      key={r._id}
-      title={r.title}
-      subtitle={`Domain: ${r.domain || r.role || '-'}`}
-
-      onEdit={() => {
-        setRoadmapForm({
-          id: r._id,
-          domain: r.domain || '',
-          title: r.title || '',
-          stagesText:
-            r.stagesText ||
-            (r.stages || [])
-              .map((stage) => stage.name || stage.title || '')
-              .join('\n'),
-        });
-      }}
-
-      onDelete={() => deleteItem('roadmaps', r._id)}
-    />
-  ))}
-</List>
-          </Section>
-        )}
-
-        {tab === 'questions' && (
-          <Section title="Add / Delete Interview Questions For Domain">
-            <form onSubmit={addQuestion} className="space-y-3">
+      {tab === 'questions' && (
+        <Section title="Intelligence Repository">
+          <form onSubmit={addQuestion} className="space-y-4 mb-8">
+            <div className="grid md:grid-cols-3 gap-4">
               <select className="input" value={questionForm.domain} onChange={(e) => setQuestionForm({ ...questionForm, domain: e.target.value })}>
-                <option value="">Select Domain</option>
+                <option value="">Target Domain</option>
                 {domains.map((d) => <option key={d._id} value={d.name}>{d.name}</option>)}
               </select>
+              <select className="input" value={questionForm.type} onChange={(e) => setQuestionForm({ ...questionForm, type: e.target.value })}>
+                <option value="technical">Technical Rigor</option>
+                <option value="hr">HR Culture</option>
+                <option value="behavioral">Behavioral Soft-skills</option>
+              </select>
+              <select className="input" value={questionForm.difficulty} onChange={(e) => setQuestionForm({ ...questionForm, difficulty: e.target.value })}>
+                <option value="easy">Elementary</option>
+                <option value="medium">Intermediate</option>
+                <option value="hard">Veteran</option>
+              </select>
+            </div>
+            <textarea className="input !rounded-[2rem] min-h-[100px]" placeholder="Question Stem" value={questionForm.question} onChange={(e) => setQuestionForm({ ...questionForm, question: e.target.value })} />
+            <textarea className="input !rounded-[2rem] min-h-[100px]" placeholder="Gold Standard Answer (For AI Comparison)" value={questionForm.expectedAnswer} onChange={(e) => setQuestionForm({ ...questionForm, expectedAnswer: e.target.value })} />
+            <button type="submit" className="btn-primary !w-full !rounded-[2rem]">Commit to Bank</button>
+          </form>
 
-              <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
-                <select className="input" value={questionForm.type} onChange={(e) => setQuestionForm({ ...questionForm, type: e.target.value })}>
-                  <option value="technical">Technical</option>
-                  <option value="hr">HR</option>
-                  <option value="behavioral">Behavioral</option>
-                </select>
+          <div className="grid gap-4">
+            {questions.map((q) => (
+              <AdminListItem key={q._id} title={q.question} subtitle={`${q.domain} • ${q.type} • ${q.difficulty}`} onEdit={() => setQuestionForm({ id: q._id, domain: q.domain || '', type: q.type || 'technical', difficulty: q.difficulty || 'easy', question: q.question || '', expectedAnswer: q.expectedAnswer || '' })} onDelete={() => deleteItem('questions', q._id)} />
+            ))}
+          </div>
+        </Section>
+      )}
 
-                <select className="input" value={questionForm.difficulty} onChange={(e) => setQuestionForm({ ...questionForm, difficulty: e.target.value })}>
-                  <option value="easy">Easy</option>
-                  <option value="medium">Medium</option>
-                  <option value="hard">Hard</option>
-                </select>
-              </div>
-
-              <textarea className="input min-h-28" placeholder="Question" value={questionForm.question} onChange={(e) => setQuestionForm({ ...questionForm, question: e.target.value })} />
-              <textarea className="input min-h-28" placeholder="Expected answer" value={questionForm.expectedAnswer} onChange={(e) => setQuestionForm({ ...questionForm, expectedAnswer: e.target.value })} />
-              <button type="submit" className="btn">Add Question</button>
-            </form>
-
-           <List>
-  {questions.map((q) => (
-    <ListItem
-      key={q._id}
-      title={q.question}
-      subtitle={`Domain: ${q.domain} | ${q.type} | ${q.difficulty}`}
-
-      onEdit={() => {
-        setQuestionForm({
-          id: q._id,
-          domain: q.domain || '',
-          type: q.type || 'technical',
-          difficulty: q.difficulty || 'easy',
-          question: q.question || '',
-          expectedAnswer: q.expectedAnswer || '',
-        });
-      }}
-
-      onDelete={() => deleteItem('questions', q._id)}
-    />
-  ))}
-</List>
-          </Section>
-        )}
-
-        {tab === 'chatbot' && (
-          <Section title="Chatbot Answer Generator">
-            <form onSubmit={generateBotAnswer} className="space-y-3">
-              <textarea className="input min-h-32" placeholder="Enter any question" value={botQuestion} onChange={(e) => setBotQuestion(e.target.value)} />
-              <button type="submit" className="btn">Generate Answer</button>
-            </form>
-
-            {botAnswer && (
-              <div className="mt-5 p-5 rounded-2xl bg-white border border-slate-200 whitespace-pre-wrap">
-                {botAnswer}
-              </div>
-            )}
-          </Section>
-        )}
-      </div>
+      {tab === 'chatbot' && (
+        <Section title="AI Seed Knowledge">
+           <div className="flex items-center gap-3 mb-8 p-6 bg-indigo-600/5 rounded-[2rem] border border-indigo-600/10 italic">
+              <Sparkles className="text-indigo-600 shrink-0" size={30} />
+              <p className="text-sm font-bold text-indigo-700">Test and refine the AI's persona and factual knowledge here. This simulates the Career Coach's internal logic.</p>
+           </div>
+          <form onSubmit={generateBotAnswer} className="space-y-4">
+            <textarea className="input !rounded-[2rem] min-h-[140px]" placeholder="Simulate a candidate inquiry..." value={botQuestion} onChange={(e) => setBotQuestion(e.target.value)} />
+            <button type="submit" className="btn-primary !rounded-[2rem] !py-4 italic font-black">UNLEASH AI</button>
+          </form>
+          {botAnswer && (
+            <div className="mt-8 p-8 glass-card !bg-white/90 dark:!bg-slate-900 border-none relative">
+               <div className="absolute -top-3 -left-3 w-10 h-10 rounded-2xl bg-indigo-600 flex items-center justify-center text-white shadow-lg">
+                  <Bot size={20} />
+               </div>
+               <p className="text-sm font-semibold leading-relaxed text-slate-700 dark:text-slate-300 italic whitespace-pre-wrap">
+                  {botAnswer}
+               </p>
+            </div>
+          )}
+        </Section>
+      )}
     </div>
   );
 }
 
-function Card({ title, value }) {
+function StatCard({ title, value, icon }) {
   return (
-    <div className="glass-card">
-      <p className="text-slate-500 text-sm">{title}</p>
-      <h2 className="text-4xl font-black text-indigo-700">{value}</h2>
+    <div className="glass-card relative overflow-hidden group hover:border-indigo-200 transition-all duration-300">
+       <div className="absolute -right-4 -bottom-4 w-16 h-16 opacity-5 group-hover:scale-150 transition-transform">
+          {icon}
+       </div>
+       <div className="flex items-center gap-2 mb-3">
+          <div className="w-8 h-8 rounded-xl bg-white/50 flex items-center justify-center shadow-sm">
+             {icon}
+          </div>
+          <p className="text-[10px] uppercase font-black tracking-widest text-slate-400 leading-none">{title}</p>
+       </div>
+       <h2 className="text-3xl font-black italic tracking-tighter text-slate-800 dark:text-white">{value}</h2>
     </div>
   );
 }
 
-function Tab({ active, children, onClick }) {
+function Tab({ children, active, onClick, icon }) {
   return (
-    <button onClick={onClick} className={`px-5 py-3 rounded-2xl font-bold ${active ? 'bg-indigo-600 text-white' : 'bg-white text-slate-700 border'}`}>
-      {children}
+    <button 
+      onClick={onClick} 
+      className={`flex items-center gap-2 px-6 py-3 rounded-[2.5rem] text-sm font-black transition-all duration-300 ${
+        active 
+        ? 'bg-slate-950 text-white dark:bg-white dark:text-slate-950 shadow-xl scale-105 z-10' 
+        : 'text-slate-500 hover:text-slate-800 dark:text-slate-400 hover:bg-white/50 dark:hover:bg-white/5'
+      }`}
+    >
+      {icon}
+      <span className="italic">{children}</span>
     </button>
   );
 }
 
 function Section({ title, children }) {
   return (
-    <div className="glass-card">
-      <h2 className="text-2xl font-black mb-5">{title}</h2>
-      {children}
+    <div className="animate-slide-up">
+       <h2 className="text-2xl font-black italic mb-6 flex items-center gap-3">
+          <div className="w-2 h-8 bg-indigo-600 rounded-full" />
+          {title}
+       </h2>
+       <div className="glass-card !p-8">
+          {children}
+       </div>
     </div>
   );
 }
 
-function List({ children }) {
-  return <div className="mt-6 space-y-3">{children}</div>;
+function AdminListItem({ title, subtitle, onEdit, onDelete }) {
+  return (
+    <div className="group rounded-[2rem] border border-slate-100 bg-white/50 p-6 flex items-center justify-between gap-4 dark:bg-white/5 dark:border-white/5 hover:bg-white dark:hover:bg-white/10 transition-all duration-300">
+      <div className="overflow-hidden">
+        <h3 className="font-black text-slate-900 dark:text-white truncate italic">{title}</h3>
+        <p className="text-[10px] font-black uppercase text-slate-400 mt-1 tracking-widest">{subtitle}</p>
+      </div>
+      <div className="flex gap-2">
+        <button onClick={onEdit} className="w-10 h-10 rounded-2xl bg-indigo-50 text-indigo-600 flex items-center justify-center hover:bg-indigo-600 hover:text-white transition-all"><Edit3 size={16} /></button>
+        <button onClick={onDelete} className="w-10 h-10 rounded-2xl bg-rose-50 text-rose-600 flex items-center justify-center hover:bg-rose-600 hover:text-white transition-all"><Trash2 size={16} /></button>
+      </div>
+    </div>
+  );
 }
 
-function ListItem({ title, subtitle, onEdit, onDelete }) {
+function ListItem({ title, subtitle, onDelete }) {
   return (
-    <div className="rounded-2xl border border-slate-200 bg-white/80 p-4 flex items-center justify-between gap-4">
+    <div className="group rounded-3xl border border-slate-100 bg-white/50 p-6 flex items-center justify-between gap-4 dark:bg-white/5 dark:border-white/5 hover:bg-white dark:hover:bg-white/10 transition-all duration-300">
       <div>
-        <h3 className="font-black text-slate-900">{title}</h3>
-        <p className="text-sm text-slate-500">{subtitle}</p>
+        <h3 className="font-black text-slate-900 dark:text-white italic">{title}</h3>
+        <p className="text-xs font-bold text-slate-400 mt-1">{subtitle}</p>
       </div>
-
-      <div className="flex gap-4">
-        {onEdit && (
-          <button
-            type="button"
-            onClick={onEdit}
-            className="font-bold text-indigo-600"
-          >
-            Edit
-          </button>
-        )}
-
-        {onDelete && (
-          <button
-            type="button"
-            onClick={onDelete}
-            className="font-bold text-red-500"
-          >
-            Delete
-          </button>
-        )}
-      </div>
+      <button onClick={onDelete} className="w-10 h-10 rounded-2xl bg-rose-50 text-rose-600 opacity-0 group-hover:opacity-100 flex items-center justify-center hover:bg-rose-600 hover:text-white transition-all"><Trash2 size={16} /></button>
     </div>
   );
 }
