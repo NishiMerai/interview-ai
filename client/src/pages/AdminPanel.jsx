@@ -1,9 +1,9 @@
 import { useEffect, useState } from 'react';
 
-const API = import.meta.env.VITE_API_URL || 'https://interview-ai-back-d6w7.onrender.com';
+const API = "https://interview-ai-back-d6w7.onrender.com/api";
 
 async function apiRequest(url, options = {}) {
-  const response = await fetch(`"https://interview-ai-back-d6w7.onrender.com"${url}`, {
+  const response = await fetch(`${API}${url}`, {
     headers: {
       "Content-Type": "application/json",
       ...(options.headers || {}),
