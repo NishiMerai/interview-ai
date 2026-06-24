@@ -118,9 +118,9 @@ onSuccess: async () => {
       <div>
         <h3 className="font-black text-green-700 mb-2">Matching Skills</h3>
         <div className="flex flex-wrap gap-2">
-         {(latest.matchedSkills || latest.keywordAnalysis?.matchedKeywords || []).map((skill, i) => (
+         {(latest.matchedSkills || []).map((skill, i) => (
   <span key={i} className="rounded-full bg-green-100 px-4 py-2 text-sm font-bold text-green-700">
-    {typeof skill === 'string' ? skill : skill.name}
+    {skill}
   </span>
 ))}
         </div>
@@ -129,9 +129,9 @@ onSuccess: async () => {
       <div>
         <h3 className="font-black text-red-700 mb-2">Missing Skills</h3>
         <div className="flex flex-wrap gap-2">
-         {(latest.missingSkills || latest.keywordAnalysis?.missingKeywords || []).map((skill, i) => (
+         {(latest.missingSkills || []).map((skill, i) => (
   <span key={i} className="rounded-full bg-red-100 px-4 py-2 text-sm font-bold text-red-700">
-    {typeof skill === 'string' ? skill : skill.name}
+    {skill}
   </span>
 ))}
         </div>

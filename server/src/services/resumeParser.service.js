@@ -16,14 +16,13 @@ export async function extractTextFromResume(file) {
       return result.value || '';
     }
 
-    // PDF fallback
+    // PDF parsing
     if (mimeType === 'application/pdf') {
-      return `
-PDF uploaded successfully.
-
-
-Please upload DOCX for full parsing or downgrade Node.js to v20 LTS.
-`;
+       const { PDFParse } = await import('pdf-parse');
+       const parser = new PDFParse({ data: file.buffer });
+       const result = await parser.getText();
+       await parser.destroy();
+       return result.text || '';
     }
 
     return '';

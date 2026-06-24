@@ -3,6 +3,7 @@ import mongoose from 'mongoose';
 const adminSkillSchema = new mongoose.Schema({
   name: { type: String, required: true, index: 'text' },
   category: { type: String, required: true, index: true },
+  domain: { type: String, index: true },
   aliases: [String],
   importanceScore: { type: Number, default: 50 },
   relatedRoles: [String],

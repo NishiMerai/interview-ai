@@ -18,10 +18,10 @@ const admin = await User.findOneAndUpdate(
 
 await AdminSkill.deleteMany({});
 await AdminSkill.insertMany([
-  { name: 'React', category: 'Frontend', importanceScore: 90, relatedRoles: ['MERN Developer'], createdBy: admin._id },
-  { name: 'Node.js', category: 'Backend', importanceScore: 90, relatedRoles: ['MERN Developer'], createdBy: admin._id },
-  { name: 'MongoDB', category: 'Database', importanceScore: 80, relatedRoles: ['Backend Developer'], createdBy: admin._id },
-  { name: 'DSA', category: 'Core CS', importanceScore: 95, relatedRoles: ['Software Engineer'], createdBy: admin._id }
+  { name: 'React', domain: 'Web Development', category: 'Frontend', importanceScore: 90, relatedRoles: ['MERN Developer'], createdBy: admin._id },
+  { name: 'Node.js', domain: 'Web Development', category: 'Backend', importanceScore: 90, relatedRoles: ['MERN Developer'], createdBy: admin._id },
+  { name: 'MongoDB', domain: 'Web Development', category: 'Database', importanceScore: 80, relatedRoles: ['Backend Developer'], createdBy: admin._id },
+  { name: 'DSA', domain: 'Data Science', category: 'Core CS', importanceScore: 95, relatedRoles: ['Software Engineer'], createdBy: admin._id }
 ]);
 
 await InterviewQuestion.deleteMany({});

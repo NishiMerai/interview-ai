@@ -23,9 +23,9 @@ const resumeSchema = new mongoose.Schema({
     keywordDensity: [{ keyword: String, count: Number }]
   },
   versionNumber: Number,
-  matchedSkills: [String],
-missingSkills: [String],
-requiredSkills: [String],
+  matchedSkills: [mongoose.Schema.Types.Mixed],
+  missingSkills: [mongoose.Schema.Types.Mixed],
+  requiredSkills: [mongoose.Schema.Types.Mixed],
 }, { timestamps: true });
 
 resumeSchema.index({ userId: 1, createdAt: -1 });

@@ -1,30 +1,19 @@
 import { useEffect, useState } from 'react';
 
-const API = "https://interview-ai-back-d6w7.onrender.com/api";
+import { api } from '../services/api.js';
 
 async function apiRequest(url, options = {}) {
-  const response = await fetch(`${API}${url}`, {
-    headers: {
-      "Content-Type": "application/json",
-      ...(options.headers || {}),
-    },
-    ...options,
-  });
-
-  const text = await response.text();
-
-  let data = {};
   try {
-    data = text ? JSON.parse(text) : {};
-  } catch {
-    data = { message: text };
+    const response = await api({
+      url,
+      method: options.method || 'GET',
+      data: options.body ? JSON.parse(options.body) : undefined,
+      ...options
+    });
+    return response.data;
+  } catch (error) {
+    throw new Error(error.response?.data?.message || error.message || "Request failed");
   }
-
-  if (!response.ok) {
-    throw new Error(data.message || "Request failed");
-  }
-
-  return data;
 }
 
 export default function AdminPanel() {
@@ -166,7 +155,7 @@ async function editSkill(skill) {
 
     setSkillForm({
       id: skill._id,
-      domain: skill.category || skill.domain,
+      domain: skill.domain || skill.category || "",
       name: skill.name,
       level: skill.level,
     });
@@ -365,9 +354,9 @@ HTML, CSS, JavaScript, React, Node.js, Express.js, MongoDB"
 
             <List>
   {domains.map((d) => {
-   const domainSkills = skills.filter(
-  (s) => s.category === d.name || s.domain === d.name
-);
+    const domainSkills = skills.filter(
+      (s) => s.domain === d.name || s.category === d.name
+    );
 
     if (domainSkills.length === 0) return null;
 

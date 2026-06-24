@@ -39,12 +39,21 @@ function normalizeText(text = '') {
     .trim();
 }
 
-export function extractSkillsFromText(text = '') {
+export function extractSkillsFromText(text = '', customSkills = []) {
   const normalized = normalizeText(text);
   const found = [];
 
-  for (const [skill, aliases] of Object.entries(SKILL_ALIASES)) {
+  // Combine hardcoded aliases with custom skills from DB
+  const allSkills = { ...SKILL_ALIASES };
+  customSkills.forEach(skill => {
+    if (skill.name && !allSkills[skill.name]) {
+      allSkills[skill.name] = [skill.name, ...(skill.aliases || [])];
+    }
+  });
+
+  for (const [skill, aliases] of Object.entries(allSkills)) {
     const isFound = aliases.some((alias) => {
+      // Escape special characters for regex (like C++)
       const safeAlias = alias.toLowerCase().replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
       const regex = new RegExp(`(^|\\s)${safeAlias}(\\s|$)`, 'i');
       return regex.test(normalized);
@@ -57,17 +66,22 @@ export function extractSkillsFromText(text = '') {
 }
 
 export function compareSkills(resumeText = '', requiredSkills = []) {
-  const resumeSkills = extractSkillsFromText(resumeText);
+  // Pass requiredSkills to extraction to ensure we detect them if they are in the resume
+  const resumeSkills = extractSkillsFromText(resumeText, requiredSkills);
 
   const normalizedResumeSkills = resumeSkills.map((s) => s.toLowerCase());
 
   const matchedSkills = requiredSkills.filter((skill) => {
-    const skillLower = String(skill.name || skill).toLowerCase();
-    return normalizedResumeSkills.includes(skillLower);
+    const skillName = (skill.name || skill).toLowerCase();
+    const aliases = (skill.aliases || []).map(a => a.toLowerCase());
+    
+    // Check if skill name or any of its aliases are in the extracted resume skills
+    return normalizedResumeSkills.includes(skillName) || 
+           aliases.some(alias => normalizedResumeSkills.includes(alias));
   });
 
   const missingSkills = requiredSkills.filter(
-    (skill) => !matchedSkills.includes(skill)
+    (skill) => !matchedSkills.find(m => (m.name || m) === (skill.name || skill))
   );
 
   const matchScore = requiredSkills.length

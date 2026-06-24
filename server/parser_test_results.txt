@@ -1,0 +1,8 @@
+--- Testing 1782194777522-NISHI-RESUME-6.docx ---
+Extracted text length: 1883
+Preview: NISHI KAMLESH MERAI  Email: nishimerai75@gmail.com  Phone: +91 7990405629  Github :  NishiMerai  Professional Summary:  Aspiring computer Science student passionate about problem-solving, and innovation. Currently pursuing a degree in Computer Engineering with a focus on developing and enhancing skills in programming and software development.  Skills & Competencies:  Technical Skills:  CSS, OOPS, DBMS, DSA  Technical Languages: Python, SQL, HTML  Platform: Visual Studio Code, GitHub  Soft Skills
+
+--- Testing 1782197369108-NISHI-RESUME-6.pdf ---
+Extracted text length: 1581
+Preview: NISHI MERAI Email: nishimerai75@gmail.com Phone: +91 7990405629 Github : NishiMerai Professional Summary: Aspiring computer Science student passionate about coding, problem-solving, and innovation. Currently pursuing a degree in Computer Engineering with a focus on developing and enhancing skills in programming and software development. Skills & Competencies: • Technical Skills: CSS, OOPS, DBMS, DSA, Computer Networks, Digital Fundamentals • Technical Languages: Python, SQL, JAVA, HTML • Platfor
+

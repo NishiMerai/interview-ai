@@ -1,11 +1,9 @@
 import path from 'path';
 import Resume from '../models/Resume.js';
-
 import { extractTextFromResume } from '../services/resumeParser.service.js';
 import { asyncHandler } from '../utils/asyncHandler.js';
 import { extractSkillsFromText, compareSkills } from '../utils/skillMatcher.js';
 import AdminSkill from "../models/AdminSkill.js";
-
 
 export const uploadResume = asyncHandler(async (req, res) => {
   if (!req.file) {
@@ -13,98 +11,70 @@ export const uploadResume = asyncHandler(async (req, res) => {
     throw new Error('Resume file is required');
   }
 
- const extractedText = await extractTextFromResume(req.file);
- const extractedSkills = extractSkillsFromText(extractedText);
+  const extractedText = await extractTextFromResume(req.file);
+  const selectedDomain = req.body.domain || "Web Development";
 
-const selectedDomain = req.body.domain || "Web Development";
+  // Fix: Query by the newly added 'domain' field (case-insensitive)
+  const adminSkills = await AdminSkill.find({
+    domain: { $regex: new RegExp(`^${selectedDomain}$`, "i") }
+  });
 
-const adminSkills = await AdminSkill.find({
-  domain: { $regex: new RegExp(`^${selectedDomain}$`, "i") }
-});
+  const requiredSkills = adminSkills.map(skill => ({
+    name: skill.name,
+    aliases: skill.aliases || [],
+  }));
 
-const requiredSkills = adminSkills.map(skill => ({
-  name: skill.name,
-  aliases: skill.aliases || [],
-}));
+  // Match resume text against the specific required skills for this domain
+  const {
+    matchedSkills,
+    missingSkills,
+    resumeSkills
+  } = compareSkills(extractedText, requiredSkills);
 
+  const resumeScore = requiredSkills.length
+    ? Math.round((matchedSkills.length / requiredSkills.length) * 100)
+    : 0;
 
-const {
-  matchedSkills,
-  missingSkills,
-  matchScore
-} = compareSkills(extractedText, requiredSkills);
-console.log("Selected Domain:", selectedDomain);
-console.log("Admin Skills Found:", requiredSkills);
-console.log("Extracted Text:", extractedText);
-console.log("Matched Skills:", matchedSkills);
-console.log("Missing Skills:", missingSkills);
+  const atsScore = Math.min(resumeScore + 10, 100);
 
+  const analysis = {
+    resumeScore,
+    atsScore,
+    parsedData: {
+      skills: resumeSkills,
+    },
+    keywordAnalysis: {
+      matchedKeywords: matchedSkills.map(s => s.name || s),
+      missingKeywords: missingSkills.map(s => s.name || s),
+      keywordDensity: [],
+    },
+  };
 
-
-
-const resumeScore = requiredSkills.length
-  ? Math.round((matchedSkills.length / requiredSkills.length) * 100)
-  : 0;
-
-const atsScore = Math.min(resumeScore + 10, 100);
-
-const analysis = {
-  resumeScore,
-  atsScore,
-  parsedData: {
-    skills: extractedSkills,
-  },
-  keywordAnalysis: {
-    matchedKeywords: matchedSkills,
-    missingKeywords: missingSkills,
-    keywordDensity: [],
-  },
-};
-
-// If AI doesn't return parsedData, create it
-if (!analysis.parsedData) {
-  analysis.parsedData = {};
-}
-
-// If AI doesn't return skills, extract them manually
-if (
-  !analysis.parsedData.skills ||
-  analysis.parsedData.skills.length === 0
-) {
-  analysis.parsedData.skills = extractSkillsFromText(extractedText);
-}
-
-console.log("Detected Skills:", analysis.parsedData.skills);
-
-console.log("Detected Skills:", analysis.parsedData.skills);
   const versionNumber = await Resume.countDocuments({ userId: req.user._id }) + 1;
   const ext = path.extname(req.file.originalname).replace('.', '').toLowerCase();
 
-const resume = await Resume.create({
- 
-  userId: req.user._id,
-  fileUrl: `/uploads/${req.file.filename}`,
-  originalFileName: req.file.originalname,
-  fileType: ext,
-  extractedText,
-  versionNumber,
-  parsedData: analysis.parsedData,
-  keywordAnalysis: analysis.keywordAnalysis,
-  resumeScore: analysis.resumeScore,
-  atsScore: analysis.atsScore,
+  const resume = await Resume.create({
+    userId: req.user._id,
+    fileUrl: `/uploads/${req.file.filename}`,
+    originalFileName: req.file.originalname,
+    fileType: ext,
+    extractedText,
+    versionNumber,
+    parsedData: analysis.parsedData,
+    keywordAnalysis: analysis.keywordAnalysis,
+    resumeScore: analysis.resumeScore,
+    atsScore: analysis.atsScore,
+    matchedSkills: matchedSkills.map(s => s.name || s),
+    missingSkills: missingSkills.map(s => s.name || s),
+    requiredSkills: requiredSkills.map(s => s.name || s),
+  });
 
-  matchedSkills,
-missingSkills,
-requiredSkills,
-
-});
-
- res.status(201).json({
-  resume,
-matchedSkills,
-missingSkills,
-requiredSkills,
-});
+  res.status(201).json({
+    resume,
+    matchedSkills: analysis.keywordAnalysis.matchedKeywords,
+    missingSkills: analysis.keywordAnalysis.missingKeywords,
+    requiredSkills: resume.requiredSkills,
+  });
 });
 
 export const listResumes = asyncHandler(async (req, res) => {
