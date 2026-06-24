@@ -5,13 +5,17 @@ const interviewSessionSchema = new mongoose.Schema({
   type: { type: String, enum: ['technical', 'hr', 'behavioral', 'mixed'], default: 'technical' },
   mode: { type: String, enum: ['text', 'voice'], default: 'text' },
   domain: String,
+  difficulty: { type: String, enum: ['Beginner', 'Intermediate', 'Advanced'], default: 'Beginner' },
   targetRole: String,
   questions: [{
     question: String,
     expectedAnswer: String,
     userAnswer: String,
     score: Number,
-    feedback: String
+    feedback: String,
+    strengths: [String],
+    improvements: [String],
+    betterAnswer: String
   }],
   recordingUrl: String,
   transcript: String,

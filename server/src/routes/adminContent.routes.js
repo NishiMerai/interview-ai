@@ -68,7 +68,7 @@ router.delete('/domains/:id', async (req, res) => {
 // SKILLS
 router.post('/skills', async (req, res) => {
   try {
-    const { domain, name, level } = req.body;
+    const { domain, name, level, aliases } = req.body;
 
     if (!domain || !name) {
       return res.status(400).json({ message: 'Domain and skill are required' });
@@ -80,6 +80,7 @@ router.post('/skills', async (req, res) => {
       name,
       category: domain,
       level: level || 'beginner',
+      aliases: aliases || [],
     });
 
     res.status(201).json({ message: 'Skill added', skill });

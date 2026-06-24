@@ -1,7 +1,7 @@
 import { useMutation } from '@tanstack/react-query';
 import { useState } from 'react';
 import { api } from '../services/api.js';
-import { Brain, Trophy, Lightbulb, TrendingUp, HelpCircle, ChevronRight, Play } from 'lucide-react';
+import { Brain, Trophy, Lightbulb, TrendingUp, HelpCircle, ChevronRight, Play, AlertTriangle } from 'lucide-react';
 
 const DOMAINS = [
   "Web Development", "Mobile Development", "AI & ML", "Data Science", 
@@ -23,23 +23,63 @@ export default function MockInterview() {
   const [type, setType] = useState(TYPES[0].id);
   const [difficulty, setDifficulty] = useState(DIFFICULTIES[0]);
   const [session, setSession] = useState(null);
+  const [error, setError] = useState('');
 
   const startMutation = useMutation({
     mutationFn: async () => {
+      setError('');
       const res = await api.post('/interviews/start', { domain, type, difficulty });
-      return res.data.session;
+      // Handle all possible response shapes
+      const sessionData = res.data?.session || res.data?.data?.session || res.data;
+      const questions = sessionData?.questions || res.data?.questions || res.data?.data?.questions || [];
+
+      // If sessionData has questions, use it directly
+      if (sessionData && sessionData.questions && sessionData.questions.length > 0) {
+        return sessionData;
+      }
+
+      // If questions exist at a different path, build a session object
+      if (questions.length > 0) {
+        return {
+          _id: sessionData?._id || `local-${Date.now()}`,
+          domain,
+          type,
+          difficulty,
+          questions
+        };
+      }
+
+      throw new Error('No questions were generated. Please try again.');
     },
-    onSuccess: (session) => setSession(session)
+    onSuccess: (sessionData) => {
+      setSession(sessionData);
+      setError('');
+    },
+    onError: (err) => {
+      const msg = err?.response?.data?.message || err.message || 'Failed to start interview. Please try again.';
+      setError(msg);
+      console.error('Start interview error:', err);
+    }
   });
 
   const submitMutation = useMutation({
     mutationFn: async () => {
+      setError('');
       const res = await api.put(`/interviews/${session._id}/submit`, {
         questions: session.questions,
       });
-      return res.data.session;
+      const updatedSession = res.data?.session || res.data?.data?.session || res.data;
+      return updatedSession;
     },
-    onSuccess: (updatedSession) => setSession(updatedSession)
+    onSuccess: (updatedSession) => {
+      setSession(updatedSession);
+      setError('');
+    },
+    onError: (err) => {
+      const msg = err?.response?.data?.message || err.message || 'Failed to submit answers. Please try again.';
+      setError(msg);
+      console.error('Submit interview error:', err);
+    }
   });
 
   const updateAnswer = (index, userAnswer) => {
@@ -84,7 +124,7 @@ export default function MockInterview() {
               disabled={startMutation.isPending}
               className="btn-primary w-full h-[52px]"
             >
-              {startMutation.isPending ? 'Simulating...' : (
+              {startMutation.isPending ? 'Generating Questions...' : (
                 <>
                   <Play size={18} />
                   Start Session
@@ -93,6 +133,21 @@ export default function MockInterview() {
             </button>
           </div>
         </div>
+
+        {error && (
+          <div className="mt-4 p-4 bg-red-50 dark:bg-red-900/20 border border-red-200 dark:border-red-800 rounded-2xl flex items-start gap-3">
+            <AlertTriangle className="text-red-500 shrink-0 mt-0.5" size={18} />
+            <div>
+              <p className="text-sm font-semibold text-red-700 dark:text-red-400">{error}</p>
+              <button 
+                onClick={() => { setError(''); startMutation.mutate(); }}
+                className="text-xs font-bold text-red-600 dark:text-red-300 underline mt-1 hover:text-red-800"
+              >
+                Try Again
+              </button>
+            </div>
+          </div>
+        )}
       </div>
 
       {session && (
@@ -106,7 +161,7 @@ export default function MockInterview() {
                 <h2 className="text-xl font-black">{session.domain}</h2>
                 <div className="flex items-center gap-2 mt-1">
                    <span className="badge bg-indigo-50 text-indigo-600 border border-indigo-100">{session.type}</span>
-                   <span className="badge bg-slate-50 text-slate-600 border border-slate-200">{session.difficulty}</span>
+                   <span className="badge bg-violet-50 text-violet-600 border border-violet-100">{session.difficulty}</span>
                 </div>
               </div>
             </div>
@@ -124,7 +179,7 @@ export default function MockInterview() {
           </div>
 
           <div className="space-y-6">
-            {session.questions.map((item, index) => (
+            {session.questions && session.questions.map((item, index) => (
               <div key={item._id || index} className="glass-card group hover:border-indigo-200 transition-all duration-300">
                 <div className="flex items-start gap-4">
                   <span className="text-4xl font-black text-slate-100 dark:text-white/5 transition-colors group-hover:text-indigo-100">
@@ -132,7 +187,7 @@ export default function MockInterview() {
                   </span>
                   <div className="flex-1">
                     <h3 className="text-lg font-bold text-slate-800 dark:text-slate-100 mb-4 leading-relaxed italic">
-                      "{item.question}"
+                      &quot;{item.question}&quot;
                     </h3>
                     
                     {!session.overallScore ? (

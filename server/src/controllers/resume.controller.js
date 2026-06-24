@@ -19,12 +19,16 @@ export const uploadResume = asyncHandler(async (req, res) => {
   console.log("DOMAIN:", selectedDomain);
 
   // 1. Fetch ONLY admin-added skills for the selected domain
+  // Broadening query to handle legacy 'category' field if 'domain' is missing
   const adminSkills = await AdminSkill.find({
-    domain: { $regex: new RegExp(`^${selectedDomain}$`, "i") }
+    $or: [
+      { domain: { $regex: new RegExp(`^${selectedDomain}$`, "i") } },
+      { category: { $regex: new RegExp(`^${selectedDomain}$`, "i") } }
+    ]
   });
 
   console.log("ADMIN SKILLS COUNT:", adminSkills.length);
-  console.log("ADMIN SKILLS:", adminSkills.map(s => ({ name: s.name, domain: s.domain, aliases: s.aliases })));
+  console.log("ADMIN SKILLS:", adminSkills.map(s => ({ name: s.name, domain: s.domain, category: s.category })));
 
   const requiredSkills = adminSkills.map(skill => ({
     name: skill.name,
@@ -87,6 +91,49 @@ export const uploadResume = asyncHandler(async (req, res) => {
     missingSkills: analysis.keywordAnalysis.missingKeywords,
     requiredSkills: resume.requiredSkills,
     extractedSkills: extractedSkills
+  });
+});
+
+export const debugSkills = asyncHandler(async (req, res) => {
+  const domain = req.query.domain || "Web Development";
+  
+  // MIGRATION: Fix any skills that have the domain name in 'category' but missing 'domain'
+  const legacySkills = await AdminSkill.find({ 
+    category: { $regex: new RegExp(`^${domain}$`, "i") },
+    domain: { $exists: false }
+  });
+  
+  if (legacySkills.length > 0) {
+    console.log(`Fixing ${legacySkills.length} legacy skill records for ${domain}`);
+    await AdminSkill.updateMany(
+      { category: { $regex: new RegExp(`^${domain}$`, "i") }, domain: { $exists: false } },
+      { $set: { domain: domain } }
+    );
+  }
+
+  const adminSkills = await AdminSkill.find({
+    $or: [
+      { domain: { $regex: new RegExp(`^${domain}$`, "i") } },
+      { category: { $regex: new RegExp(`^${domain}$`, "i") } }
+    ]
+  });
+
+  const latestResume = await Resume.findOne({ userId: req.user._id }).sort({ createdAt: -1 });
+  
+  let comparison = { matchedSkills: [], missingSkills: [], extractedSkills: [], matchScore: 0 };
+  if (latestResume) {
+    comparison = compareSkills(latestResume.extractedText, adminSkills.map(s => ({ name: s.name, aliases: s.aliases || [] })));
+  }
+
+  res.json({
+    domain,
+    adminSkillsCount: adminSkills.length,
+    adminSkills: adminSkills.map(s => ({ name: s.name, domain: s.domain, category: s.category, aliases: s.aliases })),
+    extractedSkillsFromLatestResume: comparison.extractedSkills,
+    latestResumeTextPreview: latestResume?.extractedText?.substring(0, 500),
+    matchedSkills: comparison.matchedSkills.map(s => s.name),
+    missingSkills: comparison.missingSkills.map(s => s.name),
+    matchScore: comparison.matchScore
   });
 });
 

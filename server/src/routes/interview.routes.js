@@ -1,11 +1,11 @@
 import { Router } from 'express';
 import { listInterviews, startInterview, submitInterview } from '../controllers/interview.controller.js';
 import { protect } from '../middleware/auth.middleware.js';
+import InterviewQuestion from '../models/InterviewQuestion.js';
 
 const router = Router();
 
-
-
+// Public route — fetch questions by domain (no auth required)
 router.get('/questions/domain/:domain', async (req, res) => {
   try {
     const domain = decodeURIComponent(req.params.domain);
@@ -19,6 +19,8 @@ router.get('/questions/domain/:domain', async (req, res) => {
     res.status(500).json({ message: error.message });
   }
 });
+
+// Protected routes
 router.use(protect);
 router.post('/start', startInterview);
 router.put('/:id/submit', submitInterview);
