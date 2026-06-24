@@ -1,6 +1,6 @@
 import Resume from '../models/Resume.js';
 import SkillGapReport from '../models/SkillGapReport.js';
-import { generateSkillGap } from '../services/ai.service.js';
+import { generateAIResponse } from "../services/ai.service.js";
 import { asyncHandler } from '../utils/asyncHandler.js';
 import AdminSkill from '../models/AdminSkill.js';
 import { compareSkills } from '../utils/skillMatcher.js';
