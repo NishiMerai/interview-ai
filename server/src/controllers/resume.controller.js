@@ -4,9 +4,7 @@ import { analyzeResumeText } from '../services/ai.service.js';
 import { extractTextFromResume } from '../services/resumeParser.service.js';
 import { asyncHandler } from '../utils/asyncHandler.js';
 import { extractSkillsFromText } from '../utils/skillMatcher.js';
-
-
-
+import AdminSkill from "../models/AdminSkill.js";
 
 export const uploadResume = asyncHandler(async (req, res) => {
   if (!req.file) {
@@ -16,7 +14,45 @@ export const uploadResume = asyncHandler(async (req, res) => {
 
   const extractedText = await extractTextFromResume(req.file);
 
-const analysis = await analyzeResumeText(extractedText);
+const extractedSkills = extractSkillsFromText(extractedText);
+
+const selectedDomain = req.body.domain || req.body.targetDomain || "Web Development";
+
+const adminSkills = await AdminSkill.find({
+  domain: selectedDomain,
+});
+
+const requiredSkills = adminSkills.map((skill) => skill.name);
+
+const matchedSkills = requiredSkills.filter((skill) =>
+  extractedSkills.some(
+    (resumeSkill) =>
+      resumeSkill.toLowerCase() === skill.toLowerCase()
+  )
+);
+
+const missingSkills = requiredSkills.filter(
+  (skill) => !matchedSkills.includes(skill)
+);
+
+const resumeScore = requiredSkills.length
+  ? Math.round((matchedSkills.length / requiredSkills.length) * 100)
+  : 0;
+
+const atsScore = Math.min(resumeScore + 10, 100);
+
+const analysis = {
+  resumeScore,
+  atsScore,
+  parsedData: {
+    skills: extractedSkills,
+  },
+  keywordAnalysis: {
+    matchedKeywords: matchedSkills,
+    missingKeywords: missingSkills,
+    keywordDensity: [],
+  },
+};
 
 // If AI doesn't return parsedData, create it
 if (!analysis.parsedData) {
@@ -54,7 +90,9 @@ const resume = await Resume.create({
 
  res.status(201).json({
   resume,
- matchedSkills: analysis.parsedData?.skills || [],
+matchedSkills,
+missingSkills,
+requiredSkills,
 });
 });
 
