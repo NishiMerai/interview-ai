@@ -3,10 +3,18 @@ import mongoose from 'mongoose';
 const interviewSessionSchema = new mongoose.Schema({
   userId: { type: mongoose.Schema.Types.ObjectId, ref: 'User', required: true, index: true },
   type: { type: String, enum: ['technical', 'hr', 'behavioral', 'mixed'], default: 'technical' },
-  mode: { type: String, enum: ['text', 'voice'], default: 'text' },
-  domain: String,
-  difficulty: { type: String, enum: ['Beginner', 'Intermediate', 'Advanced'], default: 'Beginner' },
-  targetRole: String,
+  mode: {
+    type: String,
+    enum: ["technical", "hr", "behavioral", "mixed", "Technical Interview", "HR Interview", "Behavioral Interview", "Mixed Interview"],
+    default: "technical",
+  },
+
+  difficulty: {
+    type: String,
+    enum: ["easy", "medium", "hard", "beginner", "intermediate", "advanced", "Beginner", "Intermediate", "Advanced"],
+    default: "easy",
+  },
+
   questions: [{
     question: String,
     expectedAnswer: String,
