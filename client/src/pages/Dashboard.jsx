@@ -1,6 +1,6 @@
 import { useQuery } from '@tanstack/react-query';
 import { Radar, RadarChart, PolarGrid, PolarAngleAxis, ResponsiveContainer, BarChart, Bar, XAxis, Tooltip, Cell, YAxis } from 'recharts';
-import { LayoutDashboard, Zap, Clock, Star, Terminal, Sparkles } from 'lucide-react';
+import { Clock, Terminal, Sparkles, TrendingUp, ChevronRight } from 'lucide-react';
 import MetricCard from '../components/MetricCard.jsx';
 import { api } from '../services/api.js';
 
