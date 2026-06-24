@@ -38,7 +38,9 @@ const SKILL_ALIASES = {
 function normalizeText(text = '') {
   return text
     .toLowerCase()
-    .replace(/[(){}\[\]\n\r,.;:|/\\_-]/g, ' ')
+    // We keep '+' for C++, '#' for C#, and '.' for Node.js
+    // But we replace other delimiters with space
+    .replace(/[(){}\[\]\n\r,;:|/\\_-]/g, ' ')
     .replace(/\s+/g, ' ')
     .trim();
 }
@@ -56,19 +58,24 @@ export function extractSkillsFromText(text = '', customSkills = []) {
   // Merge admin skills into the extraction dictionary
   customSkills.forEach(s => {
     const name = s.name || s;
+    const aliases = (s.aliases || []).map(a => a.toLowerCase());
+    
     if (name && !allSkillsMap[name]) {
-      allSkillsMap[name] = [name.toLowerCase(), ...(s.aliases || []).map(a => a.toLowerCase())];
+      allSkillsMap[name] = [name.toLowerCase(), ...aliases];
     } else if (name && s.aliases) {
       // Add any new aliases for existing skills
-      allSkillsMap[name] = [...new Set([...allSkillsMap[name], ...s.aliases.map(a => a.toLowerCase())])];
+      allSkillsMap[name] = [...new Set([...allSkillsMap[name], ...aliases])];
     }
   });
 
   // 2. Scan text for each skill's aliases
   for (const [skillName, aliases] of Object.entries(allSkillsMap)) {
     const isFound = aliases.some(alias => {
-      const safeAlias = alias.toLowerCase().replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
-      // Look for whole words/acronyms. Handles things like "C" or "JS" correctly.
+      // Important: Normalize the alias the SAME way as the text
+      const cleanAlias = normalizeText(alias);
+      if (!cleanAlias) return false;
+
+      const safeAlias = cleanAlias.replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
       const regex = new RegExp(`(^|\\b)${safeAlias}(\\b|$)`, 'i');
       return regex.test(normalized);
     });
@@ -83,6 +90,8 @@ export function extractSkillsFromText(text = '', customSkills = []) {
  * Compares resume text against a specific set of required (Admin) skills.
  */
 export function compareSkills(resumeText = '', requiredSkills = []) {
+  const normalizedResume = normalizeText(resumeText);
+
   // 1. Extract ALL skills present in the resume to show "Extracted Skills"
   const extractedSkills = extractSkillsFromText(resumeText, requiredSkills);
   
@@ -92,11 +101,13 @@ export function compareSkills(resumeText = '', requiredSkills = []) {
     const aliases = (adminSkill.aliases || []).map(a => a.toLowerCase());
     
     // Check if the resume text contains the name or any alias of this SPECIFIC admin skill
-    const normalized = normalizeText(resumeText);
     return [name, ...aliases].some(term => {
-      const safeTerm = term.replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
+      const cleanTerm = normalizeText(term);
+      if (!cleanTerm) return false;
+
+      const safeTerm = cleanTerm.replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
       const regex = new RegExp(`(^|\\b)${safeTerm}(\\b|$)`, 'i');
-      return regex.test(normalized);
+      return regex.test(normalizedResume);
     });
   });
 

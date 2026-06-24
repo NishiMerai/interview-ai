@@ -186,6 +186,49 @@ export default function ResumeAnalyzer() {
           )}
         </div>
       </div>
+
+      {/* TEMPORARY DEBUG PANEL */}
+      {latest && (
+        <div className="mt-12 p-8 bg-slate-900 rounded-[2rem] text-cyan-400 font-mono text-xs overflow-auto border-4 border-indigo-500/30">
+          <h2 className="text-xl font-black text-white mb-4 italic tracking-tighter">RAW DEBUG CONSOLE v1.0</h2>
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
+            <div className="space-y-4">
+              <p><span className="text-slate-500 uppercase tracking-widest font-black mr-2">Domain:</span> {selectedDomain}</p>
+              <p><span className="text-slate-500 uppercase tracking-widest font-black mr-2">Resume Score:</span> {latest.resumeScore}%</p>
+              <p><span className="text-slate-500 uppercase tracking-widest font-black mr-2">ATS Score:</span> {latest.atsScore}%</p>
+              <div>
+                <p className="text-slate-500 uppercase tracking-widest font-black mb-1">Required Admin Skills:</p>
+                <div className="flex flex-wrap gap-1">
+                  {latest.requiredSkills?.map((s, i) => <span key={i} className="bg-indigo-500/20 px-2 py-0.5 rounded-md border border-indigo-500/30">{s}</span>)}
+                </div>
+              </div>
+            </div>
+            <div className="space-y-4">
+               <div>
+                  <p className="text-slate-500 uppercase tracking-widest font-black mb-1">Extracted from PDF:</p>
+                  <div className="flex flex-wrap gap-1">
+                    {latest.parsedData?.skills?.map((s, i) => <span key={i} className="bg-white/5 px-2 py-0.5 rounded-md text-white">{s}</span>)}
+                  </div>
+               </div>
+               <div>
+                  <p className="text-slate-500 uppercase tracking-widest font-black mb-1">Intersection (Matched):</p>
+                  <div className="flex flex-wrap gap-1">
+                    {latest.matchedSkills?.map((s, i) => <span key={i} className="bg-emerald-500/20 px-2 py-0.5 rounded-md text-emerald-400 border border-emerald-500/30 font-bold">{s}</span>)}
+                  </div>
+               </div>
+                <div>
+                  <p className="text-slate-500 uppercase tracking-widest font-black mb-1">Delta (Missing):</p>
+                  <div className="flex flex-wrap gap-1">
+                    {latest.missingSkills?.map((s, i) => <span key={i} className="bg-rose-500/20 px-2 py-0.5 rounded-md text-rose-400 border border-rose-500/30 font-bold">{s}</span>)}
+                  </div>
+               </div>
+            </div>
+          </div>
+          <div className="mt-8 border-t border-white/5 pt-4">
+             <p className="text-[10px] text-slate-500 italic opacity-50 font-sans">System Diagnostics: {new Date().toISOString()} | Trace ID: {Math.random().toString(36).substring(7)}</p>
+          </div>
+        </div>
+      )}
     </div>
   );
 }

@@ -14,10 +14,17 @@ export const uploadResume = asyncHandler(async (req, res) => {
   const extractedText = await extractTextFromResume(req.file);
   const selectedDomain = req.body.domain || "Web Development";
 
+  console.log("--- DEBUG START ---");
+  console.log("BODY:", req.body);
+  console.log("DOMAIN:", selectedDomain);
+
   // 1. Fetch ONLY admin-added skills for the selected domain
   const adminSkills = await AdminSkill.find({
     domain: { $regex: new RegExp(`^${selectedDomain}$`, "i") }
   });
+
+  console.log("ADMIN SKILLS COUNT:", adminSkills.length);
+  console.log("ADMIN SKILLS:", adminSkills.map(s => ({ name: s.name, domain: s.domain, aliases: s.aliases })));
 
   const requiredSkills = adminSkills.map(skill => ({
     name: skill.name,
@@ -32,15 +39,11 @@ export const uploadResume = asyncHandler(async (req, res) => {
     matchScore: calculatedMatchScore
   } = compareSkills(extractedText, requiredSkills);
 
-  // DEBUG LOGS (Temporary)
-  console.log("--- RESUME ANALYSIS DEBUG ---");
-  console.log("Selected domain:", selectedDomain);
-  console.log("Admin skills (Required):", requiredSkills.map(s => s.name));
-  console.log("Extracted skills from resume:", extractedSkills);
-  console.log("Matching skills (Admin skills found):", matchedSkills.map(s => s.name));
-  console.log("Missing skills (Admin skills absent):", missingSkills.map(s => s.name));
-  console.log("Resume Score:", calculatedMatchScore);
-  console.log("------------------------------");
+  console.log("EXTRACTED TEXT (FIRST 500 CHARS):", extractedText.substring(0, 500));
+  console.log("EXTRACTED SKILLS:", extractedSkills);
+  console.log("MATCHED:", matchedSkills.map(s => s.name));
+  console.log("MISSING:", missingSkills.map(s => s.name));
+  console.log("--- DEBUG END ---");
 
   // Requirement: Resume Score calculation
   const resumeScore = calculatedMatchScore;
