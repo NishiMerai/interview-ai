@@ -3,8 +3,9 @@ import Resume from '../models/Resume.js';
 import { analyzeResumeText } from '../services/ai.service.js';
 import { extractTextFromResume } from '../services/resumeParser.service.js';
 import { asyncHandler } from '../utils/asyncHandler.js';
-import { extractSkillsFromText } from '../utils/skillMatcher.js';
+import { extractSkillsFromText, compareSkills } from '../utils/skillMatcher.js';
 import AdminSkill from "../models/AdminSkill.js";
+
 
 export const uploadResume = asyncHandler(async (req, res) => {
   if (!req.file) {
@@ -12,24 +13,24 @@ export const uploadResume = asyncHandler(async (req, res) => {
     throw new Error('Resume file is required');
   }
 
-  const extractedText = await extractTextFromResume(req.file);
+ const extractedText = await extractTextFromResume(req.file);
 
-const extractedSkills = extractSkillsFromText(extractedText);
-
-const selectedDomain = req.body.domain || req.body.targetDomain || "Web Development";
+const selectedDomain = req.body.domain || "Web Development";
 
 const adminSkills = await AdminSkill.find({
-  domain: selectedDomain,
+  domain: { $regex: new RegExp(`^${selectedDomain}$`, "i") }
 });
 
-const requiredSkills = adminSkills.map((skill) => skill.name);
+const requiredSkills = adminSkills.map(skill => skill.name);
 
-const matchedSkills = requiredSkills.filter((skill) =>
-  extractedSkills.some(
-    (resumeSkill) =>
-      resumeSkill.toLowerCase() === skill.toLowerCase()
-  )
-);
+const {
+  matchedSkills,
+  missingSkills,
+  matchScore
+} = compareSkills(extractedText, requiredSkills);
+
+const analysis = await analyzeResumeText(extractedText);
+
 
 const missingSkills = requiredSkills.filter(
   (skill) => !matchedSkills.includes(skill)
