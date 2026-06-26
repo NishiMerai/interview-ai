@@ -8,7 +8,6 @@ import { toggleTheme } from '../store/themeSlice.js';
 const navItems = [
   { label: 'Dashboard', path: '/app/dashboard' },
   { label: 'Resume', path: '/app/resume' },
-  { label: 'Skill Gap', path: '/app/skill-gap' },
   { label: 'Roadmap', path: '/app/roadmap' },
   { label: 'Interview', path: '/app/interview' },
   { label: 'Chatbot', path: '/app/chatbot' },

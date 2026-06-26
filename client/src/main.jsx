@@ -16,7 +16,6 @@ const AdminLogin = lazy(() => import('./pages/AdminLogin.jsx'));
 const Register = lazy(() => import('./pages/Register.jsx'));
 const Dashboard = lazy(() => import('./pages/Dashboard.jsx'));
 const ResumeAnalyzer = lazy(() => import('./pages/ResumeAnalyzer.jsx'));
-const SkillGap = lazy(() => import('./pages/SkillGap.jsx'));
 const LearningRoadmap = lazy(() => import('./pages/LearningRoadmap.jsx'));
 const MockInterview = lazy(() => import('./pages/MockInterview.jsx'));
 const Chatbot = lazy(() => import('./pages/Chatbot.jsx'));
@@ -43,7 +42,6 @@ const router = createBrowserRouter([
       { index: true, element: <Suspense fallback={<Loader />}><Dashboard /></Suspense> },
       { path: 'dashboard', element: <Suspense fallback={<Loader />}><Dashboard /></Suspense> },
       { path: 'resume', element: <Suspense fallback={<Loader />}><ResumeAnalyzer /></Suspense> },
-      { path: 'skill-gap', element: <Suspense fallback={<Loader />}><SkillGap /></Suspense> },
       { path: 'roadmap', element: <Suspense fallback={<Loader />}><LearningRoadmap /></Suspense> },
       { path: 'interview', element: <Suspense fallback={<Loader />}><MockInterview /></Suspense> },
       { path: 'chatbot', element: <Suspense fallback={<Loader />}><Chatbot /></Suspense> },
