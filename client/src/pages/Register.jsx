@@ -2,7 +2,7 @@ import { Link, useNavigate } from 'react-router-dom';
 import { useDispatch } from 'react-redux';
 import { useForm } from 'react-hook-form';
 import { api } from '../services/api.js';
-import { setCredentials } from '../features/auth/authSlice.js';
+import { logout } from '../features/auth/authSlice.js';
 
 export default function Register() {
   const { register, handleSubmit, formState: { isSubmitting, errors }, setError } = useForm({
@@ -18,8 +18,8 @@ export default function Register() {
   const onSubmit = async (values) => {
     try {
       const { data } = await api.post('/auth/register', values);
-      dispatch(setCredentials(data));
-      navigate('/app');
+      dispatch(logout());
+      navigate('/login', { state: { message: data.message || 'Account created successfully. Please sign in.' } });
     } catch (error) {
       setError('root', { message: error.response?.data?.message || 'Registration failed' });
     }

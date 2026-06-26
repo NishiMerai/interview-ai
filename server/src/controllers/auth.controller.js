@@ -37,13 +37,10 @@ export const register = asyncHandler(async (req, res) => {
 
   if (!isDatabaseReady() && process.env.NODE_ENV !== 'production') {
     const user = await createMemoryUser({ name, email, password, role: 'user' });
-    const accessToken = signAccessToken(user);
-    const refreshToken = signRefreshToken(user);
-    setRefreshCookie(res, refreshToken);
 
     return res.status(201).json({
+      message: 'Account created successfully. Please sign in.',
       user: userDto(user),
-      accessToken,
       mode: 'in-memory-demo'
     });
   }
@@ -56,11 +53,11 @@ export const register = asyncHandler(async (req, res) => {
 
   const passwordHash = await User.hashPassword(password);
   const user = await User.create({ name, email, passwordHash });
-  const accessToken = signAccessToken(user);
-  const refreshToken = signRefreshToken(user);
-  setRefreshCookie(res, refreshToken);
 
-  res.status(201).json({ user: userDto(user), accessToken });
+  res.status(201).json({
+    message: 'Account created successfully. Please sign in.',
+    user: userDto(user)
+  });
 });
 
 export const bootstrapAdmin = asyncHandler(async (_req, res) => {

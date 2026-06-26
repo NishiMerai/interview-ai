@@ -1,23 +1,145 @@
 import OpenAI from 'openai';
 
-const groq = new OpenAI({
-  apiKey: process.env.GROQ_API_KEY,
-  baseURL: 'https://api.groq.com/openai/v1',
-});
+let groqInstance = null;
+function getGroq() {
+  if (!groqInstance) {
+    groqInstance = new OpenAI({
+      apiKey: process.env.GROQ_API_KEY || 'dummy_key',
+      baseURL: 'https://api.groq.com/openai/v1',
+    });
+  }
+  return groqInstance;
+}
 
-async function callGroq(messages, maxTokens = 900) {
-  const completion = await groq.chat.completions.create({
-    model: process.env.AI_MODEL || 'llama-3.3-70b-versatile',
-    messages,
-    temperature: 0.2,
-    max_tokens: maxTokens,
-  });
+export async function callAI(messages, maxTokens = 900) {
+  const aiProvider = (process.env.AI_PROVIDER || 'gemini').toLowerCase();
+  const geminiKey = process.env.GEMINI_API_KEY;
+  const groqKey = process.env.GROQ_API_KEY;
 
-  return completion.choices?.[0]?.message?.content || '';
+  let primaryProvider = '';
+  let fallbackProvider = '';
+
+  if (aiProvider === 'gemini') {
+    if (geminiKey) {
+      primaryProvider = 'gemini';
+      if (groqKey) fallbackProvider = 'groq';
+    } else if (groqKey) {
+      primaryProvider = 'groq';
+    }
+  } else {
+    if (groqKey) {
+      primaryProvider = 'groq';
+      if (geminiKey) fallbackProvider = 'gemini';
+    } else if (geminiKey) {
+      primaryProvider = 'gemini';
+    }
+  }
+
+  if (!primaryProvider) {
+    throw new Error('AI key is missing.');
+  }
+
+  const executeProvider = async (provider) => {
+    if (provider === 'gemini') {
+      const model = (process.env.AI_MODEL && process.env.AI_MODEL.includes('gemini'))
+        ? process.env.AI_MODEL
+        : 'gemini-1.5-flash';
+
+      let systemInstructionText = '';
+      const contents = [];
+
+      for (const msg of messages) {
+        if (msg.role === 'system') {
+          systemInstructionText += (systemInstructionText ? '\n' : '') + msg.content;
+        } else {
+          contents.push({
+            role: msg.role === 'assistant' ? 'model' : 'user',
+            parts: [{ text: msg.content }]
+          });
+        }
+      }
+
+      const payload = {
+        contents,
+        generationConfig: {
+          temperature: 0.2,
+          maxOutputTokens: maxTokens
+        }
+      };
+
+      if (systemInstructionText) {
+        payload.systemInstruction = {
+          parts: [{ text: systemInstructionText }]
+        };
+      }
+
+      const url = `https://generativelanguage.googleapis.com/v1beta/models/${model}:generateContent?key=${geminiKey}`;
+
+      const response = await fetch(url, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(payload)
+      });
+
+      if (!response.ok) {
+        const errText = await response.text();
+        throw new Error(`Gemini API error: ${response.status} - ${errText}`);
+      }
+
+      const data = await response.json();
+      const text = data.candidates?.[0]?.content?.parts?.[0]?.text || '';
+      return text;
+    } else if (provider === 'groq') {
+      const model = (process.env.AI_MODEL && !process.env.AI_MODEL.includes('gemini'))
+        ? process.env.AI_MODEL
+        : 'llama-3.3-70b-versatile';
+
+      const completion = await getGroq().chat.completions.create({
+        model,
+        messages,
+        temperature: 0.2,
+        max_tokens: maxTokens,
+      });
+
+      return completion.choices?.[0]?.message?.content || '';
+    }
+  };
+
+  try {
+    const result = await executeProvider(primaryProvider);
+    if (!result || result.trim() === '') {
+      throw new Error(`Empty response from primary provider: ${primaryProvider}`);
+    }
+    console.log(`AI provider used: ${primaryProvider}`);
+    console.log(`response length: ${result.length}`);
+    return result;
+  } catch (primaryError) {
+    console.log(`AI provider used: ${primaryProvider}`);
+    console.log(`AI error message: ${primaryError.message}`);
+
+    if (fallbackProvider) {
+      console.log(`Falling back to provider: ${fallbackProvider}`);
+      try {
+        const fallbackResult = await executeProvider(fallbackProvider);
+        if (!fallbackResult || fallbackResult.trim() === '') {
+          throw new Error(`Empty response from fallback provider: ${fallbackProvider}`);
+        }
+        console.log(`AI provider used: ${fallbackProvider}`);
+        console.log(`response length: ${fallbackResult.length}`);
+        return fallbackResult;
+      } catch (fallbackError) {
+        console.log(`AI provider used (fallback): ${fallbackProvider}`);
+        console.log(`AI error message (fallback): ${fallbackError.message}`);
+        throw new Error(`Both AI providers failed. Primary: ${primaryError.message}. Fallback: ${fallbackError.message}`);
+      }
+    } else {
+      throw primaryError;
+    }
+  }
 }
 
 export async function generateAIResponse(prompt) {
-  return await callGroq([
+  return await callAI([
     {
       role: "system",
       content:
@@ -39,7 +161,7 @@ function parseJSON(text, fallback) {
 }
 
 export async function extractResumeSkillsWithAI(resumeText = '') {
-  const response = await callGroq([
+  const response = await callAI([
     {
       role: 'system',
       content: 'Extract resume skills. Return ONLY valid JSON.',
@@ -80,7 +202,7 @@ export async function analyzeResumeText(resumeText = '') {
 }
 
 export async function chatWithCareerCoach(messages = []) {
-  return callGroq([
+  return callAI([
     {
       role: 'system',
       content:
@@ -164,7 +286,7 @@ export async function generateRoadmap(missingSkills = [], targetRole = 'Software
 }
 
 export async function createInterviewQuestions({ domain = 'Web Development', type = 'technical', difficulty = 'Beginner', count = 5 }) {
-  const response = await callGroq([
+  const response = await callAI([
     { role: 'system', content: 'You are an expert technical recruiter. Return ONLY valid JSON.' },
     { role: 'user', content: `Generate ${count} ${difficulty} level ${type} interview questions for ${domain}. 
     
@@ -192,7 +314,7 @@ export async function createInterviewQuestions({ domain = 'Web Development', typ
 }
 
 export async function gradeInterviewAnswer({ questions = [] }) {
-  const result = await callGroq([
+  const result = await callAI([
     { role: 'system', content: 'You are an AI Interview Evaluator. Grade the responses strictly. Return ONLY valid JSON.' },
     { role: 'user', content: `Evaluate these interview responses:
     ${JSON.stringify(questions.map(q => ({ q: q.question, a: q.userAnswer || 'No answer provided', expected: q.expectedAnswer })))}

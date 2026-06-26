@@ -33,6 +33,23 @@ api.interceptors.response.use(
       }
     }
 
+    // Check if the backend is asleep or spinning up on Render.
+    // This manifests as no response (network error), a gateway error (502, 503, 504), or a request timeout.
+    if (!error.response || (error.response.status >= 502 && error.response.status <= 504) || error.code === 'ECONNABORTED') {
+      const wakingUpMsg = "Server is waking up. Please try again in a few seconds.";
+      if (error.response) {
+        if (!error.response.data) error.response.data = {};
+        error.response.data.message = wakingUpMsg;
+      } else {
+        error.response = {
+          status: 503,
+          data: {
+            message: wakingUpMsg
+          }
+        };
+      }
+    }
+
     return Promise.reject(error);
   }
 );

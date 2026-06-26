@@ -23,8 +23,20 @@ const __dirname = path.dirname(__filename);
 const app = express();
 
 app.use(helmet());
+const clientUrlEnv = process.env.CLIENT_URL;
+const allowedOrigins = clientUrlEnv
+  ? clientUrlEnv.split(',').map(url => url.trim())
+  : ['http://localhost:5173', 'http://localhost:3000'];
+
 app.use(cors({
-  origin: process.env.CLIENT_URL || 'http://localhost:5173',
+  origin: (origin, callback) => {
+    if (!origin) return callback(null, true);
+    if (allowedOrigins.indexOf(origin) !== -1 || allowedOrigins.includes('*')) {
+      return callback(null, true);
+    } else {
+      return callback(new Error('Not allowed by CORS'));
+    }
+  },
   credentials: true
 }));
 app.use(express.json({ limit: '2mb' }));
