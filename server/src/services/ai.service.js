@@ -1,141 +1,26 @@
 import OpenAI from 'openai';
 
-let groqInstance = null;
-function getGroq() {
-  if (!groqInstance) {
-    groqInstance = new OpenAI({
-      apiKey: process.env.GROQ_API_KEY || 'dummy_key',
-      baseURL: 'https://api.groq.com/openai/v1',
-    });
-  }
-  return groqInstance;
-}
-
-export async function callAI(messages, maxTokens = 900) {
-  const aiProvider = (process.env.AI_PROVIDER || 'gemini').toLowerCase();
-  const geminiKey = process.env.GEMINI_API_KEY;
-  const groqKey = process.env.GROQ_API_KEY;
-
-  let primaryProvider = '';
-  let fallbackProvider = '';
-
-  if (aiProvider === 'gemini') {
-    if (geminiKey) {
-      primaryProvider = 'gemini';
-      if (groqKey) fallbackProvider = 'groq';
-    } else if (groqKey) {
-      primaryProvider = 'groq';
-    }
-  } else {
-    if (groqKey) {
-      primaryProvider = 'groq';
-      if (geminiKey) fallbackProvider = 'gemini';
-    } else if (geminiKey) {
-      primaryProvider = 'gemini';
-    }
+export async function callAI(messages, maxTokens = 600) {
+  const apiKey = process.env.GROQ_API_KEY;
+  if (!apiKey) {
+    throw new Error('GROQ_API_KEY is missing.');
   }
 
-  if (!primaryProvider) {
-    throw new Error('AI key is missing.');
-  }
+  const groq = new OpenAI({
+    baseURL: "https://api.groq.com/openai/v1",
+    apiKey: apiKey,
+  });
 
-  const executeProvider = async (provider) => {
-    if (provider === 'gemini') {
-      const model = (process.env.AI_MODEL && process.env.AI_MODEL.includes('gemini'))
-        ? process.env.AI_MODEL
-        : 'gemini-1.5-flash';
+  const model = process.env.AI_MODEL || "llama-3.3-70b-versatile";
 
-      let systemInstructionText = '';
-      const contents = [];
+  const completion = await groq.chat.completions.create({
+    model,
+    messages,
+    temperature: 0.2,
+    max_tokens: maxTokens,
+  });
 
-      for (const msg of messages) {
-        if (msg.role === 'system') {
-          systemInstructionText += (systemInstructionText ? '\n' : '') + msg.content;
-        } else {
-          contents.push({
-            role: msg.role === 'assistant' ? 'model' : 'user',
-            parts: [{ text: msg.content }]
-          });
-        }
-      }
-
-      const payload = {
-        contents,
-        generationConfig: {
-          temperature: 0.2,
-          maxOutputTokens: maxTokens
-        }
-      };
-
-      if (systemInstructionText) {
-        payload.systemInstruction = {
-          parts: [{ text: systemInstructionText }]
-        };
-      }
-
-      const url = `https://generativelanguage.googleapis.com/v1beta/models/${model}:generateContent?key=${geminiKey}`;
-
-      const response = await fetch(url, {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify(payload)
-      });
-
-      if (!response.ok) {
-        const errText = await response.text();
-        throw new Error(`Gemini API error: ${response.status} - ${errText}`);
-      }
-
-      const data = await response.json();
-      const text = data.candidates?.[0]?.content?.parts?.[0]?.text || '';
-      return text;
-    } else if (provider === 'groq') {
-      const model = (process.env.AI_MODEL && !process.env.AI_MODEL.includes('gemini'))
-        ? process.env.AI_MODEL
-        : 'llama-3.3-70b-versatile';
-
-      const completion = await getGroq().chat.completions.create({
-        model,
-        messages,
-        temperature: 0.2,
-        max_tokens: maxTokens,
-      });
-
-      return completion.choices?.[0]?.message?.content || '';
-    }
-  };
-
-  try {
-    const result = await executeProvider(primaryProvider);
-    if (!result || result.trim() === '') {
-      throw new Error(`Empty response from primary provider: ${primaryProvider}`);
-    }
-    console.log(`AI provider used: ${primaryProvider}`);
-    console.log(`response length: ${result.length}`);
-    return result;
-  } catch (primaryError) {
-    console.log(`AI provider used: ${primaryProvider}`);
-    console.log(`AI error message: ${primaryError.message}`);
-
-    if (fallbackProvider) {
-      console.log(`Falling back to provider: ${fallbackProvider}`);
-      try {
-        const fallbackResult = await executeProvider(fallbackProvider);
-        if (!fallbackResult || fallbackResult.trim() === '') {
-          throw new Error(`Empty response from fallback provider: ${fallbackProvider}`);
-        }
-        console.log(`AI provider used: ${fallbackProvider}`);
-        console.log(`response length: ${fallbackResult.length}`);
-        return fallbackResult;
-      } catch (fallbackError) {
-        console.log(`AI provider used (fallback): ${fallbackProvider}`);
-        console.log(`AI error message (fallback): ${fallbackError.message}`);
-        throw new Error(`Both AI providers failed. Primary: ${primaryError.message}. Fallback: ${fallbackError.message}`);
-      }
-    } else {
-      throw primaryError;
-    }
-  }
+  return completion.choices?.[0]?.message?.content || '';
 }
 
 export async function generateAIResponse(prompt) {

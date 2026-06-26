@@ -61,7 +61,7 @@ app.use('/api/resumes', resumeRoutes);
 app.use('/api/skill-gap', skillGapRoutes);
 app.use('/api/roadmaps', roadmapRoutes);
 app.use('/api/interviews', interviewRoutes);
-app.use('/api/chats', chatRoutes);
+app.use('/api/chat', chatRoutes);
 app.use('/api/admin', adminRoutes);
 app.use('/api/admin-content', adminContentRoutes);
 app.use("/api/admin/skills", adminSkillRoutes);
