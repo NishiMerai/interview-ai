@@ -2,7 +2,8 @@ import axios from 'axios';
 import { store } from '../store/store.js';
 import { setCredentials, logout } from '../features/auth/authSlice.js';
 
-const envApiUrl = import.meta.env.VITE_API_URL || "http://localhost:5000";
+const isProd = import.meta.env.PROD;
+const envApiUrl = import.meta.env.VITE_API_URL || (isProd ? "https://interview-ai-back-d6w7.onrender.com" : "http://localhost:5000");
 const apiBaseURL = envApiUrl.endsWith('/api') ? envApiUrl : `${envApiUrl.replace(/\/$/, '')}/api`;
 
 export const api = axios.create({

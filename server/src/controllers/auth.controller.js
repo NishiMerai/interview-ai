@@ -100,6 +100,7 @@ export const bootstrapAdmin = asyncHandler(async (_req, res) => {
 });
 
 export const login = asyncHandler(async (req, res) => {
+  console.time("login-total");
   const email = req.body.email?.trim()?.toLowerCase();
   const password = req.body.password;
 
@@ -114,6 +115,7 @@ export const login = asyncHandler(async (req, res) => {
     const refreshToken = signRefreshToken(user);
     setRefreshCookie(res, refreshToken);
 
+    console.timeEnd("login-total");
     return res.json({
       user: userDto(user),
       accessToken,
@@ -121,25 +123,45 @@ export const login = asyncHandler(async (req, res) => {
     });
   }
 
+  // 1. Measure MongoDB user lookup time
+  console.time("login-mongodb-lookup");
   const user = await User.findOne({ email });
+  console.timeEnd("login-mongodb-lookup");
 
-  if (!user || !(await user.comparePassword(password))) {
+  if (!user) {
     res.status(401);
+    console.timeEnd("login-total");
+    throw new Error('Invalid email or password');
+  }
+
+  // 2. Measure password compare time
+  console.time("login-password-compare");
+  const isMatch = await user.comparePassword(password);
+  console.timeEnd("login-password-compare");
+
+  if (!isMatch) {
+    res.status(401);
+    console.timeEnd("login-total");
     throw new Error('Invalid email or password');
   }
 
   if (user.isSuspended) {
     res.status(403);
+    console.timeEnd("login-total");
     throw new Error('Account suspended');
   }
 
   user.lastLoginAt = new Date();
   await user.save();
 
+  // 3. Measure token generation time
+  console.time("login-token-generation");
   const accessToken = signAccessToken(user);
   const refreshToken = signRefreshToken(user);
   setRefreshCookie(res, refreshToken);
+  console.timeEnd("login-token-generation");
 
+  console.timeEnd("login-total");
   res.json({ user: userDto(user), accessToken });
 });
 

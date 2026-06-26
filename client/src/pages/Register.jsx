@@ -1,11 +1,12 @@
 import { Link, useNavigate } from 'react-router-dom';
 import { useDispatch } from 'react-redux';
 import { useForm } from 'react-hook-form';
+import { useState } from 'react';
 import { api } from '../services/api.js';
 import { logout } from '../features/auth/authSlice.js';
 
 export default function Register() {
-  const { register, handleSubmit, formState: { isSubmitting, errors }, setError } = useForm({
+  const { register, handleSubmit, errors, setError } = useForm({
     defaultValues: {
       name: '',
       email: '',
@@ -15,13 +16,26 @@ export default function Register() {
   const dispatch = useDispatch();
   const navigate = useNavigate();
 
+  const [loading, setLoading] = useState(false);
+  const [showWakingMessage, setShowWakingMessage] = useState(false);
+
   const onSubmit = async (values) => {
+    setLoading(true);
+    setShowWakingMessage(false);
+    const timer = setTimeout(() => {
+      setShowWakingMessage(true);
+    }, 2000);
+
     try {
       const { data } = await api.post('/auth/register', values);
       dispatch(logout());
       navigate('/login', { state: { message: data.message || 'Account created successfully. Please sign in.' } });
     } catch (error) {
       setError('root', { message: error.response?.data?.message || 'Registration failed' });
+    } finally {
+      clearTimeout(timer);
+      setLoading(false);
+      setShowWakingMessage(false);
     }
   };
 
@@ -33,24 +47,26 @@ export default function Register() {
         <div className="mt-6 space-y-4">
           <div>
             <input className="input" placeholder="Full name" {...register('name', { required: 'Full name is required' })} />
-            {errors.name && <p className="mt-2 text-sm font-semibold text-red-500">{errors.name.message}</p>}
+            {errors?.name && <p className="mt-2 text-sm font-semibold text-red-500">{errors.name.message}</p>}
           </div>
           <div>
             <input className="input" placeholder="Email" type="email" {...register('email', {
               required: 'Email is required',
               pattern: { value: /^\S+@\S+\.\S+$/, message: 'Enter a valid email' }
             })} />
-            {errors.email && <p className="mt-2 text-sm font-semibold text-red-500">{errors.email.message}</p>}
+            {errors?.email && <p className="mt-2 text-sm font-semibold text-red-500">{errors.email.message}</p>}
           </div>
           <div>
             <input className="input" placeholder="Password" type="password" {...register('password', {
               required: 'Password is required',
               minLength: { value: 6, message: 'Password must be at least 6 characters' }
             })} />
-            {errors.password && <p className="mt-2 text-sm font-semibold text-red-500">{errors.password.message}</p>}
+            {errors?.password && <p className="mt-2 text-sm font-semibold text-red-500">{errors.password.message}</p>}
           </div>
-          {errors.root && <p className="text-sm font-semibold text-red-500">{errors.root.message}</p>}
-          <button disabled={isSubmitting} className="btn-primary w-full">{isSubmitting ? 'Creating...' : 'Create account'}</button>
+          {errors?.root && <p className="text-sm font-semibold text-red-500">{errors.root.message}</p>}
+          <button disabled={loading} className="btn-primary w-full">
+            {loading ? (showWakingMessage ? 'Server is waking up, please wait...' : 'Creating...') : 'Create account'}
+          </button>
         </div>
         <p className="mt-5 text-center text-sm text-slate-500">
           Already registered? <Link className="font-bold text-brand-600" to="/login">Login</Link>

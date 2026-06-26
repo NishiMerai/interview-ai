@@ -1,24 +1,38 @@
 import { Link, useNavigate, useLocation } from 'react-router-dom';
 import { useDispatch } from 'react-redux';
 import { useForm } from 'react-hook-form';
+import { useState } from 'react';
 import { api } from '../services/api.js';
 import { setCredentials } from '../features/auth/authSlice.js';
 
 export default function Login() {
-  const { register, handleSubmit, formState: { isSubmitting, errors }, setError } = useForm();
+  const { register, handleSubmit, errors, setError } = useForm();
   const dispatch = useDispatch();
   const navigate = useNavigate();
   const location = useLocation();
 
+  const [loading, setLoading] = useState(false);
+  const [showWakingMessage, setShowWakingMessage] = useState(false);
+
   const successMessage = location.state?.message;
 
   const onSubmit = async (values) => {
+    setLoading(true);
+    setShowWakingMessage(false);
+    const timer = setTimeout(() => {
+      setShowWakingMessage(true);
+    }, 2000);
+
     try {
       const { data } = await api.post('/auth/login', values);
       dispatch(setCredentials(data));
       navigate(['admin', 'super_admin'].includes(data.user?.role) ? '/app/admin' : '/app/dashboard');
     } catch (error) {
       setError('root', { message: error.response?.data?.message || 'Login failed' });
+    } finally {
+      clearTimeout(timer);
+      setLoading(false);
+      setShowWakingMessage(false);
     }
   };
 
@@ -37,8 +51,10 @@ export default function Login() {
         <div className="mt-6 space-y-4">
           <input className="input" placeholder="Email" type="email" {...register('email', { required: 'Email required' })} />
           <input className="input" placeholder="Password" type="password" {...register('password', { required: 'Password required' })} />
-          {errors.root && <p className="text-sm font-semibold text-red-500">{errors.root.message}</p>}
-          <button disabled={isSubmitting} className="btn-primary w-full">{isSubmitting ? 'Logging in...' : 'Login'}</button>
+          {errors?.root && <p className="text-sm font-semibold text-red-500">{errors.root.message}</p>}
+          <button disabled={loading} className="btn-primary w-full">
+            {loading ? (showWakingMessage ? 'Server is waking up, please wait...' : 'Logging in...') : 'Login'}
+          </button>
         </div>
         <p className="mt-5 text-center text-sm text-slate-500">
           New here? <Link className="font-bold text-brand-600" to="/register">Create account</Link>
