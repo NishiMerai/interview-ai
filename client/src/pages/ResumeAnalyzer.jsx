@@ -5,7 +5,6 @@ import { api } from "../services/api.js";
 
 export default function ResumeAnalyzer() {
   const [file, setFile] = useState(null);
-  const [selectedDomain, setSelectedDomain] = useState("");
   const queryClient = useQueryClient();
 
   const { data } = useQuery({
@@ -13,19 +12,13 @@ export default function ResumeAnalyzer() {
     queryFn: async () => (await api.get("/resumes")).data,
   });
 
-  const { data: domains = [] } = useQuery({
-    queryKey: ["admin-domains"],
-    queryFn: async () => (await api.get("/admin-content/domains")).data,
-  });
 
   const uploadMutation = useMutation({
     mutationFn: async () => {
       if (!file) throw new Error("Please select resume file first");
-      if (!selectedDomain) throw new Error("Please select domain first");
 
       const formData = new FormData();
       formData.append("resume", file);
-      formData.append("domain", selectedDomain);
 
       return (await api.post("/resumes/upload", formData)).data;
     },
@@ -89,21 +82,10 @@ export default function ResumeAnalyzer() {
           />
         </label>
 
-        <select
-          className="input w-full"
-          value={selectedDomain}
-          onChange={(e) => setSelectedDomain(e.target.value)}
-        >
-          <option value="">Select Target Domain</option>
-          {domains.map((domain) => (
-            <option key={domain._id || domain.name} value={domain.name}>
-              {domain.name}
-            </option>
-          ))}
-        </select>
+
 
         <button
-          disabled={!file || !selectedDomain || uploadMutation.isPending}
+          disabled={!file || uploadMutation.isPending}
           onClick={() => uploadMutation.mutate()}
           className="btn-primary"
         >
@@ -121,7 +103,7 @@ export default function ResumeAnalyzer() {
 
       {latest ? (
         <>
-          <div className="grid lg:grid-cols-3 gap-6">
+          <div className="grid lg:grid-cols-2 gap-6">
             <ScoreCard
               title="Resume Score"
               value={latest.resumeScore || 0}
@@ -131,12 +113,6 @@ export default function ResumeAnalyzer() {
               title="ATS Score"
               value={latest.atsScore || 0}
               color="cyan"
-            />
-            <ScoreCard
-              title="Resume Version"
-              value={`v${latest.versionNumber || 1}`}
-              color="purple"
-              isText
             />
           </div>
 
@@ -157,7 +133,7 @@ export default function ResumeAnalyzer() {
             <div>
               <h2 className="text-3xl font-black">Domain Skill Analysis</h2>
               <p className="text-slate-500 mt-2">
-                Domain: {latest.domain || selectedDomain || "Selected Domain"}
+                Domain: {latest.domain || "No matching domain detected."}
               </p>
             </div>
 
@@ -199,7 +175,7 @@ export default function ResumeAnalyzer() {
               RAW DEBUG CONSOLE v1.0
             </h2>
 
-            <DebugRow label="Domain" value={latest.domain || selectedDomain} />
+            <DebugRow label="Domain" value={latest.domain || "None"} />
             <DebugRow label="Resume Score" value={`${latest.resumeScore || 0}%`} />
             <DebugRow label="ATS Score" value={`${latest.atsScore || 0}%`} />
 

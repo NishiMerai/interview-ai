@@ -12,13 +12,42 @@ export const uploadResume = asyncHandler(async (req, res) => {
   }
 
   const extractedText = await extractTextFromResume(req.file);
-  const selectedDomain = req.body.domain || "Web Development";
 
-  const adminSkills = await AdminSkill.find({
-    domain: { $regex: new RegExp(`^${selectedDomain}$`, "i") },
-  });
+  const allAdminSkills = await AdminSkill.find({});
+  const domains = [...new Set(allAdminSkills.map((s) => s.domain).filter(Boolean))];
 
-  const skillAnalysis = compareSkillsWithAdmin(extractedText, adminSkills);
+  let bestDomain = null;
+  let maxMatched = -1;
+  let skillAnalysis = {
+    extractedSkills: [],
+    requiredSkills: [],
+    matchedSkills: [],
+    missingSkills: [],
+    resumeScore: 0,
+    atsScore: 0,
+  };
+
+  for (const domain of domains) {
+    const domainSkills = allAdminSkills.filter((s) => s.domain === domain);
+    const analysis = compareSkillsWithAdmin(extractedText, domainSkills);
+    if (analysis.matchedSkills.length > maxMatched) {
+      maxMatched = analysis.matchedSkills.length;
+      bestDomain = domain;
+      skillAnalysis = analysis;
+    }
+  }
+
+  if (maxMatched === 0) {
+    bestDomain = null;
+    skillAnalysis = {
+      extractedSkills: [],
+      requiredSkills: [],
+      matchedSkills: [],
+      missingSkills: [],
+      resumeScore: 0,
+      atsScore: 0,
+    };
+  }
 
   const versionNumber =
     (await Resume.countDocuments({ userId: req.user._id })) + 1;
@@ -35,6 +64,7 @@ export const uploadResume = asyncHandler(async (req, res) => {
     fileType: ext,
     extractedText,
     versionNumber,
+    domain: bestDomain,
 
     parsedData: {
       skills: skillAnalysis.extractedSkills,
@@ -55,7 +85,7 @@ export const uploadResume = asyncHandler(async (req, res) => {
   });
 
   console.log("===== RESUME SKILL ANALYSIS =====");
-  console.log("DOMAIN:", selectedDomain);
+  console.log("DOMAIN:", bestDomain || "None");
   console.log("ADMIN SKILLS:", skillAnalysis.requiredSkills);
   console.log("EXTRACTED SKILLS:", skillAnalysis.extractedSkills);
   console.log("MATCHED:", skillAnalysis.matchedSkills);

@@ -22,6 +22,7 @@ const resumeSchema = new mongoose.Schema({
     missingKeywords: [String],
     keywordDensity: [{ keyword: String, count: Number }]
   },
+  domain: String,
   versionNumber: Number,
   matchedSkills: [mongoose.Schema.Types.Mixed],
   missingSkills: [mongoose.Schema.Types.Mixed],
