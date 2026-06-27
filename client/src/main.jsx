@@ -2,12 +2,13 @@ import React, { Suspense, lazy } from 'react';
 import ReactDOM from 'react-dom/client';
 import { Provider } from 'react-redux';
 import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
-import { createBrowserRouter, RouterProvider } from 'react-router-dom';
+import { createBrowserRouter, RouterProvider, Navigate } from 'react-router-dom';
 import { store } from './store/store.js';
 import AppLayout from './layouts/AppLayout.jsx';
 import ProtectedRoute from './components/ProtectedRoute.jsx';
 import AdminRoute from './components/AdminRoute.jsx';
 import Loader from './components/Loader.jsx';
+import GlobalError from './components/GlobalError.jsx';
 import './index.css';
 
 const Landing = lazy(() => import('./pages/Landing.jsx'));
@@ -31,7 +32,11 @@ const queryClient = new QueryClient({
 });
 
 const router = createBrowserRouter([
-  { path: '/', element: <Suspense fallback={<Loader />}><Landing /></Suspense> },
+  { 
+    path: '/', 
+    element: <Suspense fallback={<Loader />}><Landing /></Suspense>,
+    errorElement: <GlobalError />
+  },
   { path: '/login', element: <Suspense fallback={<Loader />}><Login /></Suspense> },
   { path: '/admin-login', element: <Suspense fallback={<Loader />}><AdminLogin /></Suspense> },
   { path: '/register', element: <Suspense fallback={<Loader />}><Register /></Suspense> },
@@ -45,8 +50,15 @@ const router = createBrowserRouter([
       { path: 'roadmap', element: <Suspense fallback={<Loader />}><LearningRoadmap /></Suspense> },
       { path: 'interview', element: <Suspense fallback={<Loader />}><MockInterview /></Suspense> },
       { path: 'chatbot', element: <Suspense fallback={<Loader />}><Chatbot /></Suspense> },
-      { path: 'admin', element: <AdminRoute><Suspense fallback={<Loader />}><AdminPanel /></Suspense></AdminRoute> }
+      { path: 'admin', element: <AdminRoute><Suspense fallback={<Loader />}><AdminPanel /></Suspense></AdminRoute> },
+      { path: 'skill-gap', element: <Navigate to="/app/dashboard" replace /> },
+      { path: 'skillgap', element: <Navigate to="/app/dashboard" replace /> },
+      { path: 'skill-gap-intelligence', element: <Navigate to="/app/dashboard" replace /> }
     ]
+  },
+  { 
+    path: '*', 
+    element: <ProtectedRoute><Navigate to="/app/dashboard" replace /></ProtectedRoute> 
   }
 ]);
 
