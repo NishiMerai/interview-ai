@@ -4,9 +4,9 @@ import { api } from '../services/api.js';
 import { Brain, Trophy, Lightbulb, TrendingUp, HelpCircle, ChevronRight, Play, AlertTriangle } from 'lucide-react';
 
 const DOMAINS = [
-  "Web Development", "Mobile Development", "AI & ML", "Data Science", 
-  "Cloud Computing", "Cyber Security", "DevOps", "Blockchain", 
-  "Computer Networks", "Database Management", "IoT", "Embedded Systems", 
+  "Web Development", "Mobile Development", "AI & ML", "Data Science",
+  "Cloud Computing", "Cyber Security", "DevOps", "Blockchain",
+  "Computer Networks", "Database Management", "IoT", "Embedded Systems",
   "Software Engineering", "UI/UX", "Game Development"
 ];
 
@@ -119,8 +119,8 @@ export default function MockInterview() {
             </select>
           </div>
           <div className="flex items-end">
-            <button 
-              onClick={() => startMutation.mutate()} 
+            <button
+              onClick={() => startMutation.mutate()}
               disabled={startMutation.isPending}
               className="btn-primary w-full h-[52px]"
             >
@@ -139,7 +139,7 @@ export default function MockInterview() {
             <AlertTriangle className="text-red-500 shrink-0 mt-0.5" size={18} />
             <div>
               <p className="text-sm font-semibold text-red-700 dark:text-red-400">{error}</p>
-              <button 
+              <button
                 onClick={() => { setError(''); startMutation.mutate(); }}
                 className="text-xs font-bold text-red-600 dark:text-red-300 underline mt-1 hover:text-red-800"
               >
@@ -155,25 +155,25 @@ export default function MockInterview() {
           <div className="flex flex-col md:flex-row md:items-center justify-between glass-card py-6">
             <div className="flex items-center gap-4">
               <div className="w-12 h-12 rounded-2xl bg-indigo-600 flex items-center justify-center text-white shadow-lg shadow-indigo-500/20">
-                 <Brain size={24} />
+                <Brain size={24} />
               </div>
               <div>
                 <h2 className="text-xl font-black">{session.domain}</h2>
                 <div className="flex items-center gap-2 mt-1">
-                   <span className="badge bg-indigo-50 text-indigo-600 border border-indigo-100">{session.type}</span>
-                   <span className="badge bg-violet-50 text-violet-600 border border-violet-100">{session.difficulty}</span>
+                  <span className="badge bg-indigo-50 text-indigo-600 border border-indigo-100">{session.type}</span>
+                  <span className="badge bg-violet-50 text-violet-600 border border-violet-100">{session.difficulty}</span>
                 </div>
               </div>
             </div>
             {session.overallScore !== undefined && (
               <div className="mt-4 md:mt-0 flex items-center gap-4">
-                 <div className="text-right">
-                    <p className="text-[10px] font-black uppercase text-slate-400 tracking-widest">Global Score</p>
-                    <p className="text-3xl font-black text-indigo-600">{session.overallScore}%</p>
-                 </div>
-                 <div className="w-14 h-14 rounded-full border-4 border-indigo-100 border-t-indigo-600 animate-spin-slow flex items-center justify-center">
-                    <Trophy className="text-indigo-600" size={24} />
-                 </div>
+                <div className="text-right">
+                  <p className="text-[10px] font-black uppercase text-slate-400 tracking-widest">Global Score</p>
+                  <p className="text-3xl font-black text-indigo-600">{session.overallScore}%</p>
+                </div>
+                <div className="w-14 h-14 rounded-full border-4 border-indigo-100 border-t-indigo-600 animate-spin-slow flex items-center justify-center">
+                  <Trophy className="text-indigo-600" size={24} />
+                </div>
               </div>
             )}
           </div>
@@ -189,37 +189,37 @@ export default function MockInterview() {
                     <h3 className="text-lg font-bold text-slate-800 dark:text-slate-100 mb-4 leading-relaxed italic">
                       &quot;{item.question}&quot;
                     </h3>
-                    
+
                     {!session.overallScore ? (
-                      <textarea 
-                        className="input min-h-[140px] italic shadow-inner" 
-                        value={item.userAnswer || ''} 
-                        onChange={(e) => updateAnswer(index, e.target.value)} 
-                        placeholder="Expert response goes here..." 
+                      <textarea
+                        className="input min-h-[140px] italic shadow-inner"
+                        value={item.userAnswer || ''}
+                        onChange={(e) => updateAnswer(index, e.target.value)}
+                        placeholder="Expert response goes here..."
                       />
                     ) : (
                       <div className="space-y-6 animate-slide-up">
-                         <div className="flex items-center gap-2">
-                            <span className="text-xs font-black uppercase text-slate-400">Score: {item.score}%</span>
-                            <div className="h-1.5 flex-1 bg-slate-100 rounded-full overflow-hidden">
-                               <div className="h-full bg-indigo-500 rounded-full" style={{ width: `${item.score}%` }} />
-                            </div>
-                         </div>
+                        <div className="flex items-center gap-2">
+                          <span className="text-xs font-black uppercase text-slate-400">Score: {item.score}%</span>
+                          <div className="h-1.5 flex-1 bg-slate-100 rounded-full overflow-hidden">
+                            <div className="h-full bg-indigo-500 rounded-full" style={{ width: `${item.score}%` }} />
+                          </div>
+                        </div>
 
-                         <div className="grid md:grid-cols-2 gap-6">
-                            <FeedbackBox title="Strengths" items={item.strengths} icon={<TrendingUp size={16} />} color="emerald" />
-                            <FeedbackBox title="Improvements" items={item.improvements} icon={<Lightbulb size={16} />} color="amber" />
-                         </div>
+                        <div className="grid md:grid-cols-2 gap-6">
+                          <FeedbackBox title="Strengths" items={item.strengths} icon={<TrendingUp size={16} />} color="emerald" />
+                          <FeedbackBox title="Improvements" items={item.improvements} icon={<Lightbulb size={16} />} color="amber" />
+                        </div>
 
-                         <div className="p-6 bg-slate-50 dark:bg-white/5 rounded-[2rem] border border-slate-100 dark:border-white/10">
-                            <div className="flex items-center gap-2 mb-3">
-                               <HelpCircle className="text-indigo-500" size={18} />
-                               <span className="text-xs font-black uppercase text-slate-500 tracking-widest">Master Answer</span>
-                            </div>
-                            <p className="text-sm text-slate-600 dark:text-slate-300 leading-relaxed font-semibold">
-                               {item.betterAnswer}
-                            </p>
-                         </div>
+                        <div className="p-6 bg-slate-50 dark:bg-white/5 rounded-[2rem] border border-slate-100 dark:border-white/10">
+                          <div className="flex items-center gap-2 mb-3">
+                            <HelpCircle className="text-indigo-500" size={18} />
+                            <span className="text-xs font-black uppercase text-slate-500 tracking-widest">Master Answer</span>
+                          </div>
+                          <p className="text-sm text-slate-600 dark:text-slate-300 leading-relaxed font-semibold">
+                            {item.betterAnswer}
+                          </p>
+                        </div>
                       </div>
                     )}
                   </div>
@@ -229,8 +229,8 @@ export default function MockInterview() {
           </div>
 
           {!session.overallScore && (
-            <button 
-              onClick={() => submitMutation.mutate()} 
+            <button
+              onClick={() => submitMutation.mutate()}
               disabled={submitMutation.isPending}
               className="btn-primary w-full py-5 rounded-[2.5rem] shadow-2xl shadow-indigo-500/30"
             >
@@ -251,18 +251,18 @@ function FeedbackBox({ title, items, icon, color }) {
 
   return (
     <div className={`p-5 rounded-[2rem] border ${variants[color]}`}>
-       <div className="flex items-center gap-2 mb-4">
-          {icon}
-          <span className="text-[10px] font-black uppercase tracking-widest">{title}</span>
-       </div>
-       <ul className="space-y-2">
-          {items?.map((it, i) => (
-            <li key={i} className="flex items-start gap-2 text-xs font-semibold">
-               <ChevronRight size={14} className="mt-0.5 shrink-0" />
-               {it}
-            </li>
-          ))}
-       </ul>
+      <div className="flex items-center gap-2 mb-4">
+        {icon}
+        <span className="text-[10px] font-black uppercase tracking-widest">{title}</span>
+      </div>
+      <ul className="space-y-2">
+        {items?.map((it, i) => (
+          <li key={i} className="flex items-start gap-2 text-xs font-semibold">
+            <ChevronRight size={14} className="mt-0.5 shrink-0" />
+            {it}
+          </li>
+        ))}
+      </ul>
     </div>
   );
 }

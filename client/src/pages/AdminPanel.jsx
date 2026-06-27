@@ -102,11 +102,11 @@ export default function AdminPanel() {
             name = match[1].trim();
             aliases = match[2].split(",").map(a => a.trim());
           }
-          
+
           await apiRequest("/admin-content/skills", {
             method: "POST",
-            body: JSON.stringify({ 
-              ...skillForm, 
+            body: JSON.stringify({
+              ...skillForm,
               name: name,
               aliases: aliases
             }),
@@ -209,8 +209,8 @@ export default function AdminPanel() {
 
       {message && (
         <div className="glass-card !bg-indigo-600/5 !border-indigo-600/10 p-4 px-6 flex items-center justify-between">
-           <p className="text-indigo-600 font-bold italic tracking-tight">{message}</p>
-           <button onClick={() => setMessage('')} className="text-indigo-400 hover:text-indigo-600 font-black">CLOSE</button>
+          <p className="text-indigo-600 font-bold italic tracking-tight">{message}</p>
+          <button onClick={() => setMessage('')} className="text-indigo-400 hover:text-indigo-600 font-black">CLOSE</button>
         </div>
       )}
 
@@ -239,8 +239,8 @@ export default function AdminPanel() {
             <input className="input md:col-span-4" placeholder="Domain Title (e.g. MERN Developer)" value={domainForm.name} onChange={(e) => setDomainForm({ ...domainForm, name: e.target.value })} />
             <input className="input md:col-span-6" placeholder="Purpose & Context" value={domainForm.description} onChange={(e) => setDomainForm({ ...domainForm, description: e.target.value })} />
             <button type="submit" className="btn-primary md:col-span-2 !rounded-2xl">
-               <Plus size={18} />
-               Register
+              <Plus size={18} />
+              Register
             </button>
           </form>
 
@@ -280,8 +280,8 @@ export default function AdminPanel() {
                       <div key={s._id} className="group relative flex items-center gap-2 badge bg-indigo-50/80 border-indigo-100 dark:bg-white/5 dark:border-white/10 dark:text-slate-300">
                         <span className="font-bold">{s.name}</span>
                         <div className="flex gap-1 ml-2 opacity-0 group-hover:opacity-100 transition-opacity">
-                           <button onClick={() => editSkill(s)} className="p-1 hover:text-indigo-600"><Edit3 size={12} /></button>
-                           <button onClick={() => deleteSkill(s._id)} className="p-1 hover:text-rose-600"><Trash2 size={12} /></button>
+                          <button onClick={() => editSkill(s)} className="p-1 hover:text-indigo-600"><Edit3 size={12} /></button>
+                          <button onClick={() => deleteSkill(s._id)} className="p-1 hover:text-rose-600"><Trash2 size={12} /></button>
                         </div>
                       </div>
                     ))}
@@ -297,11 +297,11 @@ export default function AdminPanel() {
         <Section title="Path Architecture">
           <form onSubmit={addRoadmap} className="space-y-4 mb-8">
             <div className="grid md:grid-cols-2 gap-4">
-               <select className="input" value={roadmapForm.domain || ''} onChange={(e) => setRoadmapForm({ ...roadmapForm, domain: e.target.value, role: e.target.value })}>
-                 <option value="">Link to Domain</option>
-                 {domains.map((d) => <option key={d._id} value={d.name}>{d.name}</option>)}
-               </select>
-               <input className="input" placeholder="Roadmap Identity (e.g. Master MERN in 3 Months)" value={roadmapForm.title} onChange={(e) => setRoadmapForm({ ...roadmapForm, title: e.target.value })} />
+              <select className="input" value={roadmapForm.domain || ''} onChange={(e) => setRoadmapForm({ ...roadmapForm, domain: e.target.value, role: e.target.value })}>
+                <option value="">Link to Domain</option>
+                {domains.map((d) => <option key={d._id} value={d.name}>{d.name}</option>)}
+              </select>
+              <input className="input" placeholder="Roadmap Identity (e.g. Master MERN in 3 Months)" value={roadmapForm.title} onChange={(e) => setRoadmapForm({ ...roadmapForm, title: e.target.value })} />
             </div>
             <textarea className="input min-h-[200px] !rounded-[2rem]" placeholder={'Blueprint Stages (line by line):\nStage 1: Foundational HTML\nStage 2: CSS Mastery...'} value={roadmapForm.stagesText} onChange={(e) => setRoadmapForm({ ...roadmapForm, stagesText: e.target.value })} />
             <button type="submit" className="btn-primary !w-full !rounded-[2rem]">Architect Path</button>
@@ -349,22 +349,22 @@ export default function AdminPanel() {
 
       {tab === 'chatbot' && (
         <Section title="AI Seed Knowledge">
-           <div className="flex items-center gap-3 mb-8 p-6 bg-indigo-600/5 rounded-[2rem] border border-indigo-600/10 italic">
-              <Sparkles className="text-indigo-600 shrink-0" size={30} />
-              <p className="text-sm font-bold text-indigo-700">Test and refine the AI's persona and factual knowledge here. This simulates the Career Coach's internal logic.</p>
-           </div>
+          <div className="flex items-center gap-3 mb-8 p-6 bg-indigo-600/5 rounded-[2rem] border border-indigo-600/10 italic">
+            <Sparkles className="text-indigo-600 shrink-0" size={30} />
+            <p className="text-sm font-bold text-indigo-700">Test and refine the AI's persona and factual knowledge here. This simulates the Career Coach's internal logic.</p>
+          </div>
           <form onSubmit={generateBotAnswer} className="space-y-4">
             <textarea className="input !rounded-[2rem] min-h-[140px]" placeholder="Simulate a candidate inquiry..." value={botQuestion} onChange={(e) => setBotQuestion(e.target.value)} />
             <button type="submit" className="btn-primary !rounded-[2rem] !py-4 italic font-black">UNLEASH AI</button>
           </form>
           {botAnswer && (
             <div className="mt-8 p-8 glass-card !bg-white/90 dark:!bg-slate-900 border-none relative">
-               <div className="absolute -top-3 -left-3 w-10 h-10 rounded-2xl bg-indigo-600 flex items-center justify-center text-white shadow-lg">
-                  <Bot size={20} />
-               </div>
-               <p className="text-sm font-semibold leading-relaxed text-slate-700 dark:text-slate-300 italic whitespace-pre-wrap">
-                  {botAnswer}
-               </p>
+              <div className="absolute -top-3 -left-3 w-10 h-10 rounded-2xl bg-indigo-600 flex items-center justify-center text-white shadow-lg">
+                <Bot size={20} />
+              </div>
+              <p className="text-sm font-semibold leading-relaxed text-slate-700 dark:text-slate-300 italic whitespace-pre-wrap">
+                {botAnswer}
+              </p>
             </div>
           )}
         </Section>
@@ -376,29 +376,28 @@ export default function AdminPanel() {
 function StatCard({ title, value, icon }) {
   return (
     <div className="glass-card relative overflow-hidden group hover:border-indigo-200 transition-all duration-300">
-       <div className="absolute -right-4 -bottom-4 w-16 h-16 opacity-5 group-hover:scale-150 transition-transform">
+      <div className="absolute -right-4 -bottom-4 w-16 h-16 opacity-5 group-hover:scale-150 transition-transform">
+        {icon}
+      </div>
+      <div className="flex items-center gap-2 mb-3">
+        <div className="w-8 h-8 rounded-xl bg-white/50 flex items-center justify-center shadow-sm">
           {icon}
-       </div>
-       <div className="flex items-center gap-2 mb-3">
-          <div className="w-8 h-8 rounded-xl bg-white/50 flex items-center justify-center shadow-sm">
-             {icon}
-          </div>
-          <p className="text-[10px] uppercase font-black tracking-widest text-slate-400 leading-none">{title}</p>
-       </div>
-       <h2 className="text-3xl font-black italic tracking-tighter text-slate-800 dark:text-white">{value}</h2>
+        </div>
+        <p className="text-[10px] uppercase font-black tracking-widest text-slate-400 leading-none">{title}</p>
+      </div>
+      <h2 className="text-3xl font-black italic tracking-tighter text-slate-800 dark:text-white">{value}</h2>
     </div>
   );
 }
 
 function Tab({ children, active, onClick, icon }) {
   return (
-    <button 
-      onClick={onClick} 
-      className={`flex items-center gap-2 px-6 py-3 rounded-[2.5rem] text-sm font-black transition-all duration-300 ${
-        active 
-        ? 'bg-slate-950 text-white dark:bg-white dark:text-slate-950 shadow-xl scale-105 z-10' 
-        : 'text-slate-500 hover:text-slate-800 dark:text-slate-400 hover:bg-white/50 dark:hover:bg-white/5'
-      }`}
+    <button
+      onClick={onClick}
+      className={`flex items-center gap-2 px-6 py-3 rounded-[2.5rem] text-sm font-black transition-all duration-300 ${active
+          ? 'bg-slate-950 text-white dark:bg-white dark:text-slate-950 shadow-xl scale-105 z-10'
+          : 'text-slate-500 hover:text-slate-800 dark:text-slate-400 hover:bg-white/50 dark:hover:bg-white/5'
+        }`}
     >
       {icon}
       <span className="italic">{children}</span>
@@ -409,13 +408,13 @@ function Tab({ children, active, onClick, icon }) {
 function Section({ title, children }) {
   return (
     <div className="animate-slide-up">
-       <h2 className="text-2xl font-black italic mb-6 flex items-center gap-3">
-          <div className="w-2 h-8 bg-indigo-600 rounded-full" />
-          {title}
-       </h2>
-       <div className="glass-card !p-8">
-          {children}
-       </div>
+      <h2 className="text-2xl font-black italic mb-6 flex items-center gap-3">
+        <div className="w-2 h-8 bg-indigo-600 rounded-full" />
+        {title}
+      </h2>
+      <div className="glass-card !p-8">
+        {children}
+      </div>
     </div>
   );
 }
