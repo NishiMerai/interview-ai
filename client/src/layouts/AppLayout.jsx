@@ -11,7 +11,8 @@ const navItems = [
   { label: 'Roadmap', path: '/app/roadmap' },
   { label: 'Interview', path: '/app/interview' },
   { label: 'Chatbot', path: '/app/chatbot' },
-  { label: 'Admin', path: '/app/admin' },
+  { label: 'Admin', path: '/app/admin', adminOnly: true },
+  { label: 'Interview Requests', path: '/app/admin-interviews', adminOnly: true },
 ];
 export default function AppLayout() {
   const dispatch = useDispatch();

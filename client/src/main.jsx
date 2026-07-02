@@ -21,6 +21,7 @@ const LearningRoadmap = lazy(() => import('./pages/LearningRoadmap.jsx'));
 const MockInterview = lazy(() => import('./pages/MockInterview.jsx'));
 const Chatbot = lazy(() => import('./pages/Chatbot.jsx'));
 const AdminPanel = lazy(() => import('./pages/AdminPanel.jsx'));
+const AdminInterviewRequests = lazy(() => import('./pages/AdminInterviewRequests.jsx'));
 
 const queryClient = new QueryClient({
   defaultOptions: {
@@ -51,6 +52,7 @@ const router = createBrowserRouter([
       { path: 'interview', element: <Suspense fallback={<Loader />}><MockInterview /></Suspense> },
       { path: 'chatbot', element: <Suspense fallback={<Loader />}><Chatbot /></Suspense> },
       { path: 'admin', element: <AdminRoute><Suspense fallback={<Loader />}><AdminPanel /></Suspense></AdminRoute> },
+      { path: 'admin-interviews', element: <AdminRoute><Suspense fallback={<Loader />}><AdminInterviewRequests /></Suspense></AdminRoute> },
       { path: 'skill-gap', element: <Navigate to="/app/dashboard" replace /> },
       { path: 'skillgap', element: <Navigate to="/app/dashboard" replace /> },
       { path: 'skill-gap-intelligence', element: <Navigate to="/app/dashboard" replace /> }
