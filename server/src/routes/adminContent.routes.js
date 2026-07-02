@@ -4,6 +4,7 @@ import AdminSkill from '../models/AdminSkill.js';
 import Roadmap from '../models/Roadmap.js';
 import InterviewQuestion from '../models/InterviewQuestion.js';
 import Resume from '../models/Resume.js';
+import InterviewRequest from '../models/InterviewRequest.js';
 import { generateAIAnswer } from '../services/ai.service.js';
 
 
@@ -18,6 +19,7 @@ router.get('/stats', async (req, res) => {
     const totalSkills = await AdminSkill.countDocuments();
     const totalRoadmaps = await Roadmap.countDocuments();
     const totalQuestions = await InterviewQuestion.countDocuments();
+    const totalInterviews = await InterviewRequest.countDocuments();
 
     res.json({
       totalResumes,
@@ -25,6 +27,7 @@ router.get('/stats', async (req, res) => {
       totalSkills,
       totalRoadmaps,
       totalQuestions,
+      totalInterviews,
     });
   } catch (error) {
     res.status(500).json({ message: error.message });

@@ -1,5 +1,6 @@
 import { Router } from 'express';
 import { listInterviews, startInterview, submitInterview } from '../controllers/interview.controller.js';
+import { requestInterview, getMyInterviews } from '../controllers/interviewRequest.controller.js';
 import { protect } from '../middleware/auth.middleware.js';
 import InterviewQuestion from '../models/InterviewQuestion.js';
 
@@ -22,6 +23,8 @@ router.get('/questions/domain/:domain', async (req, res) => {
 
 // Protected routes
 router.use(protect);
+router.post('/request', requestInterview);
+router.get('/my', getMyInterviews);
 router.post('/start', startInterview);
 router.put('/:id/submit', submitInterview);
 router.get('/', listInterviews);
