@@ -1,4 +1,5 @@
 import { google } from 'googleapis';
+import crypto from 'crypto';
 
 let oauth2Client;
 
@@ -28,7 +29,7 @@ function getOAuth2Client() {
  * @param {Date} params.startDateTime - Start timestamp
  * @param {Date} params.endDateTime - End timestamp (start + 60 minutes)
  * @param {string} params.attendeeEmail - Candidate email
- * @returns {Promise<Object>} { eventId, googleMeetLink }
+ * @returns {Promise<Object>} { eventId, googleMeetLink, startTime, endTime }
  */
 export async function createGoogleMeetEvent({ summary, description, startDateTime, endDateTime, attendeeEmail }) {
   try {
@@ -37,7 +38,7 @@ export async function createGoogleMeetEvent({ summary, description, startDateTim
 
     const event = {
       summary: summary || 'HR Interview',
-      description: description || 'Interview scheduled through Interview AI platform.',
+      description: description || 'Interview scheduled through Interview AI.',
       location: 'Google Meet',
       start: {
         dateTime: startDateTime.toISOString(),
@@ -50,7 +51,7 @@ export async function createGoogleMeetEvent({ summary, description, startDateTim
       attendees: attendeeEmail ? [{ email: attendeeEmail }] : [],
       conferenceData: {
         createRequest: {
-          requestId: `meet-${Date.now()}-${Math.random().toString(36).substring(2, 9)}`,
+          requestId: crypto.randomUUID(),
           conferenceSolutionKey: {
             type: 'hangoutsMeet',
           },
@@ -68,19 +69,33 @@ export async function createGoogleMeetEvent({ summary, description, startDateTim
 
     const eventData = response.data;
     
-    // Logging requirements
-    console.log('Full Google Calendar API Response:', JSON.stringify(eventData, null, 2));
+    // Detailed Logging Requirements
+    console.log('=== GOOGLE CALENDAR API RESPONSE START ===');
+    console.log('response.data:', JSON.stringify(eventData, null, 2));
     console.log('conferenceData:', JSON.stringify(eventData.conferenceData, null, 2));
-    console.log('entryPoints:', JSON.stringify(eventData.conferenceData?.entryPoints, null, 2));
+    if (eventData.conferenceData) {
+      console.log('conferenceData.entryPoints:', JSON.stringify(eventData.conferenceData.entryPoints, null, 2));
+      console.log('conferenceData.conferenceId:', eventData.conferenceData.conferenceId);
+    } else {
+      console.log('conferenceData.entryPoints: undefined');
+      console.log('conferenceData.conferenceId: undefined');
+    }
+    console.log('hangoutLink:', eventData.hangoutLink);
+    console.log('=== GOOGLE CALENDAR API RESPONSE END ===');
 
-    const googleMeetLink = eventData.conferenceData?.entryPoints?.find(
+    // Extract Meet URL from video entryPoint or hangoutLink fallback
+    let googleMeetLink = eventData.conferenceData?.entryPoints?.find(
       (ep) => ep.entryPointType === 'video'
     )?.uri;
 
-    console.log('Saved Meet URL:', googleMeetLink);
+    if (!googleMeetLink && eventData.hangoutLink) {
+      googleMeetLink = eventData.hangoutLink;
+    }
+
+    console.log('Extracted Meet URL:', googleMeetLink);
 
     // Validate that a specific Google Meet link was created, not a generic fallback
-    if (!eventData.conferenceData || !googleMeetLink || googleMeetLink === 'https://meet.google.com/' || googleMeetLink === 'https://meet.google.com/landing') {
+    if (!googleMeetLink || googleMeetLink === 'https://meet.google.com/' || googleMeetLink === 'https://meet.google.com/landing') {
       throw new Error('Google Calendar created the event but failed to generate a valid Google Meet video conference link.');
     }
 
