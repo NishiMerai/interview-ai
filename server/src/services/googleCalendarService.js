@@ -67,17 +67,28 @@ export async function createGoogleMeetEvent({ summary, description, startDateTim
     });
 
     const eventData = response.data;
+    
+    // Logging requirements
+    console.log('Full Google Calendar API Response:', JSON.stringify(eventData, null, 2));
+    console.log('conferenceData:', JSON.stringify(eventData.conferenceData, null, 2));
+    console.log('entryPoints:', JSON.stringify(eventData.conferenceData?.entryPoints, null, 2));
+
     const googleMeetLink = eventData.conferenceData?.entryPoints?.find(
       (ep) => ep.entryPointType === 'video'
     )?.uri;
 
-    if (!googleMeetLink) {
-      throw new Error('Google Calendar created the event but failed to generate a Google Meet video conference link.');
+    console.log('Saved Meet URL:', googleMeetLink);
+
+    // Validate that a specific Google Meet link was created, not a generic fallback
+    if (!eventData.conferenceData || !googleMeetLink || googleMeetLink === 'https://meet.google.com/' || googleMeetLink === 'https://meet.google.com/landing') {
+      throw new Error('Google Calendar created the event but failed to generate a valid Google Meet video conference link.');
     }
 
     return {
       eventId: eventData.id,
       googleMeetLink,
+      startTime: eventData.start?.dateTime || eventData.start?.date,
+      endTime: eventData.end?.dateTime || eventData.end?.date,
     };
   } catch (error) {
     console.error('Google Calendar Service Event Insertion Failure:', error);
