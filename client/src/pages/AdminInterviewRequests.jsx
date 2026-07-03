@@ -1,6 +1,6 @@
 import { useEffect, useState } from 'react';
 import { api } from '../services/api.js';
-import { Calendar, Search, Check, X, Info, Trash2 } from 'lucide-react';
+import { Calendar, Search, Check, X, Info, Trash2, Video } from 'lucide-react';
 
 async function apiRequest(url, options = {}) {
   try {
@@ -25,9 +25,13 @@ export default function AdminInterviewRequests() {
   const [sortBy, setSortBy] = useState('newest');
   const [sortOrder, setSortOrder] = useState('desc');
 
+  // Loading States
+  const [isAccepting, setIsAccepting] = useState(false);
+  const [isRejecting, setIsRejecting] = useState(false);
+
   // Modals
   const [selectedRequest, setSelectedRequest] = useState(null);
-  const [acceptForm, setAcceptForm] = useState({ id: '', date: '', time: '09:00 AM', meetLink: '', remark: '' });
+  const [acceptForm, setAcceptForm] = useState({ id: '', date: '', time: '09:00 AM', remark: '' });
   const [rejectForm, setRejectForm] = useState({ id: '', remark: '' });
   const [showDetailsModal, setShowDetailsModal] = useState(false);
   const [showAcceptModal, setShowAcceptModal] = useState(false);
@@ -51,29 +55,29 @@ export default function AdminInterviewRequests() {
 
   async function handleAccept(e) {
     e.preventDefault();
-    if (!acceptForm.date || !acceptForm.time || !acceptForm.meetLink) {
-      setMessage('Scheduled date, time, and Google Meet URL are required.');
+    if (!acceptForm.date || !acceptForm.time) {
+      setMessage('Scheduled date and time are required.');
       return;
     }
-    if (!acceptForm.meetLink.startsWith('https://meet.google.com/')) {
-      setMessage('Google Meet link must start with https://meet.google.com/');
-      return;
-    }
+    
+    setIsAccepting(true);
+    setMessage('');
     try {
       await apiRequest(`/admin/interviews/accept/${acceptForm.id}`, {
         method: 'PUT',
         body: JSON.stringify({
           adminScheduledDate: acceptForm.date,
           adminScheduledTime: acceptForm.time,
-          googleMeetLink: acceptForm.meetLink,
           adminRemark: acceptForm.remark
         })
       });
-      setMessage('Interview scheduled successfully. Meet link sent to user dashboard.');
+      setMessage('Interview scheduled successfully. Google Meet generated automatically.');
       setShowAcceptModal(false);
       loadInterviews();
     } catch (error) {
       setMessage(error.message);
+    } finally {
+      setIsAccepting(false);
     }
   }
 
@@ -83,6 +87,9 @@ export default function AdminInterviewRequests() {
       setMessage('Rejection reason (admin remark) is required.');
       return;
     }
+    
+    setIsRejecting(true);
+    setMessage('');
     try {
       await apiRequest(`/admin/interviews/reject/${rejectForm.id}`, {
         method: 'PUT',
@@ -95,6 +102,8 @@ export default function AdminInterviewRequests() {
       loadInterviews();
     } catch (error) {
       setMessage(error.message);
+    } finally {
+      setIsRejecting(false);
     }
   }
 
@@ -119,7 +128,7 @@ export default function AdminInterviewRequests() {
       </div>
 
       {message && (
-        <div className="glass-card !bg-indigo-600/5 !border-indigo-600/10 p-4 px-6 flex items-center justify-between">
+        <div className="glass-card !bg-indigo-600/5 !border-indigo-600/10 p-4 px-6 flex items-center justify-between animate-fade-in">
           <p className="text-indigo-600 font-bold italic tracking-tight">{message}</p>
           <button onClick={() => setMessage('')} className="text-indigo-400 hover:text-indigo-600 font-black">CLOSE</button>
         </div>
@@ -195,7 +204,7 @@ export default function AdminInterviewRequests() {
           </div>
         ) : (
           <div className="overflow-x-auto rounded-[2rem] border border-slate-100 dark:border-white/5 bg-white/30 dark:bg-white/5">
-            <table className="w-full text-left border-collapse min-w-[900px]">
+            <table className="w-full text-left border-collapse min-w-[1100px]">
               <thead>
                 <tr className="border-b border-slate-100 dark:border-white/5 bg-slate-50/50 dark:bg-slate-900/50 text-[10px] font-black uppercase text-slate-400 tracking-wider">
                   <th className="p-5">User</th>
@@ -205,7 +214,7 @@ export default function AdminInterviewRequests() {
                   <th className="p-5">Preferred Time</th>
                   <th className="p-5">Scheduled Slot</th>
                   <th className="p-5">Status</th>
-                  <th className="p-5">Created On</th>
+                  <th className="p-5">Meeting Created</th>
                   <th className="p-5 text-right">Actions</th>
                 </tr>
               </thead>
@@ -239,10 +248,33 @@ export default function AdminInterviewRequests() {
                         {req.status}
                       </span>
                     </td>
-                    <td className="p-5 text-xs text-slate-400">
-                      {new Date(req.createdAt).toLocaleDateString()}
-                    </td>
                     <td className="p-5">
+                      {req.googleMeetLink ? (
+                        <div className="space-y-1">
+                          <span className="text-emerald-600 font-extrabold text-xs block">Yes</span>
+                          <a 
+                            href={req.googleMeetLink} 
+                            target="_blank" 
+                            rel="noopener noreferrer" 
+                            className="text-xs text-indigo-600 dark:text-indigo-400 hover:text-indigo-800 underline font-bold block"
+                          >
+                            Open Meeting
+                          </a>
+                          <button 
+                            onClick={() => {
+                              navigator.clipboard.writeText(req.googleMeetLink);
+                              setMessage('Google Meet link copied to clipboard.');
+                            }}
+                            className="text-[10px] text-slate-500 hover:text-slate-700 underline font-bold block"
+                          >
+                            Copy Link
+                          </button>
+                        </div>
+                      ) : (
+                        <span className="text-slate-400 italic text-xs">No</span>
+                      )}
+                    </td>
+                    <td className="p-5 text-right">
                       <div className="flex gap-2 justify-end">
                         <button 
                           onClick={() => {
@@ -257,7 +289,7 @@ export default function AdminInterviewRequests() {
                         {req.status !== 'Accepted' && req.status !== 'Completed' && (
                           <button 
                             onClick={() => {
-                              setAcceptForm({ id: req._id, date: req.preferredDate ? req.preferredDate.split('T')[0] : '', time: req.preferredTime || '09:00 AM', meetLink: 'https://meet.google.com/', remark: '' });
+                              setAcceptForm({ id: req._id, date: req.preferredDate ? req.preferredDate.split('T')[0] : '', time: req.preferredTime || '09:00 AM', remark: '' });
                               setShowAcceptModal(true);
                             }}
                             className="w-8 h-8 rounded-xl bg-emerald-50 text-emerald-600 hover:bg-emerald-600 hover:text-white dark:bg-emerald-900/20 dark:text-emerald-400 flex items-center justify-center transition-all"
@@ -347,14 +379,23 @@ export default function AdminInterviewRequests() {
                     {selectedRequest.status}
                   </span>
                 </div>
-                {selectedRequest.adminScheduledDate && (
-                  <div>
-                    <div className="text-[10px] text-slate-400 uppercase tracking-wider">Scheduled Date/Time</div>
-                    <div className="text-xs text-slate-700 dark:text-slate-300 mt-1 font-bold">
-                      {new Date(selectedRequest.adminScheduledDate).toLocaleDateString()} at {selectedRequest.adminScheduledTime}
-                    </div>
+                <div>
+                  <div className="text-[10px] text-slate-400 uppercase tracking-wider">Google Meet Link</div>
+                  <div className="text-sm mt-1">
+                    {selectedRequest.googleMeetLink ? (
+                      <a 
+                        href={selectedRequest.googleMeetLink} 
+                        target="_blank" 
+                        rel="noopener noreferrer" 
+                        className="text-indigo-600 dark:text-indigo-400 hover:text-indigo-800 underline font-bold"
+                      >
+                        Join Google Meet
+                      </a>
+                    ) : (
+                      <span className="text-amber-600 dark:text-amber-400 italic text-xs font-bold">Meeting link will be available soon.</span>
+                    )}
                   </div>
-                )}
+                </div>
               </div>
             </div>
           </div>
@@ -364,7 +405,7 @@ export default function AdminInterviewRequests() {
       {/* Accept Modal */}
       {showAcceptModal && (
         <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-slate-900/60 backdrop-blur-sm">
-          <div className="w-full max-w-lg glass-card !p-8 relative">
+          <div className="w-full max-w-lg glass-card !p-8 relative animate-fade-in">
             <button onClick={() => setShowAcceptModal(false)} className="absolute top-4 right-4 text-slate-400 hover:text-slate-600">
               <X size={20} />
             </button>
@@ -401,18 +442,6 @@ export default function AdminInterviewRequests() {
               </div>
 
               <div className="space-y-1">
-                <label className="text-[10px] font-black uppercase tracking-widest text-slate-400">Google Meet Link</label>
-                <input 
-                  type="url"
-                  placeholder="https://meet.google.com/xxx-xxxx-xxx"
-                  value={acceptForm.meetLink}
-                  onChange={(e) => setAcceptForm({ ...acceptForm, meetLink: e.target.value })}
-                  className="input w-full"
-                  required
-                />
-              </div>
-
-              <div className="space-y-1">
                 <label className="text-[10px] font-black uppercase tracking-widest text-slate-400">Remark</label>
                 <textarea 
                   value={acceptForm.remark}
@@ -422,8 +451,19 @@ export default function AdminInterviewRequests() {
                 />
               </div>
 
-              <button type="submit" className="btn-primary w-full !rounded-[1.5rem] !py-4 font-black italic mt-4">
-                Save Schedule
+              <button 
+                type="submit" 
+                disabled={isAccepting}
+                className="btn-primary w-full !rounded-[1.5rem] !py-4 font-black italic mt-4 flex items-center justify-center gap-2"
+              >
+                {isAccepting ? (
+                  <>
+                    <div className="w-5 h-5 rounded-full border-2 border-white border-t-transparent animate-spin" />
+                    Creating Google Meet event...
+                  </>
+                ) : (
+                  'Save Schedule'
+                )}
               </button>
             </form>
           </div>
@@ -454,8 +494,19 @@ export default function AdminInterviewRequests() {
                 />
               </div>
 
-              <button type="submit" className="btn-primary w-full !rounded-[1.5rem] !py-4 font-black italic mt-4">
-                Save Reject
+              <button 
+                type="submit" 
+                disabled={isRejecting}
+                className="btn-primary w-full !rounded-[1.5rem] !py-4 font-black italic mt-4 flex items-center justify-center gap-2"
+              >
+                {isRejecting ? (
+                  <>
+                    <div className="w-5 h-5 rounded-full border-2 border-white border-t-transparent animate-spin" />
+                    Rejecting...
+                  </>
+                ) : (
+                  'Save Reject'
+                )}
               </button>
             </form>
           </div>

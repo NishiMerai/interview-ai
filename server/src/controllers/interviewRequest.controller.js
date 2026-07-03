@@ -1,5 +1,6 @@
 import InterviewRequest from '../models/InterviewRequest.js';
 import { asyncHandler } from '../utils/asyncHandler.js';
+import { createGoogleMeetEvent } from '../services/googleCalendarService.js';
 
 // Helper to convert date and time string to Date object
 export function parseDateTime(dateInput, timeStr) {
@@ -154,17 +155,11 @@ export const getAdminInterviewRequestById = asyncHandler(async (req, res) => {
 
 // Admin: Accept Request
 export const acceptInterviewRequest = asyncHandler(async (req, res) => {
-  const { adminScheduledDate, adminScheduledTime, googleMeetLink, adminRemark } = req.body;
+  const { adminScheduledDate, adminScheduledTime, adminRemark } = req.body;
 
-  if (!adminScheduledDate || !adminScheduledTime || !googleMeetLink) {
+  if (!adminScheduledDate || !adminScheduledTime) {
     res.status(400);
-    throw new Error('Scheduled date, time, and Google Meet link are required.');
-  }
-
-  // Validate Google Meet URL prefix
-  if (!googleMeetLink.startsWith('https://meet.google.com/')) {
-    res.status(400);
-    throw new Error('Google Meet link must start with https://meet.google.com/');
+    throw new Error('Scheduled date and time are required.');
   }
 
   const request = await InterviewRequest.findById(req.params.id);
@@ -173,16 +168,38 @@ export const acceptInterviewRequest = asyncHandler(async (req, res) => {
     throw new Error('Interview request not found');
   }
 
+  const startDateTime = parseDateTime(adminScheduledDate, adminScheduledTime);
+  const endDateTime = new Date(startDateTime.getTime() + 60 * 60 * 1000); // 60 minutes duration
+
+  let calendarEvent;
+  try {
+    calendarEvent = await createGoogleMeetEvent({
+      summary: 'HR Interview',
+      description: 'Interview scheduled through Interview AI.',
+      startDateTime,
+      endDateTime,
+      attendeeEmail: request.userEmail
+    });
+    console.log('Calendar Event ID:', calendarEvent.eventId);
+    console.log('Generated Meet URL:', calendarEvent.googleMeetLink);
+  } catch (apiError) {
+    console.error('Google API Error:', apiError);
+    res.status(502);
+    throw new Error('Unable to create Google Meet meeting.');
+  }
+
   request.adminScheduledDate = new Date(adminScheduledDate);
   request.adminScheduledTime = adminScheduledTime;
-  request.googleMeetLink = googleMeetLink;
+  request.googleMeetLink = calendarEvent.googleMeetLink;
+  request.calendarEventId = calendarEvent.eventId;
+  request.meetingCreatedAt = new Date();
   request.adminRemark = adminRemark || '';
   request.status = 'Accepted';
 
   await request.save();
 
   res.json({
-    message: 'Interview request accepted and scheduled successfully.',
+    message: 'Interview request accepted and scheduled successfully. Google Meet generated automatically.',
     request
   });
 });

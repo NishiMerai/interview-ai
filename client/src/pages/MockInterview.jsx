@@ -1,7 +1,7 @@
 import { useMutation, useQuery } from '@tanstack/react-query';
 import { useState, useEffect } from 'react';
 import { api } from '../services/api.js';
-import { Brain, Trophy, Lightbulb, TrendingUp, HelpCircle, ChevronRight, Play, AlertTriangle, Calendar, Video, Download, Plus, X, AlertCircle } from 'lucide-react';
+import { Brain, Trophy, Lightbulb, TrendingUp, HelpCircle, ChevronRight, Play, AlertTriangle, Calendar, Video, Download, Plus, X, AlertCircle, Info } from 'lucide-react';
 
 const DOMAINS = [
   "Web Development", "Mobile Development", "AI & ML", "Data Science",
@@ -91,6 +91,10 @@ export default function MockInterview() {
     preferredTime: '09:00 AM',
     notes: ''
   });
+
+  // Details Modal States for candidate
+  const [selectedRequest, setSelectedRequest] = useState(null);
+  const [showDetailsModal, setShowDetailsModal] = useState(false);
 
   // Query my interview requests with 15-second background polling
   const { data: requestsData, refetch: refetchRequests } = useQuery({
@@ -217,7 +221,7 @@ export default function MockInterview() {
       weekday: 'long', year: 'numeric', month: 'long', day: 'numeric'
     });
     const svg = `
-      <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 800 500" width="800" height="500">
+      <svg xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" viewBox="0 0 800 500" width="800" height="500">
         <defs>
           <linearGradient id="bg" x1="0%" y1="0%" x2="100%" y2="100%">
             <stop offset="0%" stop-color="#4f46e5" />
@@ -259,7 +263,13 @@ export default function MockInterview() {
           <text x="360" y="45" font-family="-apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif" font-size="15" font-weight="800" fill="#4f46e5">${req.adminScheduledTime}</text>
           
           <text x="360" y="95" font-family="-apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif" font-size="11" font-weight="800" fill="#94a3b8" letter-spacing="1.5">GOOGLE MEET LINK</text>
-          <text x="360" y="119" font-family="-apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif" font-size="14" font-weight="700" fill="#0ea5e9">${req.googleMeetLink}</text>
+          ${req.googleMeetLink ? `
+          <a xlink:href="${req.googleMeetLink}" href="${req.googleMeetLink}" target="_blank" rel="noopener noreferrer">
+            <text x="360" y="119" font-family="-apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif" font-size="14" font-weight="700" fill="#0ea5e9" text-decoration="underline">Join Google Meet</text>
+          </a>
+          ` : `
+          <text x="360" y="119" font-family="-apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif" font-size="13" font-weight="600" fill="#d97706" font-style="italic">Meeting link will be available soon.</text>
+          `}
         </g>
         
         <path d="M40 420 L760 420" stroke="#f1f5f9" stroke-width="2" stroke-dasharray="8 6" />
@@ -525,16 +535,30 @@ export default function MockInterview() {
                         )}
                       </td>
                       <td className="p-5">
-                        {req.status === 'Accepted' && req.googleMeetLink ? (
-                          <a 
-                            href={req.googleMeetLink} 
-                            target="_blank" 
-                            rel="noopener noreferrer"
-                            className="btn-primary !py-1.5 !px-4 !rounded-xl text-xs flex items-center gap-1.5 w-fit"
-                          >
-                            <Video size={14} />
-                            Join Interview
-                          </a>
+                        {req.status === 'Accepted' ? (
+                          req.googleMeetLink ? (
+                            <div className="space-y-1.5">
+                              <a 
+                                href={req.googleMeetLink} 
+                                target="_blank" 
+                                rel="noopener noreferrer"
+                                className="btn-primary !py-1.5 !px-4 !rounded-xl text-xs flex items-center gap-1.5 w-fit font-bold"
+                              >
+                                <Video size={14} />
+                                Join Interview
+                              </a>
+                              <a 
+                                href={req.googleMeetLink}
+                                target="_blank"
+                                rel="noopener noreferrer"
+                                className="text-indigo-600 dark:text-indigo-400 hover:text-indigo-800 underline text-xs block font-bold"
+                              >
+                                Join Google Meet
+                              </a>
+                            </div>
+                          ) : (
+                            <span className="text-amber-600 dark:text-amber-400 italic text-xs font-bold block">Meeting link will be available soon.</span>
+                          )
                         ) : (
                           <span className="text-slate-400 italic text-xs">—</span>
                         )}
@@ -543,15 +567,27 @@ export default function MockInterview() {
                         {req.adminRemark || <span className="text-slate-400 italic">—</span>}
                       </td>
                       <td className="p-5 text-right">
-                        {req.status === 'Accepted' && (
+                        <div className="flex gap-2 justify-end">
                           <button 
-                            onClick={() => downloadConfirmationCard(req)}
-                            className="text-indigo-600 dark:text-indigo-400 hover:text-indigo-800 dark:hover:text-indigo-300 flex items-center gap-1.5 text-xs font-black uppercase tracking-wider ml-auto bg-indigo-50 dark:bg-white/5 p-2 px-3 rounded-xl transition-all"
+                            onClick={() => {
+                              setSelectedRequest(req);
+                              setShowDetailsModal(true);
+                            }}
+                            className="w-8 h-8 rounded-xl bg-slate-50 text-slate-600 hover:bg-indigo-600 hover:text-white dark:bg-white/5 dark:text-slate-300 flex items-center justify-center transition-all"
+                            title="View Details"
                           >
-                            <Download size={14} />
-                            Ticket
+                            <Info size={14} />
                           </button>
-                        )}
+                          {req.status === 'Accepted' && (
+                            <button 
+                              onClick={() => downloadConfirmationCard(req)}
+                              className="w-8 h-8 rounded-xl bg-indigo-50 text-indigo-600 hover:bg-indigo-600 hover:text-white dark:bg-white/5 dark:text-indigo-300 flex items-center justify-center transition-all"
+                              title="Download Ticket"
+                            >
+                              <Download size={14} />
+                            </button>
+                          )}
+                        </div>
                       </td>
                     </tr>
                   ))}
@@ -561,6 +597,81 @@ export default function MockInterview() {
           </div>
         )}
       </div>
+
+      {/* Details Modal */}
+      {showDetailsModal && selectedRequest && (
+        <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-slate-900/60 backdrop-blur-sm animate-fade-in">
+          <div className="w-full max-w-lg glass-card !p-8 relative">
+            <button onClick={() => setShowDetailsModal(false)} className="absolute top-4 right-4 text-slate-400 hover:text-slate-600 transition-colors">
+              <X size={20} />
+            </button>
+            <h2 className="text-2xl font-black italic flex items-center gap-2 mb-4">
+              <Info className="text-indigo-600" size={24} />
+              Request Details
+            </h2>
+            <div className="space-y-4 text-sm font-semibold">
+              <div className="grid grid-cols-2 gap-4 bg-slate-50 dark:bg-white/5 p-4 rounded-2xl">
+                <div>
+                  <div className="text-[10px] text-slate-400 uppercase tracking-wider">Candidate</div>
+                  <div className="text-slate-800 dark:text-slate-200 text-base font-bold">{selectedRequest.userName}</div>
+                  <div className="text-xs text-slate-400 font-medium">{selectedRequest.userEmail}</div>
+                </div>
+                <div>
+                  <div className="text-[10px] text-slate-400 uppercase tracking-wider">Interview Type</div>
+                  <div className="text-slate-800 dark:text-slate-200 text-base font-bold">{selectedRequest.interviewType}</div>
+                </div>
+              </div>
+
+              <div>
+                <div className="text-[10px] text-slate-400 uppercase tracking-wider mb-1">Preferred Slot</div>
+                <div className="text-slate-700 dark:text-slate-300 font-bold">
+                  {new Date(selectedRequest.preferredDate).toLocaleDateString('en-US', { weekday: 'long', year: 'numeric', month: 'long', day: 'numeric' })} at <span className="text-indigo-600">{selectedRequest.preferredTime}</span>
+                </div>
+              </div>
+
+              {selectedRequest.adminRemark && (
+                <div>
+                  <div className="text-[10px] text-slate-400 uppercase tracking-wider mb-1">Notes / Remarks</div>
+                  <div className="bg-slate-50 dark:bg-white/5 p-3 rounded-2xl text-xs text-slate-600 dark:text-slate-300 italic whitespace-pre-wrap">
+                    {selectedRequest.adminRemark}
+                  </div>
+                </div>
+              )}
+
+              <div className="grid grid-cols-2 gap-4 border-t border-slate-100 dark:border-white/5 pt-4">
+                <div>
+                  <div className="text-[10px] text-slate-400 uppercase tracking-wider">Current Status</div>
+                  <span className={`badge mt-1 ${
+                    selectedRequest.status === 'Pending' ? 'bg-amber-100 text-amber-800 border-amber-200' :
+                    selectedRequest.status === 'Accepted' ? 'bg-emerald-100 text-emerald-800 border-emerald-200' :
+                    selectedRequest.status === 'Rejected' ? 'bg-rose-100 text-rose-800 border-rose-200' :
+                    'bg-blue-100 text-blue-800 border-blue-200'
+                  }`}>
+                    {selectedRequest.status}
+                  </span>
+                </div>
+                <div>
+                  <div className="text-[10px] text-slate-400 uppercase tracking-wider">Google Meet Link</div>
+                  <div className="text-sm mt-1">
+                    {selectedRequest.googleMeetLink ? (
+                      <a 
+                        href={selectedRequest.googleMeetLink} 
+                        target="_blank" 
+                        rel="noopener noreferrer" 
+                        className="text-indigo-600 dark:text-indigo-400 hover:text-indigo-800 underline font-bold"
+                      >
+                        Join Google Meet
+                      </a>
+                    ) : (
+                      <span className="text-amber-600 dark:text-amber-400 italic text-xs font-bold">Meeting link will be available soon.</span>
+                    )}
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      )}
 
       {/* Request Modal */}
       {modalOpen && (

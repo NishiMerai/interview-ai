@@ -40,6 +40,12 @@ const interviewRequestSchema = new mongoose.Schema({
   googleMeetLink: {
     type: String
   },
+  calendarEventId: {
+    type: String
+  },
+  meetingCreatedAt: {
+    type: Date
+  },
   status: {
     type: String,
     enum: ['Pending', 'Accepted', 'Rejected', 'Completed'],
