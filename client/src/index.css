@@ -35,30 +35,29 @@ h1, h2, h3, h4, h5, h6 {
 .dark h1, .dark h2, .dark h3, .dark h4, .dark h5, .dark h6 {
   color: #F8FAFC;
 }
-
 @layer components {
   .glass {
     @apply border border-slate-200/80 bg-white/90 shadow-[0_8px_30px_rgb(0,0,0,0.02)] backdrop-blur-md dark:border-slate-800/80 dark:bg-slate-900/90;
   }
 
   .glass-card {
-    @apply rounded-2xl border border-slate-200/80 bg-white p-6 shadow-soft transition-all duration-250 dark:border-slate-800/80 dark:bg-slate-900;
+    @apply rounded-2xl border border-slate-200/80 bg-white p-6 shadow-soft transition-all duration-300 dark:border-slate-800/80 dark:bg-slate-900;
   }
 
   .btn-primary {
-    @apply relative inline-flex items-center justify-center gap-2 overflow-hidden rounded-xl bg-primary px-5 py-3 text-sm font-semibold text-white shadow-md shadow-blue-500/10 transition-all duration-250 hover:-translate-y-[1px] hover:bg-blue-700 hover:shadow-lg hover:shadow-blue-500/20 active:translate-y-[1px] active:scale-[0.98] disabled:opacity-50 disabled:pointer-events-none;
+    @apply relative inline-flex items-center justify-center gap-2 overflow-hidden rounded-xl bg-primary px-5 py-3 text-sm font-semibold text-white shadow-md shadow-blue-500/10 transition-all duration-300 hover:-translate-y-[1px] hover:bg-blue-700 hover:shadow-lg hover:shadow-blue-500/20 active:translate-y-[1px] active:scale-[0.98] disabled:opacity-50 disabled:pointer-events-none;
   }
 
   .btn-secondary {
-    @apply inline-flex items-center justify-center gap-2 rounded-xl border border-slate-200 bg-white px-5 py-3 text-sm font-semibold text-slate-700 transition-all duration-250 hover:bg-slate-50 hover:border-slate-300 hover:shadow-sm active:scale-[0.98] dark:border-slate-700 dark:bg-slate-800 dark:text-slate-200 dark:hover:bg-slate-750 dark:hover:border-slate-600 disabled:opacity-50 disabled:pointer-events-none;
+    @apply inline-flex items-center justify-center gap-2 rounded-xl border border-slate-200 bg-white px-5 py-3 text-sm font-semibold text-slate-700 transition-all duration-300 hover:bg-slate-50 hover:border-slate-300 hover:shadow-sm active:scale-[0.98] dark:border-slate-700 dark:bg-slate-800 dark:text-slate-200 dark:hover:bg-slate-700 dark:hover:border-slate-600 disabled:opacity-50 disabled:pointer-events-none;
   }
 
   .input {
-    @apply w-full rounded-xl border border-slate-200 bg-white px-4 py-3 text-sm font-medium text-slate-900 outline-none transition-all duration-250 focus:border-blue-500 focus:ring-2 focus:ring-blue-100 dark:border-slate-700 dark:bg-slate-950/60 dark:text-white dark:focus:ring-blue-500/10;
+    @apply w-full rounded-xl border border-slate-200 bg-white px-4 py-3 text-sm font-medium text-slate-900 outline-none transition-all duration-300 focus:border-blue-500 focus:ring-2 focus:ring-blue-100 dark:border-slate-700 dark:bg-slate-950/60 dark:text-white dark:focus:ring-blue-500/10;
   }
 
   .badge {
-    @apply inline-flex items-center gap-1.5 rounded-md px-2.5 py-1 text-xs font-bold uppercase tracking-wider transition-all duration-250;
+    @apply inline-flex items-center gap-1.5 rounded-md px-2.5 py-1 text-xs font-bold uppercase tracking-wider transition-all duration-300;
   }
 }
 

@@ -42,10 +42,10 @@ export default function AppLayout() {
   ];
 
   return (
-    <div className="min-h-screen bg-background dark:bg-[#0B0F19] text-bodyText dark:text-slate-350 transition-colors duration-250 flex flex-col font-sans">
+    <div className="min-h-screen bg-background dark:bg-[#0B0F19] text-bodyText dark:text-slate-350 transition-colors duration-300 flex flex-col font-sans">
       
       {/* Top Header Navigation */}
-      <header className="h-16 border-b border-border bg-white dark:bg-slate-900 sticky top-0 z-40 px-6 flex items-center justify-between shadow-sm transition-colors duration-250">
+      <header className="h-16 border-b border-border bg-white dark:bg-slate-900 sticky top-0 z-40 px-6 flex items-center justify-between shadow-sm transition-colors duration-300">
         
         {/* Logo and Mobile Menu toggle */}
         <div className="flex items-center gap-4">
@@ -166,7 +166,7 @@ export default function AppLayout() {
         
         {/* Left Dark Sidebar */}
         <aside className={`
-          bg-sidebar text-sidebarText w-64 shrink-0 transition-all duration-250 border-r border-slate-800/20
+          bg-sidebar text-sidebarText w-64 shrink-0 transition-all duration-300 border-r border-slate-800/20
           fixed inset-y-0 left-0 z-30 transform lg:sticky lg:top-16 lg:h-[calc(100vh-4rem)] lg:translate-x-0
           ${sidebarOpen ? 'translate-x-0' : '-translate-x-full'}
         `}>
@@ -275,7 +275,7 @@ export default function AppLayout() {
         </aside>
 
         {/* Main Content Area */}
-        <main className="flex-1 min-w-0 p-6 lg:p-8 bg-[#F8FAFC] dark:bg-[#0B0F19] transition-colors duration-250 relative overflow-y-auto h-[calc(100vh-4rem)]">
+        <main className="flex-1 min-w-0 p-6 lg:p-8 bg-[#F8FAFC] dark:bg-[#0B0F19] transition-colors duration-300 relative overflow-y-auto h-[calc(100vh-4rem)]">
           <Outlet />
         </main>
       </div>

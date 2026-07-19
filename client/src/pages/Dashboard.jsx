@@ -69,7 +69,7 @@ export default function Dashboard() {
                 key={act.label}
                 onClick={() => navigate(act.path)}
                 className={`
-                  text-xs font-bold px-4 py-2.5 rounded-lg transition-all duration-250 active:scale-95
+                  text-xs font-bold px-4 py-2.5 rounded-lg transition-all duration-300 active:scale-95
                   ${act.primary 
                     ? 'bg-white text-blue-700 shadow-md hover:bg-slate-50' 
                     : 'bg-white/10 hover:bg-white/20 text-white border border-white/20'

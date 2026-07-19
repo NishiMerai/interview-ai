@@ -142,9 +142,9 @@ export default function Landing() {
               whileInView={{ opacity: 1, y: 0 }} 
               viewport={{ once: true }}
               transition={{ duration: 0.3, delay: idx * 0.05 }}
-              className="rounded-2xl border border-slate-200 bg-white p-6 shadow-soft dark:border-slate-800 dark:bg-slate-900 hover:border-blue-400 dark:hover:border-blue-500 transition-all duration-250 flex flex-col group"
+              className="rounded-2xl border border-slate-200 bg-white p-6 shadow-soft dark:border-slate-800 dark:bg-slate-900 hover:border-blue-400 dark:hover:border-blue-500 transition-all duration-300 flex flex-col group"
             >
-              <div className="rounded-xl bg-blue-50 p-3 text-primary dark:bg-blue-900/10 dark:text-blue-400 w-fit group-hover:scale-105 transition-transform duration-250">
+              <div className="rounded-xl bg-blue-50 p-3 text-primary dark:bg-blue-900/10 dark:text-blue-400 w-fit group-hover:scale-105 transition-transform duration-300">
                 <feature.icon size={22} />
               </div>
               <h3 className="mt-5 text-lg font-bold text-slate-900 dark:text-white">{feature.title}</h3>
