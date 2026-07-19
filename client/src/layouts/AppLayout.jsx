@@ -164,6 +164,14 @@ export default function AppLayout() {
 
       <div className="flex flex-1">
         
+        {/* Mobile Sidebar Overlay Backdrop */}
+        {sidebarOpen && (
+          <div 
+            onClick={() => setSidebarOpen(false)} 
+            className="fixed inset-0 bg-slate-900/30 backdrop-blur-sm z-20 lg:hidden"
+          />
+        )}
+        
         {/* Left Dark Sidebar */}
         <aside className={`
           bg-background text-primary w-64 shrink-0 transition-all duration-300 border-r border-[#01949A]/20
