@@ -2,6 +2,7 @@ import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { UploadCloud, CheckCircle2, XCircle, Terminal, FileText, Target, Cpu, Award, BookOpen, Layers, History, Trash2 } from "lucide-react";
 import { useState, useEffect } from "react";
 import { api } from "../services/api.js";
+import { useSearchParams } from "react-router-dom";
 
 export default function ResumeAnalyzer() {
   const [file, setFile] = useState(null);
@@ -31,27 +32,20 @@ export default function ResumeAnalyzer() {
     },
   });
 
-  const deleteMutation = useMutation({
-    mutationFn: async (id) => {
-      return (await api.delete(`/resumes/${id}`)).data;
-    },
-    onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: ["resumes"] });
-      queryClient.invalidateQueries({ queryKey: ["dashboard"] });
-      setSelectedIdx(0); // Reset selection
-    },
-  });
-
-  // Automatically scroll to history section if hash is present
-  useEffect(() => {
-    if (window.location.hash === "#history") {
-      const el = document.getElementById("history-section");
-      if (el) el.scrollIntoView({ behavior: "smooth" });
-    }
-  }, [data]);
+  const [searchParams] = useSearchParams();
+  const resumeId = searchParams.get("id");
 
   const resumes = data?.resumes || [];
-  const latest = resumes[selectedIdx] || resumes[0];
+
+  let resolvedIdx = selectedIdx;
+  if (resumeId) {
+    const idx = resumes.findIndex((r) => r._id === resumeId);
+    if (idx !== -1) {
+      resolvedIdx = idx;
+    }
+  }
+
+  const latest = resumes[resolvedIdx] || resumes[0];
 
   const extractedSkills =
     latest?.parsedData?.skills ||
@@ -257,68 +251,7 @@ export default function ResumeAnalyzer() {
 
       </div>
 
-      {/* Resume History Section */}
-      <div id="history-section" className="bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 rounded-xl p-6 shadow-soft space-y-4">
-        <h2 className="text-sm font-black text-slate-900 dark:text-white uppercase tracking-widest flex items-center gap-2">
-          <History size={14} className="text-primary" />
-          Resume Upload History
-        </h2>
-        
-        {resumes.length === 0 ? (
-          <p className="text-xs text-slate-400 italic font-semibold">No historical uploads detected.</p>
-        ) : (
-          <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-3 pt-2">
-            {resumes.map((resItem, idx) => (
-              <div
-                key={resItem._id}
-                className={`
-                  p-4 rounded-xl border text-xs font-semibold flex flex-col justify-between gap-4 transition relative group
-                  ${idx === selectedIdx 
-                    ? "bg-blue-50/30 border-blue-200 dark:bg-blue-900/15 dark:border-blue-800/80 text-primary" 
-                    : "bg-white border-slate-200 dark:bg-slate-900 dark:border-slate-800 text-slate-500 dark:text-slate-450 hover:bg-slate-50 dark:hover:bg-slate-800/40 hover:shadow-sm"
-                  }
-                `}
-              >
-                <div className="flex items-start justify-between gap-3">
-                  <div className="overflow-hidden">
-                    <p className="font-bold text-slate-800 dark:text-slate-200 truncate leading-snug">
-                      {resItem.originalFileName}
-                    </p>
-                    <p className="text-[9px] text-slate-400 dark:text-slate-500 truncate uppercase tracking-wider mt-1">
-                      {resItem.domain || "No domain matched"} • V{resItem.versionNumber || 1}
-                    </p>
-                  </div>
-                  
-                  <span className="shrink-0 font-extrabold text-[10px] text-slate-800 dark:text-slate-200 bg-slate-100 dark:bg-slate-800 px-2 py-0.5 rounded">
-                    {resItem.resumeScore || 0}%
-                  </span>
-                </div>
 
-                <div className="flex items-center justify-between border-t border-slate-100 dark:border-slate-800 pt-3 mt-1">
-                  <button
-                    onClick={() => {
-                      setSelectedIdx(idx);
-                      window.scrollTo({ top: 0, behavior: "smooth" });
-                    }}
-                    className="text-[11px] font-bold text-primary hover:underline"
-                  >
-                    Load Report
-                  </button>
-
-                  <button
-                    onClick={() => deleteMutation.mutate(resItem._id)}
-                    disabled={deleteMutation.isPending}
-                    className="text-[11px] font-bold text-rose-500 hover:text-rose-700 flex items-center gap-1 disabled:opacity-50"
-                  >
-                    <Trash2 size={12} />
-                    Remove
-                  </button>
-                </div>
-              </div>
-            ))}
-          </div>
-        )}
-      </div>
 
     </div>
   );

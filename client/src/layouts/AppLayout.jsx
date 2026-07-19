@@ -29,7 +29,7 @@ export default function AppLayout() {
   const menuItems = [
     { label: 'Dashboard', path: '/app/dashboard', icon: Gauge },
     { label: 'Resume Analyzer', path: '/app/resume', icon: FileText },
-    { label: 'Resume History', path: '/app/resume', hash: '#history', icon: History },
+    { label: 'Resume History', path: '/app/resume-history', icon: History },
     { label: 'AI Mock Interview', path: '/app/interview', icon: Brain },
     { label: 'HR Interview', path: '/app/interview', hash: '#hr-interview', icon: Video },
     { label: 'Roadmaps', path: '/app/roadmap', icon: GraduationCap },

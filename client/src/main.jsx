@@ -22,6 +22,7 @@ const MockInterview = lazy(() => import('./pages/MockInterview.jsx'));
 const Chatbot = lazy(() => import('./pages/Chatbot.jsx'));
 const AdminPanel = lazy(() => import('./pages/AdminPanel.jsx'));
 const AdminInterviewRequests = lazy(() => import('./pages/AdminInterviewRequests.jsx'));
+const ResumeHistory = lazy(() => import('./pages/ResumeHistory.jsx'));
 
 const queryClient = new QueryClient({
   defaultOptions: {
@@ -48,6 +49,7 @@ const router = createBrowserRouter([
       { index: true, element: <Suspense fallback={<Loader />}><Dashboard /></Suspense> },
       { path: 'dashboard', element: <Suspense fallback={<Loader />}><Dashboard /></Suspense> },
       { path: 'resume', element: <Suspense fallback={<Loader />}><ResumeAnalyzer /></Suspense> },
+      { path: 'resume-history', element: <Suspense fallback={<Loader />}><ResumeHistory /></Suspense> },
       { path: 'roadmap', element: <Suspense fallback={<Loader />}><LearningRoadmap /></Suspense> },
       { path: 'interview', element: <Suspense fallback={<Loader />}><MockInterview /></Suspense> },
       { path: 'chatbot', element: <Suspense fallback={<Loader />}><Chatbot /></Suspense> },
