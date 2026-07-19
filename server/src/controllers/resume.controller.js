@@ -37,16 +37,10 @@ export const uploadResume = asyncHandler(async (req, res) => {
     }
   }
 
-  if (maxMatched === 0) {
-    bestDomain = null;
-    skillAnalysis = {
-      extractedSkills: [],
-      requiredSkills: [],
-      matchedSkills: [],
-      missingSkills: [],
-      resumeScore: 0,
-      atsScore: 0,
-    };
+  if (maxMatched === 0 && domains.length > 0) {
+    bestDomain = domains[0];
+    const domainSkills = allAdminSkills.filter((s) => s.domain === bestDomain);
+    skillAnalysis = compareSkillsWithAdmin(extractedText, domainSkills);
   }
 
   const versionNumber =

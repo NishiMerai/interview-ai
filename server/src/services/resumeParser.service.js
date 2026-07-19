@@ -3,7 +3,7 @@ import mammoth from "mammoth";
 import { createRequire } from "module";
 
 const require = createRequire(import.meta.url);
-const pdfParse = require("pdf-parse");
+const { PDFParse } = require("pdf-parse");
 
 export async function extractTextFromResume(file) {
   try {
@@ -31,9 +31,10 @@ export async function extractTextFromResume(file) {
       mimeType === "application/pdf" ||
       file.originalname.toLowerCase().endsWith(".pdf")
     ) {
-      const data = await pdfParse(fileBuffer);
-      console.log("PDF extracted length:", data.text.length);
-      return data.text || "";
+      const parser = new PDFParse({ data: new Uint8Array(fileBuffer) });
+      const result = await parser.getText();
+      console.log("PDF extracted length:", result.text?.length || 0);
+      return result.text || "";
     }
 
     console.warn("Unsupported file type:", mimeType);
