@@ -10,12 +10,21 @@ export default function LearningRoadmap() {
     queryFn: async () => (await api.get('/skill-gap/reports')).data,
   });
 
+  const { data: resumesData } = useQuery({
+    queryKey: ['resumes'],
+    queryFn: async () => (await api.get('/resumes')).data,
+  });
+
   const latestReport = reportsData?.reports?.[0];
+  const latestResume = resumesData?.resumes?.[0];
+
+  const hasProfileAnalyzed = latestReport || latestResume;
 
   const domain =
     latestReport?.targetName ||
     latestReport?.targetRole ||
     latestReport?.role ||
+    latestResume?.domain ||
     '';
 
   const { data: roadmapsData } = useQuery({
@@ -42,7 +51,7 @@ export default function LearningRoadmap() {
         <p className="text-slate-500 mt-2 font-medium">Your customized roadmap path constructed to bridge detected profile gaps.</p>
       </div>
 
-      {!latestReport && (
+      {!hasProfileAnalyzed && (
         <div className="bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 rounded-xl p-16 text-center shadow-soft flex flex-col items-center max-w-2xl mx-auto">
           {/* Flat vector SVG showing learning guide */}
           <div className="w-20 h-20 rounded-xl bg-amber-50 dark:bg-amber-500/10 text-amber-500 flex items-center justify-center mb-6">
