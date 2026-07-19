@@ -44,20 +44,25 @@ export default function Dashboard() {
     <div className="space-y-8 animate-fade-in p-2 md:p-4 max-w-[1600px] mx-auto">
       
       {/* LinkedIn Learning inspired Hero Welcome Section */}
-      <div className="relative rounded-2xl overflow-hidden bg-gradient-to-r from-blue-600 via-blue-700 to-indigo-800 text-white p-8 md:p-12 shadow-lg flex flex-col md:flex-row md:items-center justify-between gap-8 border border-blue-500/20">
-        
+      <div 
+        className="relative rounded-2xl overflow-hidden p-8 md:p-12 shadow-lg flex flex-col md:flex-row md:items-center justify-between gap-8 border transition duration-300"
+        style={{ backgroundColor: '#0D1B2A', borderColor: '#274B68', color: '#F5F7FA' }}
+      >
         {/* Decorative Grid Layer */}
         <div className="absolute inset-0 opacity-10 bg-[linear-gradient(to_right,#ffffff_1px,transparent_1px),linear-gradient(to_bottom,#ffffff_1px,transparent_1px)] bg-[size:24px_24px] pointer-events-none" />
         
         <div className="space-y-6 max-w-xl z-10">
           <div className="space-y-2">
-            <span className="text-[10px] font-black tracking-widest uppercase bg-white/20 px-3 py-1 rounded-full text-blue-100">
+            <span 
+              className="text-[10px] font-black tracking-widest uppercase px-3 py-1 rounded-full text-blue-100"
+              style={{ backgroundColor: '#1A3554', color: '#66E0FF' }}
+            >
               Welcome back
             </span>
-            <h1 className="text-3xl md:text-5xl font-black tracking-tight text-white leading-tight">
+            <h1 className="text-3xl md:text-5xl font-black tracking-tight leading-tight" style={{ color: '#F5F7FA' }}>
               Grow your career skill architecture.
             </h1>
-            <p className="text-sm text-blue-100 font-medium leading-relaxed max-w-md pt-1">
+            <p className="text-sm font-medium leading-relaxed max-w-md pt-1" style={{ color: '#A8BBCF' }}>
               Elevate your corporate readiness. Review details on missing capabilities, ATS match percentage, and customized roadmap tasks below.
             </p>
           </div>
@@ -68,13 +73,12 @@ export default function Dashboard() {
               <button 
                 key={act.label}
                 onClick={() => navigate(act.path)}
-                className={`
-                  text-xs font-bold px-4 py-2.5 rounded-lg transition-all duration-300 active:scale-95
-                  ${act.primary 
-                    ? 'bg-white text-blue-700 shadow-md hover:bg-slate-50' 
-                    : 'bg-white/10 hover:bg-white/20 text-white border border-white/20'
-                  }
-                `}
+                className="text-xs font-bold px-4 py-2.5 rounded-lg transition-all duration-300 active:scale-95 border"
+                style={
+                  act.primary 
+                    ? { backgroundColor: '#34D1BF', color: '#0D1B2A', borderColor: '#34D1BF' } 
+                    : { backgroundColor: '#132A46', color: '#F5F7FA', borderColor: '#274B68' }
+                }
               >
                 {act.label}
               </button>
@@ -85,26 +89,26 @@ export default function Dashboard() {
         {/* Flat SVG Vector Illustration */}
         <div className="w-full md:w-[320px] shrink-0 z-10 hidden sm:block">
           <svg viewBox="0 0 320 200" className="w-full h-auto drop-shadow-md">
-            <rect x="20" y="20" width="280" height="160" rx="12" fill="#1e293b" fillOpacity="0.3" stroke="rgba(255,255,255,0.1)" strokeWidth="1.5" />
+            <rect x="20" y="20" width="280" height="160" rx="12" fill="#132A46" stroke="#274B68" strokeWidth="1.5" />
             {/* Screen mockup */}
-            <rect x="40" y="40" width="240" height="120" rx="6" fill="#0f172a" />
-            <circle cx="50" cy="50" r="3" fill="#ef4444" />
-            <circle cx="58" cy="50" r="3" fill="#f59e0b" />
-            <circle cx="66" cy="50" r="3" fill="#10b981" />
+            <rect x="40" y="40" width="240" height="120" rx="6" fill="#0D1B2A" />
+            <circle cx="50" cy="50" r="3" fill="#EF4444" />
+            <circle cx="58" cy="50" r="3" fill="#F59E0B" />
+            <circle cx="66" cy="50" r="3" fill="#63E08A" />
             
             {/* Visualizing data nodes */}
-            <line x1="80" y1="120" x2="140" y2="70" stroke="#3b82f6" strokeWidth="3" strokeLinecap="round" />
-            <line x1="140" y1="70" x2="200" y2="100" stroke="#06b6d4" strokeWidth="3" strokeLinecap="round" />
-            <line x1="200" y1="100" x2="240" y2="60" stroke="#10b981" strokeWidth="3" strokeLinecap="round" />
+            <line x1="80" y1="120" x2="140" y2="70" stroke="#34D1BF" strokeWidth="3" strokeLinecap="round" />
+            <line x1="140" y1="70" x2="200" y2="100" stroke="#4EC5D4" strokeWidth="3" strokeLinecap="round" />
+            <line x1="200" y1="100" x2="240" y2="60" stroke="#66E0FF" strokeWidth="3" strokeLinecap="round" />
             
-            <circle cx="80" cy="120" r="6" fill="#2563eb" />
-            <circle cx="140" cy="70" r="6" fill="#3b82f6" />
-            <circle cx="200" cy="100" r="6" fill="#06b6d4" />
-            <circle cx="240" cy="60" r="6" fill="#10b981" />
+            <circle cx="80" cy="120" r="6" fill="#34D1BF" />
+            <circle cx="140" cy="70" r="6" fill="#57E3C7" />
+            <circle cx="200" cy="100" r="6" fill="#4EC5D4" />
+            <circle cx="240" cy="60" r="6" fill="#66E0FF" />
             
             {/* Text lines */}
-            <rect x="80" y="145" width="60" height="6" rx="3" fill="#334155" />
-            <rect x="150" y="145" width="90" height="6" rx="3" fill="#334155" />
+            <rect x="80" y="145" width="60" height="6" rx="3" fill="#1A3554" />
+            <rect x="150" y="145" width="90" height="6" rx="3" fill="#1A3554" />
           </svg>
         </div>
 
