@@ -275,7 +275,7 @@ export default function AppLayout() {
         </aside>
 
         {/* Main Content Area */}
-        <main className="flex-1 min-w-0 p-6 lg:p-8 bg-[#F8FAFC] dark:bg-[#0B0F19] transition-colors duration-300 relative overflow-y-auto h-[calc(100vh-4rem)]">
+        <main className="flex-1 min-w-0 p-6 lg:p-8 bg-background dark:bg-[#0B0F19] transition-colors duration-300 relative overflow-y-auto h-[calc(100vh-4rem)]">
           <Outlet />
         </main>
       </div>

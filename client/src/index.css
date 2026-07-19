@@ -5,8 +5,8 @@
 @tailwind utilities;
 
 :root {
-  --brand-primary: #2563EB;
-  --brand-secondary: #3B82F6;
+  --brand-primary: #01949A;
+  --brand-secondary: #01949A;
   --brand-accent: #06B6D4;
   color-scheme: light;
 }
@@ -14,7 +14,7 @@
 body {
   margin: 0;
   min-width: 320px;
-  background-color: #F8FAFC;
+  background-color: #DBE8D8;
   color: #475569;
   font-family: 'Inter', sans-serif;
   -webkit-font-smoothing: antialiased;

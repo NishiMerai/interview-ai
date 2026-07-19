@@ -41,7 +41,7 @@ export default function Register() {
   };
 
   return (
-    <div className="flex min-h-screen items-center justify-center bg-[#F8FAFC] dark:bg-[#0B0F19] px-4">
+    <div className="flex min-h-screen items-center justify-center bg-background dark:bg-[#0B0F19] px-4">
       <div className="w-full max-w-md bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 rounded-2xl shadow-soft p-8 space-y-6">
         <div className="flex flex-col items-center text-center space-y-2">
           <div className="rounded-xl bg-primary p-3 text-white shadow-md shadow-blue-500/20">

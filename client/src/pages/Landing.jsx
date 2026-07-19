@@ -13,7 +13,7 @@ const features = [
 
 export default function Landing() {
   return (
-    <div className="min-h-screen bg-[#F8FAFC] dark:bg-[#0B0F19] text-slate-600 dark:text-slate-350 antialiased">
+    <div className="min-h-screen bg-background dark:bg-[#0B0F19] text-slate-600 dark:text-slate-350 antialiased">
       {/* Top Navigation */}
       <nav className="mx-auto flex max-w-7xl items-center justify-between border-b border-slate-200/80 bg-white/80 dark:bg-slate-900/80 px-6 py-4 backdrop-blur-md dark:border-slate-800/80 sticky top-0 z-50">
         <div className="flex items-center gap-3">

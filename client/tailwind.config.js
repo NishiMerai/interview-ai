@@ -6,10 +6,10 @@ export default {
     extend: {
       colors: {
         ink: '#0F172A',
-        background: '#F8FAFC',
+        background: '#DBE8D8',
         card: '#FFFFFF',
-        primary: '#2563EB',
-        secondary: '#3B82F6',
+        primary: '#01949A',
+        secondary: '#01949A',
         accent: '#06B6D4',
         success: '#10B981',
         warning: '#F59E0B',
@@ -20,11 +20,11 @@ export default {
         sidebar: '#1E293B',
         sidebarText: '#FFFFFF',
         brand: {
-          50: '#eff6ff',
-          100: '#dbeafe',
-          500: '#3b82f6',
-          600: '#2563eb',
-          700: '#1d4ed8'
+          50: '#e0f7f8',
+          100: '#b3edf0',
+          500: '#01949A',
+          600: '#01949A',
+          700: '#007377'
         }
       },
       boxShadow: {
