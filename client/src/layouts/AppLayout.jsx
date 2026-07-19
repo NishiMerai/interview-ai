@@ -185,7 +185,7 @@ export default function AppLayout() {
               </div>
 
               {/* Navigation Items */}
-              <nav className="space-y-1">
+              <nav className="space-y-2">
                 {menuItems.map((item) => {
                   const toPath = item.hash ? `${item.path}${item.hash}` : item.path;
                   return (
@@ -206,7 +206,7 @@ export default function AppLayout() {
                         flex items-center gap-3 rounded-lg px-4 py-2.5 text-xs font-semibold tracking-wide transition-all
                         ${isActive && !item.hash
                           ? 'bg-primary text-white shadow-md shadow-blue-500/20' 
-                          : 'text-slate-400 hover:text-white hover:bg-white/5'
+                          : 'text-slate-400 hover:text-white hover:bg-primary'
                         }
                       `}
                     >
@@ -219,14 +219,14 @@ export default function AppLayout() {
                 {/* Profile & Settings Mock Sidebar Links */}
                 <button
                   onClick={() => { setSidebarOpen(false); setProfileOpen(true); }}
-                  className="w-full flex items-center gap-3 rounded-lg px-4 py-2.5 text-xs font-semibold tracking-wide text-slate-400 hover:text-white hover:bg-white/5 transition-all text-left"
+                  className="w-full flex items-center gap-3 rounded-lg px-4 py-2.5 text-xs font-semibold tracking-wide text-slate-400 hover:text-white hover:bg-primary transition-all text-left"
                 >
                   <User size={16} />
                   <span>Profile</span>
                 </button>
                 <button
                   onClick={() => { setSidebarOpen(false); setSettingsOpen(true); }}
-                  className="w-full flex items-center gap-3 rounded-lg px-4 py-2.5 text-xs font-semibold tracking-wide text-slate-400 hover:text-white hover:bg-white/5 transition-all text-left"
+                  className="w-full flex items-center gap-3 rounded-lg px-4 py-2.5 text-xs font-semibold tracking-wide text-slate-400 hover:text-white hover:bg-primary transition-all text-left"
                 >
                   <Settings size={16} />
                   <span>Settings</span>
@@ -237,7 +237,7 @@ export default function AppLayout() {
               {['admin', 'super_admin'].includes(user?.role) && (
                 <div className="pt-4 border-t border-slate-800/80 space-y-2">
                   <p className="text-[9px] font-black uppercase text-slate-500 tracking-widest px-4">Administration</p>
-                  <nav className="space-y-1">
+                  <nav className="space-y-2">
                     {adminItems.map((item) => (
                       <NavLink
                         key={item.label}
@@ -247,7 +247,7 @@ export default function AppLayout() {
                           flex items-center gap-3 rounded-lg px-4 py-2.5 text-xs font-semibold tracking-wide transition-all
                           ${isActive 
                             ? 'bg-primary text-white shadow-md' 
-                            : 'text-slate-400 hover:text-white hover:bg-white/5'
+                            : 'text-slate-400 hover:text-white hover:bg-primary'
                           }
                         `}
                       >

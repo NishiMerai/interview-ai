@@ -15,9 +15,9 @@ export default {
         warning: '#F59E0B',
         danger: '#EF4444',
         heading: '#111827',
-        bodyText: '#475569',
+        bodyText: '#64748B',
         border: '#E2E8F0',
-        sidebar: '#0F172A',
+        sidebar: '#1E293B',
         sidebarText: '#FFFFFF',
         brand: {
           50: '#eff6ff',

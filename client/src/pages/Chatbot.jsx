@@ -1,5 +1,5 @@
 import { useQuery } from '@tanstack/react-query';
-import { Send, MessageSquare, Bot, User, Trash2, Plus } from 'lucide-react';
+import { Send, MessageSquare, Bot, User, Plus } from 'lucide-react';
 import { useState } from 'react';
 import { api } from '../services/api.js';
 
@@ -52,91 +52,108 @@ export default function Chatbot() {
   };
 
   return (
-    <div className="grid gap-8 lg:grid-cols-[340px_1fr] animate-fade-in p-4 h-[calc(100vh-140px)]">
-      {/* Sidebar */}
-      <aside className="glass-card flex flex-col !p-6 overflow-hidden">
-        <div className="flex items-center justify-between mb-8">
-           <h2 className="text-xl font-bold flex items-center gap-2">
-              <MessageSquare size={20} className="text-indigo-500" />
-              History
-           </h2>
-           <button 
-             onClick={() => setChatMessages([{ role: 'assistant', content: 'Salutations! I am your career architect. Ask me anything about scaling your professional journey.' }])}
-             className="w-8 h-8 rounded-full bg-indigo-600 flex items-center justify-center text-white shadow-lg shadow-indigo-500/20 transition-transform hover:rotate-90"
-           >
-              <Plus size={18} />
-           </button>
-        </div>
-        
-        <div className="flex-1 space-y-3 overflow-y-auto modern-scrollbar pr-1">
-          {(data?.chats || []).map((item) => (
+    <div className="grid gap-6 lg:grid-cols-[280px_1fr] animate-fade-in p-2 md:p-4 h-[calc(100vh-8rem)] max-w-[1600px] mx-auto">
+      {/* Sidebar for chat archives */}
+      <aside className="bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 rounded-xl p-5 flex flex-col justify-between overflow-hidden shadow-soft">
+        <div className="space-y-6 flex-1 flex flex-col overflow-hidden">
+          <div className="flex items-center justify-between">
+            <h2 className="text-xs font-black uppercase text-slate-400 tracking-wider flex items-center gap-2">
+              <MessageSquare size={14} className="text-primary" />
+              Chat Log Files
+            </h2>
             <button 
-              key={item._id} 
-              className="group flex items-center gap-3 w-full rounded-2xl p-4 text-left text-sm font-bold transition-all duration-300 bg-white/50 text-slate-600 hover:bg-white dark:bg-white/5 dark:text-slate-300 dark:hover:bg-white/10"
+              onClick={() => setChatMessages([{ role: 'assistant', content: 'Salutations! I am your career architect. Ask me anything about scaling your professional journey.' }])}
+              className="w-7 h-7 rounded-lg bg-primary text-white flex items-center justify-center shadow-md shadow-blue-500/10 hover:bg-blue-700 transition"
+              title="Reset Chat Session"
             >
-              <div className="w-2 h-2 rounded-full bg-slate-300" />
-              <span className="truncate flex-1 italic">{item.title}</span>
+              <Plus size={14} />
             </button>
-          ))}
+          </div>
+          
+          <div className="flex-1 space-y-2 overflow-y-auto modern-scrollbar pr-1 text-xs">
+            {(data?.chats || []).length === 0 ? (
+              <p className="text-slate-400 italic text-[11px] font-semibold">No historical logs.</p>
+            ) : (
+              (data?.chats || []).map((item) => (
+                <button 
+                  key={item._id} 
+                  className="flex items-center gap-2.5 w-full rounded-lg p-2.5 text-left font-bold transition duration-300 border border-slate-100 hover:border-slate-250 hover:bg-slate-50/50 dark:border-slate-800/80 dark:hover:border-slate-700 text-slate-500 dark:text-slate-400"
+                >
+                  <span className="w-1.5 h-1.5 rounded-full bg-slate-300 shrink-0" />
+                  <span className="truncate flex-1">{item.title}</span>
+                </button>
+              ))
+            )}
+          </div>
         </div>
       </aside>
 
       {/* Main Chat Area */}
-      <section className="glass-card flex flex-col !p-0 overflow-hidden relative">
-        {/* Header */}
-        <div className="p-6 border-b border-slate-100 dark:border-white/5 flex items-center justify-between bg-white/30 dark:bg-white/5 backdrop-blur-md z-10">
-           <div className="flex items-center gap-4">
-              <div className="w-12 h-12 rounded-2xl bg-indigo-600 flex items-center justify-center text-white shadow-xl shadow-indigo-500/20 animate-float">
-                 <Bot size={26} />
-              </div>
-              <div>
-                 <h1 className="text-xl font-black italic tracking-tight">Interview AI Assistant</h1>
-                 <p className="text-[10px] font-black uppercase text-slate-400 tracking-widest flex items-center gap-2">
-                    <div className="w-1.5 h-1.5 rounded-full bg-emerald-500 animate-pulse" />
-                    Always Ready to Advise
-                 </p>
-              </div>
-           </div>
+      <section className="bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 rounded-xl flex flex-col overflow-hidden shadow-soft relative">
+        {/* Chat Area Header */}
+        <div className="p-5 border-b border-slate-150 dark:border-slate-800/80 flex items-center justify-between z-10 bg-slate-50/30 dark:bg-slate-950/20">
+          <div className="flex items-center gap-3">
+            <div className="w-10 h-10 rounded-xl bg-blue-50 dark:bg-blue-900/10 text-primary flex items-center justify-center shadow-sm">
+              <Bot size={20} />
+            </div>
+            <div>
+              <h1 className="text-sm font-black text-slate-900 dark:text-white leading-none">Career Copilot</h1>
+              <p className="text-[9px] font-black uppercase text-slate-400 tracking-wider flex items-center gap-1.5 mt-1.5">
+                <span className="w-1.5 h-1.5 rounded-full bg-emerald-500 animate-pulse" />
+                Live Response Grid
+              </p>
+            </div>
+          </div>
         </div>
 
-        {/* Messages */}
-        <div className="flex-1 overflow-y-auto p-8 space-y-8 bg-slate-50/30 dark:bg-slate-950/20 modern-scrollbar">
+        {/* Dialog Bubbles list */}
+        <div className="flex-1 overflow-y-auto p-6 space-y-6 bg-[#F8FAFC]/50 dark:bg-slate-950/20 modern-scrollbar">
           {chatMessages.map((item, index) => (
-            <div key={index} className={`flex items-start gap-4 ${item.role === 'user' ? 'flex-row-reverse' : ''}`}>
-               <div className={`w-10 h-10 rounded-2xl flex items-center justify-center shadow-lg shrink-0 ${item.role === 'user' ? 'bg-slate-900 text-white dark:bg-white dark:text-slate-900' : 'bg-indigo-600 text-white'}`}>
-                  {item.role === 'user' ? <User size={20} /> : <Bot size={20} />}
-               </div>
-               <div className={`max-w-[75%] px-6 py-4 rounded-[2rem] text-sm font-semibold shadow-sm leading-relaxed ${
-                 item.role === 'user' 
-                 ? 'bg-slate-900 text-white dark:bg-white dark:text-slate-900 rounded-tr-none italic' 
-                 : item.content.startsWith('Error:') 
-                   ? 'bg-red-500/10 text-red-600 dark:bg-red-500/20 dark:text-red-400 border border-red-500/20 rounded-tl-none'
-                   : 'bg-white text-slate-700 border border-slate-100 dark:bg-slate-900 dark:text-slate-200 dark:border-white/5 shadow-xl shadow-indigo-500/5 rounded-tl-none'
-               }`}>
-                  {item.content}
-               </div>
+            <div key={index} className={`flex items-start gap-3.5 ${item.role === 'user' ? 'flex-row-reverse' : ''}`}>
+              <div className={`
+                w-9 h-9 rounded-xl flex items-center justify-center shadow-sm shrink-0 font-bold text-xs border
+                ${item.role === 'user' 
+                  ? 'bg-slate-100 text-slate-800 border-slate-200 dark:bg-slate-800 dark:text-slate-200 dark:border-slate-700' 
+                  : 'bg-primary text-white border-blue-600'
+                }
+              `}>
+                {item.role === 'user' ? <User size={16} /> : <Bot size={16} />}
+              </div>
+              
+              <div className={`
+                max-w-[80%] px-5 py-3.5 rounded-2xl text-xs font-semibold leading-relaxed shadow-sm
+                ${item.role === 'user' 
+                  ? 'bg-slate-900 text-white dark:bg-white dark:text-slate-900 rounded-tr-none' 
+                  : item.content.startsWith('Error:') 
+                    ? 'bg-rose-50/50 text-red-650 border border-rose-100 dark:bg-rose-950/15 dark:text-red-400 dark:border-rose-900/20 rounded-tl-none'
+                    : 'bg-white text-slate-700 border border-slate-150 dark:bg-slate-900 dark:text-slate-200 dark:border-slate-800 rounded-tl-none'
+                }
+              `}>
+                {item.content}
+              </div>
             </div>
           ))}
+
           {loading && (
-             <div className="flex items-start gap-4">
-                <div className="w-10 h-10 rounded-2xl bg-indigo-600 flex items-center justify-center text-white animate-pulse">
-                   <Bot size={20} />
-                </div>
-                <div className="bg-white/50 dark:bg-white/5 px-6 py-4 rounded-[2rem] rounded-tl-none animate-pulse italic text-xs font-bold text-slate-400 tracking-widest">
-                   Architecting a response...
-                </div>
-             </div>
+            <div className="flex items-start gap-3.5">
+              <div className="w-9 h-9 rounded-xl bg-primary text-white flex items-center justify-center animate-pulse">
+                <Bot size={16} />
+              </div>
+              <div className="bg-white dark:bg-slate-900 border border-slate-150 dark:border-slate-800/80 px-5 py-3.5 rounded-2xl rounded-tl-none animate-pulse text-[10px] font-black text-slate-400 uppercase tracking-widest">
+                Compiling response...
+              </div>
+            </div>
           )}
         </div>
 
-        {/* Input */}
-        <div className="p-6 bg-white dark:bg-slate-900 z-10 border-t border-slate-100 dark:border-white/5">
+        {/* Input box */}
+        <div className="p-5 border-t border-slate-150 dark:border-slate-800/80 bg-white dark:bg-slate-900">
           <div className="relative group">
             <input 
-              className="input pr-16 !rounded-[2.5rem] !py-5 shadow-2xl shadow-indigo-500/5" 
+              className="input pr-14 !rounded-xl !py-4 shadow-sm text-xs" 
               value={message} 
               onChange={(e) => setMessage(e.target.value)} 
-              placeholder="Inquire about roadmaps, coding strategy, or interviews..." 
+              placeholder="Ask me anything about resumes, roadmaps, or interview prep..." 
               onKeyDown={(e) => {
                 if (e.key === 'Enter' && message.trim()) handleSend();
               }} 
@@ -144,9 +161,9 @@ export default function Chatbot() {
             <button 
               disabled={!message.trim() || loading} 
               onClick={handleSend} 
-              className="absolute right-2 top-2 bottom-2 w-12 rounded-2xl bg-indigo-600 text-white flex items-center justify-center transition-transform active:scale-90 disabled:opacity-50"
+              className="absolute right-2 top-2 bottom-2 w-10 rounded-lg bg-primary text-white flex items-center justify-center transition active:scale-95 disabled:opacity-50"
             >
-              <Send size={18} />
+              <Send size={14} />
             </button>
           </div>
         </div>
