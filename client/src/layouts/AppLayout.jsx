@@ -166,7 +166,7 @@ export default function AppLayout() {
         
         {/* Left Dark Sidebar */}
         <aside className={`
-          bg-sidebar text-sidebarText w-64 shrink-0 transition-all duration-300 border-r border-slate-800/20
+          bg-background text-primary w-64 shrink-0 transition-all duration-300 border-r border-[#01949A]/20
           fixed inset-y-0 left-0 z-30 transform lg:sticky lg:top-16 lg:h-[calc(100vh-4rem)] lg:translate-x-0
           ${sidebarOpen ? 'translate-x-0' : '-translate-x-full'}
         `}>
@@ -174,13 +174,13 @@ export default function AppLayout() {
             
             <div className="space-y-6">
               {/* Profile Card Summary */}
-              <div className="bg-slate-800/40 rounded-xl p-4 border border-white/5 flex items-center gap-3">
-                <div className="w-10 h-10 rounded-full bg-slate-700 flex items-center justify-center font-bold text-white uppercase">
+              <div className="bg-white/45 dark:bg-slate-900/40 rounded-xl p-4 border border-[#01949A]/20 flex items-center gap-3">
+                <div className="w-10 h-10 rounded-full bg-primary flex items-center justify-center font-bold text-white uppercase">
                   {user?.name?.[0] || 'C'}
                 </div>
                 <div className="overflow-hidden">
-                  <p className="font-extrabold text-sm text-white leading-none truncate">{user?.name || 'Candidate'}</p>
-                  <p className="text-[10px] text-slate-400 font-semibold mt-1 truncate">{user?.email}</p>
+                  <p className="font-extrabold text-sm text-slate-800 dark:text-slate-100 leading-none truncate">{user?.name || 'Candidate'}</p>
+                  <p className="text-[10px] text-[#01949A]/80 font-semibold mt-1 truncate">{user?.email}</p>
                 </div>
               </div>
 
@@ -205,8 +205,8 @@ export default function AppLayout() {
                       className={({ isActive }) => `
                         flex items-center gap-3 rounded-lg px-4 py-2.5 text-xs font-semibold tracking-wide transition-all
                         ${isActive && !item.hash
-                          ? 'bg-primary text-white shadow-md shadow-blue-500/20' 
-                          : 'text-slate-400 hover:text-white hover:bg-primary'
+                          ? 'bg-primary text-white shadow-md shadow-primary/10' 
+                          : 'text-primary hover:text-white hover:bg-primary'
                         }
                       `}
                     >
@@ -219,14 +219,14 @@ export default function AppLayout() {
                 {/* Profile & Settings Mock Sidebar Links */}
                 <button
                   onClick={() => { setSidebarOpen(false); setProfileOpen(true); }}
-                  className="w-full flex items-center gap-3 rounded-lg px-4 py-2.5 text-xs font-semibold tracking-wide text-slate-400 hover:text-white hover:bg-primary transition-all text-left"
+                  className="w-full flex items-center gap-3 rounded-lg px-4 py-2.5 text-xs font-semibold tracking-wide text-primary hover:text-white hover:bg-primary transition-all text-left"
                 >
                   <User size={16} />
                   <span>Profile</span>
                 </button>
                 <button
                   onClick={() => { setSidebarOpen(false); setSettingsOpen(true); }}
-                  className="w-full flex items-center gap-3 rounded-lg px-4 py-2.5 text-xs font-semibold tracking-wide text-slate-400 hover:text-white hover:bg-primary transition-all text-left"
+                  className="w-full flex items-center gap-3 rounded-lg px-4 py-2.5 text-xs font-semibold tracking-wide text-primary hover:text-white hover:bg-primary transition-all text-left"
                 >
                   <Settings size={16} />
                   <span>Settings</span>
@@ -235,8 +235,8 @@ export default function AppLayout() {
 
               {/* Admin Panel sections */}
               {['admin', 'super_admin'].includes(user?.role) && (
-                <div className="pt-4 border-t border-slate-800/80 space-y-2">
-                  <p className="text-[9px] font-black uppercase text-slate-500 tracking-widest px-4">Administration</p>
+                <div className="pt-4 border-t border-[#01949A]/20 space-y-2">
+                  <p className="text-[9px] font-black uppercase text-[#01949A]/60 tracking-widest px-4">Administration</p>
                   <nav className="space-y-2">
                     {adminItems.map((item) => (
                       <NavLink
@@ -247,7 +247,7 @@ export default function AppLayout() {
                           flex items-center gap-3 rounded-lg px-4 py-2.5 text-xs font-semibold tracking-wide transition-all
                           ${isActive 
                             ? 'bg-primary text-white shadow-md' 
-                            : 'text-slate-400 hover:text-white hover:bg-primary'
+                            : 'text-primary hover:text-white hover:bg-primary'
                           }
                         `}
                       >
@@ -264,7 +264,7 @@ export default function AppLayout() {
             <div>
               <button 
                 onClick={signOut}
-                className="w-full flex items-center gap-3 rounded-lg px-4 py-2.5 text-xs font-bold text-rose-400 hover:text-white hover:bg-rose-500/10 transition"
+                className="w-full flex items-center gap-3 rounded-lg px-4 py-2.5 text-xs font-bold text-rose-600 hover:bg-rose-50 dark:hover:bg-rose-950/20 transition"
               >
                 <LogOut size={16} />
                 <span>Logout Session</span>
