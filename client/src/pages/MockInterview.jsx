@@ -1,7 +1,10 @@
 import { useMutation, useQuery } from '@tanstack/react-query';
 import { useState, useEffect } from 'react';
 import { api } from '../services/api.js';
-import { Brain, Trophy, Lightbulb, TrendingUp, HelpCircle, ChevronRight, Play, AlertTriangle, Calendar, Video, Download, Plus, X, AlertCircle, Info } from 'lucide-react';
+import { 
+  Brain, Trophy, Lightbulb, TrendingUp, HelpCircle, ChevronRight, Play, 
+  AlertTriangle, Calendar, Video, Download, Plus, X, AlertCircle, Info, Star, Award
+} from 'lucide-react';
 
 const DOMAINS = [
   "Web Development", "Mobile Development", "AI & ML", "Data Science",
@@ -72,7 +75,7 @@ function InterviewCountdown({ scheduledDateStr, scheduledTimeStr }) {
     return () => clearInterval(interval);
   }, [scheduledDateStr, scheduledTimeStr]);
 
-  return <span className="font-black text-xs text-indigo-600 dark:text-indigo-400 italic">{timeLeft}</span>;
+  return <span className="font-bold text-xs text-primary dark:text-blue-400">{timeLeft}</span>;
 }
 
 export default function MockInterview() {
@@ -95,6 +98,14 @@ export default function MockInterview() {
   // Details Modal States for candidate
   const [selectedRequest, setSelectedRequest] = useState(null);
   const [showDetailsModal, setShowDetailsModal] = useState(false);
+
+  // Scroll logic for anchor
+  useEffect(() => {
+    if (window.location.hash === "#hr-interview") {
+      const el = document.getElementById("hr-interview-section");
+      if (el) el.scrollIntoView({ behavior: "smooth" });
+    }
+  }, []);
 
   // Query my interview requests with 15-second background polling
   const { data: requestsData, refetch: refetchRequests } = useQuery({
@@ -224,56 +235,56 @@ export default function MockInterview() {
       <svg xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" viewBox="0 0 800 500" width="800" height="500">
         <defs>
           <linearGradient id="bg" x1="0%" y1="0%" x2="100%" y2="100%">
-            <stop offset="0%" stop-color="#4f46e5" />
-            <stop offset="100%" stop-color="#06b6d4" />
+            <stop offset="0%" stop-color="#2563EB" />
+            <stop offset="100%" stop-color="#06B6D4" />
           </linearGradient>
           <filter id="shadow" x="-5%" y="-5%" width="110%" height="110%">
-            <feDropShadow dx="0" dy="12" stdDeviation="16" flood-color="#0f172a" flood-opacity="0.12" />
+            <feDropShadow dx="0" dy="10" stdDeviation="12" flood-color="#0F172A" flood-opacity="0.06" />
           </filter>
         </defs>
         
-        <rect width="100%" height="100%" fill="#f8fafc" />
+        <rect width="100%" height="100%" fill="#F8FAFC" />
         <rect x="0" y="0" width="800" height="15" fill="url(#bg)" />
-        <rect x="40" y="40" width="720" height="420" rx="24" fill="#ffffff" filter="url(#shadow)" />
+        <rect x="40" y="40" width="720" height="420" rx="16" fill="#ffffff" filter="url(#shadow)" stroke="#e2e8f0" stroke-width="1" />
         
         <g transform="translate(80, 80)">
-          <circle cx="20" cy="20" r="20" fill="url(#bg)" />
-          <path d="M14 20 L20 14 L26 20 M20 14 L20 26" stroke="#ffffff" stroke-width="3.5" fill="none" stroke-linecap="round" stroke-linejoin="round" />
-          <text x="55" y="26" font-family="-apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif" font-size="24" font-weight="900" fill="#0f172a">INTERVIEW AI</text>
-          <text x="55" y="40" font-family="-apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif" font-size="10" font-weight="800" fill="#94a3b8" letter-spacing="2">PLACEMENT READY</text>
+          <circle cx="20" cy="20" r="18" fill="url(#bg)" />
+          <path d="M14 20 L20 14 L26 20 M20 14 L20 26" stroke="#ffffff" stroke-width="3" fill="none" stroke-linecap="round" stroke-linejoin="round" />
+          <text x="55" y="24" font-family="-apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif" font-size="20" font-weight="900" fill="#111827">INTERVIEW AI</text>
+          <text x="55" y="38" font-family="-apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif" font-size="9" font-weight="800" fill="#64748b" letter-spacing="2">PLACEMENT READY</text>
         </g>
         
-        <rect x="520" y="80" width="200" height="40" rx="20" fill="#f0fdf4" />
-        <circle cx="545" cy="100" r="6" fill="#22c55e" />
-        <text x="562" y="105" font-family="-apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif" font-size="12" font-weight="800" fill="#15803d" letter-spacing="1">CONFIRMED</text>
+        <rect x="540" y="75" width="140" height="36" rx="8" fill="#ecfdf5" />
+        <circle cx="560" cy="93" r="5" fill="#10b981" />
+        <text x="575" y="98" font-family="-apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif" font-size="11" font-weight="800" fill="#047857" letter-spacing="1">CONFIRMED</text>
         
-        <text x="80" y="195" font-family="-apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif" font-size="28" font-weight="900" fill="#0f172a" font-style="italic">Interview Ticket</text>
-        <text x="80" y="220" font-family="-apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif" font-size="14" font-weight="500" fill="#64748b">Your live mock interview is officially scheduled and set.</text>
+        <text x="80" y="195" font-family="-apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif" font-size="26" font-weight="800" fill="#111827">HR Live Interview Ticket</text>
+        <text x="80" y="220" font-family="-apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif" font-size="13" font-weight="500" fill="#475569">Your mock preparation session has been verified and confirmed.</text>
         
         <g transform="translate(80, 270)">
-          <text x="0" y="0" font-family="-apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif" font-size="11" font-weight="800" fill="#94a3b8" letter-spacing="1.5">CANDIDATE</text>
-          <text x="0" y="24" font-family="-apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif" font-size="16" font-weight="700" fill="#334155">${req.userName}</text>
-          <text x="0" y="42" font-family="-apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif" font-size="13" font-weight="600" fill="#64748b">${req.userEmail}</text>
+          <text x="0" y="0" font-family="-apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif" font-size="10" font-weight="800" fill="#94a3b8" letter-spacing="1.5">CANDIDATE</text>
+          <text x="0" y="24" font-family="-apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif" font-size="15" font-weight="700" fill="#1e293b">${req.userName}</text>
+          <text x="0" y="42" font-family="-apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif" font-size="12" font-weight="600" fill="#64748b">${req.userEmail}</text>
           
-          <text x="0" y="95" font-family="-apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif" font-size="11" font-weight="800" fill="#94a3b8" letter-spacing="1.5">INTERVIEW TYPE</text>
-          <text x="0" y="119" font-family="-apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif" font-size="16" font-weight="700" fill="#334155">${req.interviewType}</text>
+          <text x="0" y="95" font-family="-apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif" font-size="10" font-weight="800" fill="#94a3b8" letter-spacing="1.5">SESSION TYPE</text>
+          <text x="0" y="119" font-family="-apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif" font-size="15" font-weight="700" fill="#1e293b">${req.interviewType}</text>
           
-          <text x="360" y="0" font-family="-apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif" font-size="11" font-weight="800" fill="#94a3b8" letter-spacing="1.5">SCHEDULED DATE &amp; TIME</text>
-          <text x="360" y="24" font-family="-apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif" font-size="16" font-weight="700" fill="#334155">${formattedDate}</text>
-          <text x="360" y="45" font-family="-apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif" font-size="15" font-weight="800" fill="#4f46e5">${req.adminScheduledTime}</text>
+          <text x="360" y="0" font-family="-apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif" font-size="10" font-weight="800" fill="#94a3b8" letter-spacing="1.5">SCHEDULED SLOT</text>
+          <text x="360" y="24" font-family="-apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif" font-size="15" font-weight="700" fill="#1e293b">${formattedDate}</text>
+          <text x="360" y="45" font-family="-apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif" font-size="14" font-weight="800" fill="#2563eb">${req.adminScheduledTime}</text>
           
-          <text x="360" y="95" font-family="-apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif" font-size="11" font-weight="800" fill="#94a3b8" letter-spacing="1.5">GOOGLE MEET LINK</text>
+          <text x="360" y="95" font-family="-apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif" font-size="10" font-weight="800" fill="#94a3b8" letter-spacing="1.5">GOOGLE MEET LINK</text>
           ${req.googleMeetLink ? `
           <a xlink:href="${req.googleMeetLink}" href="${req.googleMeetLink}" target="_blank" rel="noopener noreferrer">
-            <text x="360" y="119" font-family="-apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif" font-size="14" font-weight="700" fill="#0ea5e9" text-decoration="underline">Join Google Meet</text>
+            <text x="360" y="119" font-family="-apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif" font-size="13" font-weight="700" fill="#2563eb" text-decoration="underline">Join Google Meet</text>
           </a>
           ` : `
-          <text x="360" y="119" font-family="-apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif" font-size="13" font-weight="600" fill="#d97706" font-style="italic">Meeting link will be available soon.</text>
+          <text x="360" y="119" font-family="-apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif" font-size="12" font-weight="600" fill="#d97706" font-style="italic">Meeting link will be available soon.</text>
           `}
         </g>
         
-        <path d="M40 420 L760 420" stroke="#f1f5f9" stroke-width="2" stroke-dasharray="8 6" />
-        <text x="80" y="445" font-family="-apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif" font-size="11" font-weight="700" fill="#94a3b8">Note: ${req.adminRemark || 'Be prepared and login 5 minutes before scheduled start.'}</text>
+        <path d="M40 420 L760 420" stroke="#e2e8f0" stroke-width="1" stroke-dasharray="6 4" />
+        <text x="80" y="445" font-family="-apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif" font-size="10" font-weight="700" fill="#94a3b8">Remark: ${req.adminRemark || 'Join the session link 5 minutes prior.'}</text>
       </svg>
     `;
     const blob = new Blob([svg], { type: 'image/svg+xml;charset=utf-8' });
@@ -286,30 +297,32 @@ export default function MockInterview() {
   };
 
   return (
-    <div className="space-y-8 animate-fade-in p-4 relative">
-      {/* Toast Notification */}
+    <div className="space-y-8 animate-fade-in p-2 md:p-4 max-w-[1600px] mx-auto relative">
+      
+      {/* Toast Alert */}
       {toast.message && (
-        <div className={`fixed top-4 right-4 z-50 p-4 px-6 rounded-3xl shadow-2xl flex items-center gap-3 transition-all duration-300 border backdrop-blur-md ${
-          toast.type === 'success' ? 'bg-emerald-500/90 border-emerald-400 text-white' : 'bg-rose-500/90 border-rose-400 text-white'
+        <div className={`fixed top-4 right-4 z-50 p-4 px-6 rounded-xl shadow-lg flex items-center gap-3 transition-all duration-300 border ${
+          toast.type === 'success' ? 'bg-emerald-50 border-emerald-200 text-emerald-700' : 'bg-red-50 border-red-200 text-red-700'
         }`}>
           <AlertCircle size={18} />
-          <p className="font-bold text-sm">{toast.message}</p>
-          <button onClick={() => setToast({ message: '', type: '' })} className="ml-2 hover:scale-110 transition-transform">
-            <X size={16} />
+          <p className="font-semibold text-xs">{toast.message}</p>
+          <button onClick={() => setToast({ message: '', type: '' })} className="ml-2 hover:opacity-80 transition">
+            <X size={14} />
           </button>
         </div>
       )}
 
-      {/* AI Mock Interview section (Header + Cards) */}
+      {/* Main Header */}
       <div>
-        <h1 className="text-4xl font-black gradient-text">AI Mock Interview</h1>
-        <p className="text-slate-500 mt-2 font-medium">Elevate your performance with real-time AI evaluation.</p>
+        <h1 className="text-3xl font-black text-slate-900 dark:text-white">AI Mock Interview</h1>
+        <p className="text-slate-500 mt-2 font-medium">Practice domain-focused technical and behavioral interview sessions powered by dynamic AI query feedback.</p>
       </div>
 
-      <div className="glass-card">
+      {/* Configuration Widget */}
+      <div className="bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 rounded-xl p-6 shadow-soft">
         <div className="grid gap-6 md:grid-cols-4">
           <div className="space-y-2">
-            <label className="text-[10px] font-black uppercase tracking-widest text-slate-400 ml-1">Domain</label>
+            <label className="text-[10px] font-black uppercase tracking-widest text-slate-400 ml-1">Domain category</label>
             <select className="input" value={domain} onChange={(e) => setDomain(e.target.value)}>
               {DOMAINS.map(d => <option key={d} value={d}>{d}</option>)}
             </select>
@@ -321,7 +334,7 @@ export default function MockInterview() {
             </select>
           </div>
           <div className="space-y-2">
-            <label className="text-[10px] font-black uppercase tracking-widest text-slate-400 ml-1">Difficulty</label>
+            <label className="text-[10px] font-black uppercase tracking-widest text-slate-400 ml-1">Difficulty level</label>
             <select className="input" value={difficulty} onChange={(e) => setDifficulty(e.target.value)}>
               {DIFFICULTIES.map(d => <option key={d} value={d}>{d}</option>)}
             </select>
@@ -330,12 +343,12 @@ export default function MockInterview() {
             <button
               onClick={() => startMutation.mutate()}
               disabled={startMutation.isPending}
-              className="btn-primary w-full h-[52px]"
+              className="btn-primary w-full h-[46px] text-xs font-bold"
             >
-              {startMutation.isPending ? 'Generating Questions...' : (
+              {startMutation.isPending ? 'Generating Session...' : (
                 <>
-                  <Play size={18} />
-                  Start Session
+                  <Play size={14} />
+                  Start AI Interview
                 </>
               )}
             </button>
@@ -343,13 +356,13 @@ export default function MockInterview() {
         </div>
 
         {error && (
-          <div className="mt-4 p-4 bg-red-50 dark:bg-red-900/20 border border-red-200 dark:border-red-800 rounded-2xl flex items-start gap-3">
-            <AlertTriangle className="text-red-500 shrink-0 mt-0.5" size={18} />
-            <div>
-              <p className="text-sm font-semibold text-red-700 dark:text-red-400">{error}</p>
+          <div className="mt-4 p-4 bg-red-50 dark:bg-red-500/10 border border-red-200 dark:border-red-500/25 rounded-lg flex items-start gap-3">
+            <AlertTriangle className="text-red-500 shrink-0 mt-0.5" size={16} />
+            <div className="space-y-1">
+              <p className="text-xs font-semibold text-red-750 dark:text-red-400">{error}</p>
               <button
                 onClick={() => { setError(''); startMutation.mutate(); }}
-                className="text-xs font-bold text-red-600 dark:text-red-300 underline mt-1 hover:text-red-800"
+                className="text-[10px] font-bold text-red-600 dark:text-red-300 underline hover:no-underline"
               >
                 Try Again
               </button>
@@ -358,73 +371,83 @@ export default function MockInterview() {
         )}
       </div>
 
+      {/* Active Session Display */}
       {session && (
-        <div className="space-y-8 animate-fade-in">
-          <div className="flex flex-col md:flex-row md:items-center justify-between glass-card py-6">
+        <div className="space-y-6 animate-slide-up">
+          
+          {/* Active Session Header Card */}
+          <div className="bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 rounded-xl p-6 shadow-soft flex flex-col md:flex-row md:items-center justify-between gap-6">
             <div className="flex items-center gap-4">
-              <div className="w-12 h-12 rounded-2xl bg-indigo-600 flex items-center justify-center text-white shadow-lg shadow-indigo-500/20">
-                <Brain size={24} />
+              <div className="w-12 h-12 rounded-xl bg-blue-50 dark:bg-blue-900/10 text-primary flex items-center justify-center">
+                <Brain size={22} />
               </div>
               <div>
-                <h2 className="text-xl font-black">{session.domain}</h2>
-                <div className="flex items-center gap-2 mt-1">
-                  <span className="badge bg-indigo-50 text-indigo-600 border border-indigo-100">{session.type}</span>
-                  <span className="badge bg-violet-50 text-violet-600 border border-violet-100">{session.difficulty}</span>
+                <h2 className="text-base font-extrabold text-slate-800 dark:text-slate-200 leading-tight">{session.domain}</h2>
+                <div className="flex items-center gap-2 mt-1.5">
+                  <span className="badge bg-blue-50 border border-blue-100 text-primary dark:bg-blue-900/20 dark:text-blue-300 font-bold">{session.type}</span>
+                  <span className="badge bg-slate-100 dark:bg-slate-800 text-slate-500 dark:text-slate-400 font-bold">{session.difficulty}</span>
                 </div>
               </div>
             </div>
             {session.overallScore !== undefined && (
-              <div className="mt-4 md:mt-0 flex items-center gap-4">
-                <div className="text-right">
-                  <p className="text-[10px] font-black uppercase text-slate-400 tracking-widest">Global Score</p>
-                  <p className="text-3xl font-black text-indigo-600">{session.overallScore}%</p>
+              <div className="flex items-center gap-4 border-l border-slate-100 dark:border-slate-800 pl-6">
+                <div>
+                  <p className="text-[10px] font-black uppercase text-slate-400 tracking-wider">Overall Score</p>
+                  <p className="text-3xl font-extrabold text-primary dark:text-blue-400 mt-1">{session.overallScore}%</p>
                 </div>
-                <div className="w-14 h-14 rounded-full border-4 border-indigo-100 border-t-indigo-600 animate-spin-slow flex items-center justify-center">
-                  <Trophy className="text-indigo-600" size={24} />
+                <div className="w-12 h-12 rounded-full bg-emerald-50 dark:bg-emerald-500/15 flex items-center justify-center text-emerald-600">
+                  <Trophy size={20} />
                 </div>
               </div>
             )}
           </div>
 
+          {/* Questions List */}
           <div className="space-y-6">
             {session.questions && session.questions.map((item, index) => (
-              <div key={item._id || index} className="glass-card group hover:border-indigo-200 transition-all duration-300">
+              <div key={item._id || index} className="bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 rounded-xl p-6 shadow-soft space-y-4">
                 <div className="flex items-start gap-4">
-                  <span className="text-4xl font-black text-slate-100 dark:text-white/5 transition-colors group-hover:text-indigo-100">
+                  <span className="text-xl font-extrabold text-slate-300 dark:text-slate-700 select-none">
                     {String(index + 1).padStart(2, '0')}
                   </span>
-                  <div className="flex-1">
-                    <h3 className="text-lg font-bold text-slate-800 dark:text-slate-100 mb-4 leading-relaxed italic">
+                  <div className="flex-1 space-y-4">
+                    <h3 className="text-sm font-bold text-slate-800 dark:text-slate-150 leading-relaxed italic">
                       &quot;{item.question}&quot;
                     </h3>
 
                     {!session.overallScore ? (
                       <textarea
-                        className="input min-h-[140px] italic shadow-inner"
+                        className="input min-h-[120px] font-medium"
                         value={item.userAnswer || ''}
                         onChange={(e) => updateAnswer(index, e.target.value)}
-                        placeholder="Expert response goes here..."
+                        placeholder="Type your response here..."
                       />
                     ) : (
-                      <div className="space-y-6 animate-slide-up">
-                        <div className="flex items-center gap-2">
-                          <span className="text-xs font-black uppercase text-slate-400">Score: {item.score}%</span>
-                          <div className="h-1.5 flex-1 bg-slate-100 rounded-full overflow-hidden">
-                            <div className="h-full bg-indigo-500 rounded-full" style={{ width: `${item.score}%` }} />
+                      <div className="space-y-6 pt-2">
+                        {/* Rating bar */}
+                        <div className="space-y-1.5">
+                          <div className="flex justify-between items-center text-[10px] font-black uppercase tracking-wider text-slate-400">
+                            <span>AI Performance Score</span>
+                            <span className="text-primary font-black">{item.score}%</span>
+                          </div>
+                          <div className="h-2 w-full bg-slate-100 dark:bg-slate-800 rounded-full overflow-hidden">
+                            <div className="h-full bg-primary rounded-full" style={{ width: `${item.score}%` }} />
                           </div>
                         </div>
 
-                        <div className="grid md:grid-cols-2 gap-6">
-                          <FeedbackBox title="Strengths" items={item.strengths} icon={<TrendingUp size={16} />} color="emerald" />
-                          <FeedbackBox title="Improvements" items={item.improvements} icon={<Lightbulb size={16} />} color="amber" />
+                        {/* Strengths & Improvements */}
+                        <div className="grid md:grid-cols-2 gap-4">
+                          <FeedbackBox title="Strengths & Match Points" items={item.strengths} icon={<TrendingUp size={14} />} color="emerald" />
+                          <FeedbackBox title="Opportunities to Improve" items={item.improvements} icon={<Lightbulb size={14} />} color="amber" />
                         </div>
 
-                        <div className="p-6 bg-slate-50 dark:bg-white/5 rounded-[2rem] border border-slate-100 dark:border-white/10">
-                          <div className="flex items-center gap-2 mb-3">
-                            <HelpCircle className="text-indigo-500" size={18} />
-                            <span className="text-xs font-black uppercase text-slate-500 tracking-widest">Master Answer</span>
+                        {/* Expert suggestion answers */}
+                        <div className="p-4 bg-slate-50 dark:bg-slate-950/40 rounded-xl border border-slate-100 dark:border-slate-800 space-y-2">
+                          <div className="flex items-center gap-2">
+                            <HelpCircle className="text-primary" size={14} />
+                            <span className="text-[9px] font-black uppercase text-slate-400 tracking-wider">Suggested Professional Response</span>
                           </div>
-                          <p className="text-sm text-slate-600 dark:text-slate-300 leading-relaxed font-semibold">
+                          <p className="text-xs text-slate-655 dark:text-slate-350 leading-relaxed font-semibold">
                             {item.betterAnswer}
                           </p>
                         </div>
@@ -436,94 +459,93 @@ export default function MockInterview() {
             ))}
           </div>
 
+          {/* Submission button */}
           {!session.overallScore && (
             <button
               onClick={() => submitMutation.mutate()}
               disabled={submitMutation.isPending}
-              className="btn-primary w-full py-5 rounded-[2.5rem] shadow-2xl shadow-indigo-500/30"
+              className="btn-primary w-full py-4 text-sm font-extrabold shadow-md shadow-blue-500/10 rounded-xl"
             >
-              {submitMutation.isPending ? 'Analyzing Your Performance...' : 'Submit for AI Evaluation'}
+              {submitMutation.isPending ? 'Analyzing responses...' : 'Submit Session for AI Review'}
             </button>
           )}
         </div>
       )}
 
-      {/* Live HR Interview Scheduling (New Section) */}
-      <div className="glass-card !p-8 space-y-6">
-        <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-6">
-          <div className="flex items-center gap-4">
-            <div className="w-12 h-12 rounded-2xl bg-indigo-600/10 flex items-center justify-center text-indigo-600 dark:text-indigo-400">
-              <Calendar size={24} />
+      {/* Live HR Interview Scheduling Section */}
+      <div id="hr-interview-section" className="bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 rounded-xl p-6 shadow-soft space-y-6">
+        <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 pb-4 border-b border-slate-100 dark:border-slate-800">
+          <div className="flex items-center gap-3">
+            <div className="w-10 h-10 rounded-xl bg-blue-50 dark:bg-blue-900/10 text-primary flex items-center justify-center">
+              <Calendar size={18} />
             </div>
             <div>
-              <h2 className="text-2xl font-black italic">Schedule Live HR Interview</h2>
-              <p className="text-slate-500 text-xs font-semibold mt-1">Request a one-to-one interview with our HR team.</p>
+              <h2 className="text-base font-extrabold text-slate-900 dark:text-white leading-none">Schedule Live HR Interview</h2>
+              <p className="text-slate-500 text-xs mt-1.5 font-medium">Request a one-to-one mock session with our recruitment advisors.</p>
             </div>
           </div>
           <button 
             onClick={() => setModalOpen(true)}
             disabled={requests.some(r => r.status === 'Pending')}
-            className="btn-primary flex items-center gap-2 !rounded-2xl !py-3 !px-6 disabled:opacity-50 disabled:cursor-not-allowed text-sm font-black italic"
+            className="btn-primary flex items-center gap-2 text-xs font-bold py-2.5 px-4 disabled:opacity-50"
           >
-            <Plus size={18} />
-            Request Interview
+            <Plus size={14} />
+            Request Advisor Slot
           </button>
         </div>
 
         {requests.length === 0 ? (
-          <div className="text-center py-10 rounded-[2rem] border border-dashed border-slate-200 dark:border-white/10 p-6 bg-slate-50/50 dark:bg-white/5">
-            <p className="text-slate-500 font-bold">No live interview scheduled yet.</p>
-            <p className="text-slate-400 text-xs mt-1 font-medium">Submit an interview request to start scheduling.</p>
+          <div className="text-center py-10 rounded-xl border border-dashed border-slate-200 dark:border-slate-800 p-6 bg-slate-50/50 dark:bg-slate-950/20">
+            <p className="text-slate-500 font-bold text-sm">No live mock sessions requested yet.</p>
+            <p className="text-slate-400 text-xs mt-1 font-medium">Submit a request to schedule a slot on Google Meet.</p>
           </div>
         ) : (
           <div className="space-y-4">
-            <h3 className="text-lg font-black italic">My Interview Requests</h3>
-            <div className="overflow-x-auto rounded-[2rem] border border-slate-100 dark:border-white/5 bg-white/30 dark:bg-white/5">
-              <table className="w-full text-left border-collapse min-w-[800px]">
+            <h3 className="text-xs font-black uppercase text-slate-400 tracking-wider">Your Scheduled Requests</h3>
+            <div className="overflow-x-auto rounded-xl border border-slate-200 dark:border-slate-800">
+              <table className="w-full text-left border-collapse min-w-[900px] text-xs">
                 <thead>
-                  <tr className="border-b border-slate-100 dark:border-white/5 bg-slate-50/50 dark:bg-slate-900/50 text-[10px] font-black uppercase text-slate-400 tracking-wider">
-                    <th className="p-5">Interview Type</th>
-                    <th className="p-5">Requested Date</th>
-                    <th className="p-5">Requested Time</th>
-                    <th className="p-5">Status</th>
-                    <th className="p-5">Scheduled Date</th>
-                    <th className="p-5">Scheduled Time</th>
-                    <th className="p-5">Google Meet</th>
-                    <th className="p-5">Admin Remark</th>
-                    <th className="p-5 text-right">Actions</th>
+                  <tr className="border-b border-slate-200 dark:border-slate-800 bg-[#F8FAFC]/50 dark:bg-slate-950/40 text-[10px] font-black uppercase text-slate-400 tracking-widest">
+                    <th className="p-4">Session Role</th>
+                    <th className="p-4">Preferred Date</th>
+                    <th className="p-4">Preferred Slot</th>
+                    <th className="p-4">Status</th>
+                    <th className="p-4">Scheduled Date</th>
+                    <th className="p-4">Scheduled Time</th>
+                    <th className="p-4">Google Meet Link</th>
+                    <th className="p-4">Advisor Notes</th>
+                    <th className="p-4 text-right">Actions</th>
                   </tr>
                 </thead>
-                <tbody className="divide-y divide-slate-100 dark:divide-white/5 text-sm font-semibold">
+                <tbody className="divide-y divide-slate-100 dark:divide-slate-850 font-semibold text-slate-650 dark:text-slate-300 bg-white dark:bg-slate-900">
                   {requests.map((req) => (
-                    <tr key={req._id} className="hover:bg-white/40 dark:hover:bg-white/10 transition-colors">
-                      <td className="p-5 font-bold text-slate-800 dark:text-slate-200">{req.interviewType}</td>
-                      <td className="p-5 text-slate-700 dark:text-slate-300">
-                        {new Date(req.preferredDate).toLocaleDateString(undefined, { month: 'short', day: 'numeric', year: 'numeric' })}
-                      </td>
-                      <td className="p-5 text-slate-700 dark:text-slate-300">{req.preferredTime}</td>
-                      <td className="p-5">
+                    <tr key={req._id} className="hover:bg-slate-50 dark:hover:bg-slate-800/40 transition">
+                      <td className="p-4 font-bold text-slate-800 dark:text-slate-100">{req.interviewType}</td>
+                      <td className="p-4">{new Date(req.preferredDate).toLocaleDateString(undefined, { month: 'short', day: 'numeric', year: 'numeric' })}</td>
+                      <td className="p-4 text-primary dark:text-blue-400">{req.preferredTime}</td>
+                      <td className="p-4">
                         <span className={`badge ${
-                          req.status === 'Pending' ? 'bg-amber-100 text-amber-800 border-amber-200 dark:bg-amber-900/30 dark:text-amber-300 dark:border-amber-900/50' :
-                          req.status === 'Accepted' ? 'bg-emerald-100 text-emerald-800 border-emerald-200 dark:bg-emerald-900/30 dark:text-emerald-300 dark:border-emerald-900/50' :
-                          req.status === 'Rejected' ? 'bg-rose-100 text-rose-800 border-rose-200 dark:bg-rose-900/30 dark:text-rose-300 dark:border-rose-900/50' :
-                          'bg-blue-100 text-blue-800 border-blue-200 dark:bg-blue-900/30 dark:text-blue-300 dark:border-blue-900/50'
+                          req.status === 'Pending' ? 'bg-amber-50 text-amber-600 border border-amber-100 dark:bg-amber-900/10 dark:text-amber-400 dark:border-amber-900/20' :
+                          req.status === 'Accepted' ? 'bg-emerald-50 text-emerald-600 border border-emerald-100 dark:bg-emerald-900/10 dark:text-emerald-400 dark:border-emerald-900/20' :
+                          req.status === 'Rejected' ? 'bg-rose-50 text-rose-600 border border-rose-100 dark:bg-rose-900/10 dark:text-rose-450 dark:border-rose-900/20' :
+                          'bg-blue-50 text-blue-600 border border-blue-100 dark:bg-blue-900/10 dark:text-blue-400 dark:border-blue-900/20'
                         }`}>
                           {req.status}
                         </span>
                       </td>
-                      <td className="p-5">
+                      <td className="p-4">
                         {req.adminScheduledDate ? (
-                          <div className="text-slate-800 dark:text-slate-200">
+                          <span className="text-slate-800 dark:text-slate-200">
                             {new Date(req.adminScheduledDate).toLocaleDateString(undefined, { month: 'short', day: 'numeric', year: 'numeric' })}
-                          </div>
+                          </span>
                         ) : (
-                          <span className="text-slate-400 italic text-xs">Unscheduled</span>
+                          <span className="text-slate-400 italic font-medium">Unscheduled</span>
                         )}
                       </td>
-                      <td className="p-5">
+                      <td className="p-4">
                         {req.adminScheduledTime ? (
                           <div>
-                            <div className="text-slate-800 dark:text-slate-200 font-bold">{req.adminScheduledTime}</div>
+                            <span className="text-slate-800 dark:text-slate-200 font-bold">{req.adminScheduledTime}</span>
                             {req.status === 'Accepted' && (
                               <div className="mt-1">
                                 <InterviewCountdown scheduledDateStr={req.adminScheduledDate} scheduledTimeStr={req.adminScheduledTime} />
@@ -531,60 +553,46 @@ export default function MockInterview() {
                             )}
                           </div>
                         ) : (
-                          <span className="text-slate-400 italic text-xs">—</span>
+                          <span className="text-slate-400 italic font-medium">—</span>
                         )}
                       </td>
-                      <td className="p-5">
-                        {req.status === 'Accepted' ? (
-                          req.googleMeetLink ? (
-                            <div className="space-y-1.5">
-                              <a 
-                                href={req.googleMeetLink} 
-                                target="_blank" 
-                                rel="noopener noreferrer"
-                                className="btn-primary !py-1.5 !px-4 !rounded-xl text-xs flex items-center gap-1.5 w-fit font-bold"
-                              >
-                                <Video size={14} />
-                                Join Interview
-                              </a>
-                              <a 
-                                href={req.googleMeetLink}
-                                target="_blank"
-                                rel="noopener noreferrer"
-                                className="text-indigo-600 dark:text-indigo-400 hover:text-indigo-800 underline text-xs block font-bold"
-                              >
-                                Join Google Meet
-                              </a>
-                            </div>
-                          ) : (
-                            <span className="text-amber-600 dark:text-amber-400 italic text-xs font-bold block">Meeting link will be available soon.</span>
-                          )
+                      <td className="p-4">
+                        {req.status === 'Accepted' && req.googleMeetLink ? (
+                          <a 
+                            href={req.googleMeetLink} 
+                            target="_blank" 
+                            rel="noopener noreferrer"
+                            className="text-primary hover:underline font-bold flex items-center gap-1"
+                          >
+                            <Video size={12} />
+                            Google Meet
+                          </a>
                         ) : (
-                          <span className="text-slate-400 italic text-xs">—</span>
+                          <span className="text-slate-400 italic font-medium">—</span>
                         )}
                       </td>
-                      <td className="p-5 text-xs max-w-[200px] truncate text-slate-600 dark:text-slate-400" title={req.adminRemark}>
+                      <td className="p-4 max-w-[150px] truncate text-slate-500 dark:text-slate-400" title={req.adminRemark}>
                         {req.adminRemark || <span className="text-slate-400 italic">—</span>}
                       </td>
-                      <td className="p-5 text-right">
-                        <div className="flex gap-2 justify-end">
+                      <td className="p-4 text-right">
+                        <div className="flex gap-1.5 justify-end">
                           <button 
                             onClick={() => {
                               setSelectedRequest(req);
                               setShowDetailsModal(true);
                             }}
-                            className="w-8 h-8 rounded-xl bg-slate-50 text-slate-600 hover:bg-indigo-600 hover:text-white dark:bg-white/5 dark:text-slate-300 flex items-center justify-center transition-all"
-                            title="View Details"
+                            className="w-7 h-7 rounded-lg border border-slate-200 hover:bg-slate-50 dark:border-slate-800 dark:hover:bg-slate-800 flex items-center justify-center text-slate-500 transition"
+                            title="View Info"
                           >
-                            <Info size={14} />
+                            <Info size={12} />
                           </button>
                           {req.status === 'Accepted' && (
                             <button 
                               onClick={() => downloadConfirmationCard(req)}
-                              className="w-8 h-8 rounded-xl bg-indigo-50 text-indigo-600 hover:bg-indigo-600 hover:text-white dark:bg-white/5 dark:text-indigo-300 flex items-center justify-center transition-all"
-                              title="Download Ticket"
+                              className="w-7 h-7 rounded-lg bg-blue-50 border border-blue-100 hover:bg-primary hover:text-white dark:bg-blue-900/20 dark:border-blue-800 text-primary flex items-center justify-center transition"
+                              title="Download SVG Ticket"
                             >
-                              <Download size={14} />
+                              <Download size={12} />
                             </button>
                           )}
                         </div>
@@ -601,69 +609,69 @@ export default function MockInterview() {
       {/* Details Modal */}
       {showDetailsModal && selectedRequest && (
         <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-slate-900/60 backdrop-blur-sm animate-fade-in">
-          <div className="w-full max-w-lg glass-card !p-8 relative">
-            <button onClick={() => setShowDetailsModal(false)} className="absolute top-4 right-4 text-slate-400 hover:text-slate-600 transition-colors">
-              <X size={20} />
+          <div className="w-full max-w-md bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 rounded-xl shadow-xl p-6 relative">
+            <button onClick={() => setShowDetailsModal(false)} className="absolute top-4 right-4 text-slate-400 hover:text-slate-600 transition">
+              <X size={18} />
             </button>
-            <h2 className="text-2xl font-black italic flex items-center gap-2 mb-4">
-              <Info className="text-indigo-600" size={24} />
-              Request Details
-            </h2>
-            <div className="space-y-4 text-sm font-semibold">
-              <div className="grid grid-cols-2 gap-4 bg-slate-50 dark:bg-white/5 p-4 rounded-2xl">
-                <div>
-                  <div className="text-[10px] text-slate-400 uppercase tracking-wider">Candidate</div>
-                  <div className="text-slate-800 dark:text-slate-200 text-base font-bold">{selectedRequest.userName}</div>
-                  <div className="text-xs text-slate-400 font-medium">{selectedRequest.userEmail}</div>
-                </div>
-                <div>
-                  <div className="text-[10px] text-slate-400 uppercase tracking-wider">Interview Type</div>
-                  <div className="text-slate-800 dark:text-slate-200 text-base font-bold">{selectedRequest.interviewType}</div>
-                </div>
+            <div className="space-y-4">
+              <div className="flex items-center gap-2.5">
+                <Award className="text-primary" size={20} />
+                <h3 className="text-base font-extrabold text-slate-900 dark:text-white">Scheduled Details</h3>
               </div>
-
-              <div>
-                <div className="text-[10px] text-slate-400 uppercase tracking-wider mb-1">Preferred Slot</div>
-                <div className="text-slate-700 dark:text-slate-300 font-bold">
-                  {new Date(selectedRequest.preferredDate).toLocaleDateString('en-US', { weekday: 'long', year: 'numeric', month: 'long', day: 'numeric' })} at <span className="text-indigo-600">{selectedRequest.preferredTime}</span>
-                </div>
-              </div>
-
-              {selectedRequest.adminRemark && (
-                <div>
-                  <div className="text-[10px] text-slate-400 uppercase tracking-wider mb-1">Notes / Remarks</div>
-                  <div className="bg-slate-50 dark:bg-white/5 p-3 rounded-2xl text-xs text-slate-600 dark:text-slate-300 italic whitespace-pre-wrap">
-                    {selectedRequest.adminRemark}
+              <hr className="border-slate-100 dark:border-slate-800" />
+              <div className="space-y-3 text-xs font-semibold text-slate-650 dark:text-slate-350">
+                <div className="grid grid-cols-2 gap-4 bg-slate-50 dark:bg-slate-950/40 p-3 rounded-lg">
+                  <div>
+                    <span className="text-[9px] uppercase tracking-widest text-slate-400 block mb-0.5">Candidate</span>
+                    <span className="text-slate-850 dark:text-slate-200 font-bold truncate block">{selectedRequest.userName}</span>
+                  </div>
+                  <div>
+                    <span className="text-[9px] uppercase tracking-widest text-slate-400 block mb-0.5">Session Type</span>
+                    <span className="text-slate-850 dark:text-slate-200 font-bold block">{selectedRequest.interviewType}</span>
                   </div>
                 </div>
-              )}
 
-              <div className="grid grid-cols-2 gap-4 border-t border-slate-100 dark:border-white/5 pt-4">
                 <div>
-                  <div className="text-[10px] text-slate-400 uppercase tracking-wider">Current Status</div>
-                  <span className={`badge mt-1 ${
-                    selectedRequest.status === 'Pending' ? 'bg-amber-100 text-amber-800 border-amber-200' :
-                    selectedRequest.status === 'Accepted' ? 'bg-emerald-100 text-emerald-800 border-emerald-200' :
-                    selectedRequest.status === 'Rejected' ? 'bg-rose-100 text-rose-800 border-rose-200' :
-                    'bg-blue-100 text-blue-800 border-blue-200'
-                  }`}>
-                    {selectedRequest.status}
+                  <span className="text-[9px] uppercase tracking-widest text-slate-400 block mb-0.5">Preferred Date/Time Slot</span>
+                  <span className="text-slate-800 dark:text-slate-150 font-bold block">
+                    {new Date(selectedRequest.preferredDate).toLocaleDateString('en-US', { weekday: 'long', year: 'numeric', month: 'long', day: 'numeric' })} at {selectedRequest.preferredTime}
                   </span>
                 </div>
-                <div>
-                  <div className="text-[10px] text-slate-400 uppercase tracking-wider">Google Meet Link</div>
-                  <div className="text-sm mt-1">
+
+                {selectedRequest.adminRemark && (
+                  <div>
+                    <span className="text-[9px] uppercase tracking-widest text-slate-400 block mb-0.5">Advisor Notes / Instructions</span>
+                    <p className="bg-slate-50 dark:bg-slate-950/40 p-3 rounded-lg text-slate-600 dark:text-slate-450 italic leading-relaxed border border-slate-100 dark:border-slate-800/80">
+                      {selectedRequest.adminRemark}
+                    </p>
+                  </div>
+                )}
+
+                <div className="grid grid-cols-2 gap-4 border-t border-slate-100 dark:border-slate-800 pt-3">
+                  <div>
+                    <span className="text-[9px] uppercase tracking-widest text-slate-400 block mb-1">State Status</span>
+                    <span className={`badge ${
+                      selectedRequest.status === 'Pending' ? 'bg-amber-50 text-amber-600 border border-amber-100' :
+                      selectedRequest.status === 'Accepted' ? 'bg-emerald-50 text-emerald-600 border border-emerald-100' :
+                      'bg-rose-50 text-rose-600 border border-rose-100'
+                    }`}>
+                      {selectedRequest.status}
+                    </span>
+                  </div>
+                  <div>
+                    <span className="text-[9px] uppercase tracking-widest text-slate-400 block mb-1">Meet Workspace</span>
                     {selectedRequest.googleMeetLink ? (
                       <a 
                         href={selectedRequest.googleMeetLink} 
                         target="_blank" 
                         rel="noopener noreferrer" 
-                        className="text-indigo-600 dark:text-indigo-400 hover:text-indigo-800 underline font-bold"
+                        className="text-primary hover:underline font-bold flex items-center gap-1 mt-1"
                       >
-                        Join Google Meet
+                        <Video size={12} />
+                        Join Meet Link
                       </a>
                     ) : (
-                      <span className="text-amber-600 dark:text-amber-400 italic text-xs font-bold">Meeting link will be available soon.</span>
+                      <span className="text-slate-400 italic text-[10px] block mt-1">Pending approval</span>
                     )}
                   </div>
                 </div>
@@ -673,80 +681,82 @@ export default function MockInterview() {
         </div>
       )}
 
-      {/* Request Modal */}
+      {/* Request Scheduling Modal */}
       {modalOpen && (
         <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-slate-900/60 backdrop-blur-sm animate-fade-in">
-          <div className="w-full max-w-lg glass-card !p-8 relative max-h-[90vh] overflow-y-auto">
+          <div className="w-full max-w-md bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 rounded-xl shadow-xl p-6 relative">
             <button 
               onClick={() => setModalOpen(false)}
-              className="absolute top-4 right-4 text-slate-400 hover:text-slate-600 transition-colors"
+              className="absolute top-4 right-4 text-slate-400 hover:text-slate-600 transition"
             >
-              <X size={20} />
+              <X size={18} />
             </button>
-            <h2 className="text-2xl font-black italic flex items-center gap-2 mb-2">
-              <Calendar className="text-indigo-600" size={24} />
-              New Interview Request
-            </h2>
-            <p className="text-xs text-slate-500 mb-6 font-semibold">Our recruitment panel will coordinate and schedule a room link for you.</p>
-
-            <form onSubmit={handleSubmitRequest} className="space-y-4">
-              <div className="space-y-1">
-                <label className="text-[10px] font-black uppercase tracking-widest text-slate-400 block">Interview Type</label>
-                <select 
-                  value={form.interviewType}
-                  onChange={(e) => setForm({ ...form, interviewType: e.target.value })}
-                  className="input !w-full"
-                >
-                  <option value="HR Interview">HR Interview</option>
-                  <option value="Technical Interview">Technical Interview</option>
-                  <option value="Final Interview">Final Interview</option>
-                </select>
+            
+            <div className="space-y-4">
+              <div className="flex items-center gap-2.5">
+                <Calendar className="text-primary" size={20} />
+                <h3 className="text-base font-extrabold text-slate-900 dark:text-white">Request Advisor Slot</h3>
               </div>
+              <p className="text-slate-500 text-xs font-medium">Select a date slot and type. An advisor will coordinate the invite.</p>
+              
+              <form onSubmit={handleSubmitRequest} className="space-y-4">
+                <div className="space-y-1">
+                  <label className="text-[9px] font-black uppercase tracking-wider text-slate-400">Interview Type</label>
+                  <select 
+                    value={form.interviewType}
+                    onChange={(e) => setForm({ ...form, interviewType: e.target.value })}
+                    className="input"
+                  >
+                    <option value="HR Interview">HR Interview</option>
+                    <option value="Technical Interview">Technical Interview</option>
+                    <option value="Final Interview">Final Interview</option>
+                  </select>
+                </div>
 
-              <div className="space-y-1">
-                <label className="text-[10px] font-black uppercase tracking-widest text-slate-400 block">Preferred Date</label>
-                <input 
-                  type="date"
-                  min={new Date().toISOString().split('T')[0]}
-                  value={form.preferredDate}
-                  onChange={(e) => setForm({ ...form, preferredDate: e.target.value })}
-                  className="input !w-full"
-                  required
-                />
-              </div>
+                <div className="space-y-1">
+                  <label className="text-[9px] font-black uppercase tracking-wider text-slate-400">Preferred Date</label>
+                  <input 
+                    type="date"
+                    min={new Date().toISOString().split('T')[0]}
+                    value={form.preferredDate}
+                    onChange={(e) => setForm({ ...form, preferredDate: e.target.value })}
+                    className="input"
+                    required
+                  />
+                </div>
 
-              <div className="space-y-1">
-                <label className="text-[10px] font-black uppercase tracking-widest text-slate-400 block">Preferred Time</label>
-                <select 
-                  value={form.preferredTime}
-                  onChange={(e) => setForm({ ...form, preferredTime: e.target.value })}
-                  className="input !w-full"
-                >
-                  <option value="09:00 AM">09:00 AM</option>
-                  <option value="11:30 AM">11:30 AM</option>
-                  <option value="02:00 PM">02:00 PM</option>
-                  <option value="04:30 PM">04:30 PM</option>
-                </select>
-              </div>
+                <div className="space-y-1">
+                  <label className="text-[9px] font-black uppercase tracking-wider text-slate-400">Preferred Time Slot</label>
+                  <select 
+                    value={form.preferredTime}
+                    onChange={(e) => setForm({ ...form, preferredTime: e.target.value })}
+                    className="input"
+                  >
+                    <option value="09:00 AM">09:00 AM</option>
+                    <option value="11:30 AM">11:30 AM</option>
+                    <option value="02:00 PM">02:00 PM</option>
+                    <option value="04:30 PM">04:30 PM</option>
+                  </select>
+                </div>
 
-              <div className="space-y-1">
-                <label className="text-[10px] font-black uppercase tracking-widest text-slate-400 block">Notes</label>
-                <textarea 
-                  value={form.notes}
-                  onChange={(e) => setForm({ ...form, notes: e.target.value })}
-                  placeholder="Share details on focus areas, topic preferences, or special instructions..."
-                  className="input !w-full min-h-[100px] !rounded-[1.5rem]"
-                />
-              </div>
+                <div className="space-y-1">
+                  <label className="text-[9px] font-black uppercase tracking-wider text-slate-400">Topic focus / Notes</label>
+                  <textarea 
+                    value={form.notes}
+                    onChange={(e) => setForm({ ...form, notes: e.target.value })}
+                    placeholder="Focus domains, languages, or special notes..."
+                    className="input min-h-[80px]"
+                  />
+                </div>
 
-              <button 
-                type="submit"
-                disabled={requestMutation.isPending}
-                className="btn-primary !w-full !rounded-[1.5rem] !py-4 font-black italic mt-4"
-              >
-                {requestMutation.isPending ? 'Submitting...' : 'Submit Request'}
-              </button>
-            </form>
+                <div className="flex gap-2 justify-end pt-2">
+                  <button type="button" onClick={() => setModalOpen(false)} className="btn-secondary py-2.5 px-4 text-xs !rounded-lg">Cancel</button>
+                  <button type="submit" disabled={requestMutation.isPending} className="btn-primary py-2.5 px-5 text-xs !rounded-lg">
+                    {requestMutation.isPending ? 'Submitting...' : 'Submit Request'}
+                  </button>
+                </div>
+              </form>
+            </div>
           </div>
         </div>
       )}
@@ -755,22 +765,22 @@ export default function MockInterview() {
 }
 
 function FeedbackBox({ title, items, icon, color }) {
-  const variants = {
-    emerald: 'text-emerald-600 bg-emerald-50 border-emerald-100',
-    amber: 'text-amber-600 bg-amber-50 border-amber-100'
+  const colorMap = {
+    emerald: 'text-emerald-700 bg-emerald-50/50 border-emerald-100 dark:bg-emerald-950/10 dark:text-emerald-400 dark:border-emerald-900/30',
+    amber: 'text-amber-700 bg-amber-50/50 border-amber-100 dark:bg-amber-950/10 dark:text-amber-450 dark:border-amber-900/30'
   };
 
   return (
-    <div className={`p-5 rounded-[2rem] border ${variants[color]}`}>
-      <div className="flex items-center gap-2 mb-4">
+    <div className={`p-4 rounded-xl border ${colorMap[color]} space-y-3 flex-1`}>
+      <div className="flex items-center gap-2 border-b border-slate-100 dark:border-slate-800 pb-2">
         {icon}
-        <span className="text-[10px] font-black uppercase tracking-widest">{title}</span>
+        <span className="text-[9px] font-black uppercase tracking-wider">{title}</span>
       </div>
       <ul className="space-y-2">
         {items?.map((it, i) => (
-          <li key={i} className="flex items-start gap-2 text-xs font-semibold">
-            <ChevronRight size={14} className="mt-0.5 shrink-0" />
-            {it}
+          <li key={i} className="flex items-start gap-2 text-xs font-medium leading-relaxed">
+            <ChevronRight size={13} className="mt-0.5 shrink-0 text-slate-400" />
+            <span>{it}</span>
           </li>
         ))}
       </ul>
