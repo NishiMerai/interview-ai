@@ -159,3 +159,17 @@ export const getResume = asyncHandler(async (req, res) => {
 
   res.json({ resume });
 });
+
+export const deleteResume = asyncHandler(async (req, res) => {
+  const resume = await Resume.findOneAndDelete({
+    _id: req.params.id,
+    userId: req.user._id,
+  });
+
+  if (!resume) {
+    res.status(404);
+    throw new Error("Resume not found");
+  }
+
+  res.json({ message: "Resume deleted successfully" });
+});
