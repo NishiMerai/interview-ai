@@ -248,13 +248,13 @@ export default function ResumeAnalyzer() {
               </div>
 
               {/* Raw Debug Console */}
-              <div className="rounded-xl bg-[#0F172A] text-slate-300 p-6 border border-slate-850 shadow-lg space-y-4 font-mono">
+              <div className="bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 rounded-xl p-6 shadow-soft space-y-4 font-mono">
                 <div className="flex items-center justify-between">
-                  <h2 className="text-xs font-bold text-[#F8FAFC] tracking-wider flex items-center gap-2">
-                    <Terminal size={14} className="text-cyan-400" />
+                  <h2 className="text-xs font-bold text-slate-800 dark:text-white tracking-wider flex items-center gap-2">
+                    <Terminal size={14} className="text-primary" />
                     COMPILATION DEBUG CONSOLE v1.0
                   </h2>
-                  <span className="text-[9px] font-bold text-slate-500 uppercase">SYSTEM READY</span>
+                  <span className="text-[9px] font-bold text-slate-400 uppercase">SYSTEM READY</span>
                 </div>
 
                 <div className="grid gap-2 text-xs">
@@ -263,7 +263,7 @@ export default function ResumeAnalyzer() {
                   <DebugRow label="ATS Compatibility" value={`${latest.atsScore || 0}%`} />
                 </div>
 
-                <hr className="border-slate-800 my-4" />
+                <hr className="border-slate-100 dark:border-slate-800 my-4" />
 
                 <div className="space-y-4">
                   <DebugChips title="Required Admin Core" items={requiredSkills} />
@@ -339,10 +339,10 @@ function SkillList({ skills = [], emptyText, color }) {
 function DebugRow({ label, value }) {
   return (
     <p className="flex items-center gap-2">
-      <span className="text-slate-500 uppercase tracking-widest text-[9px] font-black mr-2 select-none w-36">
+      <span className="text-slate-400 uppercase tracking-widest text-[9px] font-bold mr-2 select-none w-36">
         {label}:
       </span>
-      <span className="text-cyan-400 font-bold">{value || "N/A"}</span>
+      <span className="text-primary font-bold">{value || "N/A"}</span>
     </p>
   );
 }
@@ -350,7 +350,7 @@ function DebugRow({ label, value }) {
 function DebugChips({ title, items = [], danger = false }) {
   return (
     <div className="space-y-1.5">
-      <p className="text-slate-500 uppercase tracking-widest text-[9px] font-black select-none">
+      <p className="text-slate-400 uppercase tracking-widest text-[9px] font-bold select-none">
         {title}:
       </p>
 
@@ -360,15 +360,15 @@ function DebugChips({ title, items = [], danger = false }) {
             <span
               key={`${item}-${index}`}
               className={`px-2 py-0.5 rounded text-[10px] font-semibold border ${danger
-                  ? "bg-rose-500/10 text-rose-300 border-rose-500/20"
-                  : "bg-slate-800 text-cyan-300 border-slate-700"
+                  ? "bg-rose-50 text-rose-650 border-rose-100 dark:bg-rose-950/20 dark:text-rose-450 dark:border-rose-900/30"
+                  : "bg-slate-50 text-slate-700 border-slate-200 dark:bg-slate-800 dark:text-slate-300 dark:border-slate-700"
                 }`}
             >
               {typeof item === "string" ? item : item?.name}
             </span>
           ))
         ) : (
-          <span className="text-slate-600 text-[10px] italic">Empty</span>
+          <span className="text-slate-500 text-[10px] italic">Empty</span>
         )}
       </div>
     </div>
